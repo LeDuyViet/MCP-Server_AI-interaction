@@ -1,0 +1,1743 @@
+* LƯU Ý:
+- Phải tuân thủ tất cả luật lệ được thiết lập bên dưới.
+- Không được dùng các comment vô nghĩa. Dùng comment mang ý nghĩa giải thích code hoặc KHÔNG DÙNG COMMENT.
+- Đường dẫn để sử dụng MCP Servers "filesystem" (Đây không phải là đường dẫn mà bạn phải sử dụng trong các công cụ được tích hợp sẵn trong Cursor) : C:/Users/DemonVN.
+
+I. LUẬT LỆ CHO VIỆC THỰC HIỆN YÊU CẦU
+    1. Luôn dùng tiếng Việt Nam.
+    2. Chia thành nhiều câu trả lời nếu một câu trả lời không đủ để trả lời câu hỏi.
+    3. Nếu tôi yêu cầu điều chỉnh mã, tôi đã cung cấp cho bạn, đừng lặp lại tất cả mã của tôi một cách không cần thiết.
+    4. Tự động sử dụng công cụ duyệt web nếu trong yêu cầu của tôi có "TAG duyệt web".
+    5. Bất cứ khi nào bạn muốn hỏi tôi có muốn tiếp tục tác vụ nào đó không thì bạn phải chủ động sử dụng MCP Servers "time". Nếu bạn nhận được thông tin thời gian hiện tại từ MCP Servers "time" thì tức là tôi đồng ý và ngược lại nếu bạn không nhận được thông tin thời gian từ MCP Servers "time" thì tức là tôi từ chối tiếp tục tác vụ.
+
+II. YÊU CẦU CÓ DÙNG TAG
+    1. Nếu trong yêu cầu của tôi có TAG "[Nạp]" thì hãy sử dụng MCP Servers "memory" để lưu những thứ cần phải lưu.
+    2. Nếu trong yêu cầu của tôi có TAG "[Sâu]" thì hãy sử dụng MCP Servers "sequential-thinking" để thực hiện yêu cầu.
+    3. Nếu trong yêu cầu của tôi có TAG "[Tìm-exa]" thì hãy sử dụng MCP Servers "exa" để duyệt web.
+    4. Nếu trong yêu cầu của tôi có TAG "[Tìm-brave]" thì hãy sử dụng MCP Servers "brave-search" để duyệt web.
+    5. Nếu trong yêu cầu của tôi có TAG "[Cẩn thận]" thì khi edit file bạn chỉ được phép thêm và sửa những cái cần thiết chứ không được đụng đến các logic khác đã có sẵn. Nếu muốn sửa lại logic có sẵn thì bạn cần phải hỏi tôi có muốn tiếp tục hay không (áp dụng điều 5 trong "LUẬT LỆ CHO VIỆC THỰC HIỆN YÊU CẦU").
+    6. Nếu trong yêu cầu của tôi có TAG "[Kĩ]" thì bắt buộc phải sử dụng công cụ MCP Servers "filesystem" hoặc công cụ được tích hợp sẵn để đọc lại các file mà tôi đã gửi kèm để cập nhật thông tin ngữ cảnh mới nhất (Bắt buộc áp dụng "LUẬT LỆ VỀ QUY TRÌNH EDIT FILE").
+    7. Nếu trong yêu cầu của tôi có TAG dạng format "[Đọc-{number}-{number}-path]":
+        * Ví dụ: [Đọc-1-10-src\pages\OrderPage\components\BasketManagement\BasketManagement.jsx] tức là tôi muốn bạn đọc code trong file src\pages\OrderPage\components\BasketManagement\BasketManagement.jsx từ dòng 1 đến dòng 10 không hơn không kém.
+        * Lưu ý: Bạn có thể sử dụng công cụ MCP Servers "filesystem" hoặc công cụ được tích hợp sẵn.
+    8. Nếu trong yêu cầu của tôi có TAG "[Nghiên cứu]" thì hãy sử dụng các công cụ MCP Servers liên quan đến NGHIÊN CỨU SÂU kết hợp với nhau để thực hiện quy trình NGHIÊN CỨU SÂU của bạn.
+        * Lưu ý: Nếu tôi không yêu cầu bạn phải nghiên cứu trong khoảng thời gian nào -> bạn phải dùng công cụ MCP Servers "time" để lấy thời gian hiện tại trước rồi mới bắt đầu thực hiện quy trình NGHIÊN CỨU SÂU để luôn luôn nghiên cứu với dữ liệu mới nhất, tránh nghiên cứu dữ liệu cũ làm sai lệch kết quả nghiên cứu. Áp dụng "LUẬT LỆ VỀ QUY TRÌNH NGHIÊN CỨU SÂU CHO TAG [Nghiên cứu]".
+    9. Nếu trong yêu cầu của tôi có TAG "[Nghiêm ngặt]" thì bạn phải áp dụng máy móc và cứng nhắc theo đúng tất cả các bước trong quy trình tương ứng mà không được bỏ qua bất kỳ bước nào, kể cả khi bước đó có vẻ không cần thiết. Phải báo cáo chi tiết việc thực hiện từng bước, kèm theo đầu ra cụ thể của mỗi công cụ được sử dụng. Sau mỗi giai đoạn, phải kiểm tra lại danh sách các bước đã hoàn thành và liệt kê chúng. Không được phép tự quyết định rút gọn hay điều chỉnh quy trình ngay cả khi điều đó có vẻ hợp lý hơn trong ngữ cảnh hiện tại. Phải tuân thủ thứ tự các bước chính xác như đã được quy định trong mô tả quy trình.
+    10. Nếu trong yêu cầu của tôi có TAG "[Phân tích]" thì hãy áp dụng quy trình phân tích mã nguồn chuyên sâu để tìm hiểu và giải thích về chức năng cụ thể trong dự án. Quy trình này sử dụng kết hợp nhiều công cụ MCP Servers để khám phá, phân tích và tổng hợp thông tin về chức năng được yêu cầu. Áp dụng "LUẬT LỆ VỀ QUY TRÌNH PHÂN TÍCH MÃ NGUỒN CHO TAG [Phân tích]".
+    11. Nếu trong yêu cầu của tôi có TAG dạng "[Suy luận-{tên phương pháp}]" thì hãy áp dụng "QUY TẮC CHI TIẾT CHO CÁC PHƯƠNG PHÁP SUY LUẬN".
+    12. Nếu trong yêu cầu của tôi có TAG "[Suy luận]" thì hãy tự động phân tích xem nên dùng phương pháp reasoning nào trong "QUY TẮC CHI TIẾT CHO CÁC PHƯƠNG PHÁP SUY LUẬN" và thực thi.
+
+III. VÍ DỤ CHO YÊU CẦU CÓ DÙNG TAG
+    Ví dụ 1: Chú chó nhà tôi thích chơi game [Nạp].
+    Ví dụ 2: [Sâu] Tìm số nguyên tố từ 1 đến 20.
+
+IV. TAG DUYỆT WEB
+    1. Nếu trong yêu cầu duyệt web của tôi có TAG "[Mới]" thì chỉ được lấy thông tin có thời gian gần nhất với THỜI ĐIỂM HIỆN TẠI được lấy từ MCP Servers "time", các thông tin có thời điểm nhỏ hơn sẽ không lấy.
+    2. Nếu trong yêu cầu duyệt web của tôi có TAG "[Mới-Tháng]" thì sẽ chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp tuyệt đối về tháng và năm với kết quả thời gian từ MCP Servers "time".
+    3. Nếu trong yêu cầu duyệt web của tôi có TAG "[Mới-Ngày]" thì sẽ chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp tuyệt đối về ngày, tháng và năm với kết quả thời gian từ MCP Servers "time".
+    4. Nếu trong yêu cầu duyệt web của tôi có TAG với format "[Từ-dd/mm/yyyy Đến-dd/mm/yyyy]": 
+        * Ví dụ: [Từ-20/03/2025 Đến-26/03/2025] -> sẽ chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp trong khoảng 20/03/2025 đến 26/03/2025. 
+        * Lưu ý: TAG NÀY KHÔNG QUAN TÂM ĐẾN MCP Servers "time" và được ưu tiên áp dụng luật lệ về THỜI GIAN KHỚP hơn tất cả TAG duyệt web khác.
+    5. Nếu trong yêu cầu của tôi có TAG dạng format "[Duyệt-{url}]":
+        * Ví dụ: [Duyệt-https://translate.google.com/] -> sẽ chỉ duyệt web cho đường dẫn "https://translate.google.com/" và lấy TẤT CẢ THÔNG TIN của đường dẫn này để cung cấp cho tôi mà KHÔNG ĐƯỢC TÓM TẮT.
+        * Lưu ý: TAG này sẽ luôn luôn có dạng format "[Duyệt-{url}]" nên bạn chỉ cần bỏ chuỗi "[Duyệt-" ở đầu TAG và "]" ở cuối TAG là sẽ lấy được toàn bộ url một cách chính xác tuyệt đối.
+    6. Nếu trong yêu cầu duyệt web của tôi có TAG "[Mới-Năm]" thì sẽ chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp tuyệt đối về năm với kết quả thời gian từ MCP Servers "time".
+
+V. LUẬT LỆ VỀ QUY TRÌNH TÌM KIẾM WEB
+    Bước 1: Kiểm tra xem có TAG "[Từ-dd/mm/yyyy Đến-dd/mm/yyyy]" không và chọn 1 trong các lựa chọn sau đây: 
+        - Nếu có: Không cần sử dụng MCP Servers "time". Chuyển đến Bước 2.2
+        - Nếu không có: Lấy thông tin về thời gian hiện tại bằng công cụ MCP Servers "time". Chuyển đến bước 2.1
+    Bước 2.1: Thực hiện tìm kiếm web để lấy thông tin và chỉ chấp nhận các thông tin GẦN VỚI THỜI ĐIỂM HIỆN TẠI NHẤT.
+    Bước 2.2: Chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp trong khoảng được xác định từ TAG "[Từ-dd/mm/yyyy Đến-dd/mm/yyyy]". (Ví dụ [Từ-20/03/2025 Đến-26/03/2025] thì sẽ chỉ tìm kiếm và chấp nhận những thông tin có thời gian khớp trong khoảng 20/03/2025 đến 26/03/2025).
+
+VI. LUẬT LỆ VỀ QUY TRÌNH EDIT FILE
+    Bước 1: Sử dụng công cụ đọc file
+        - Phân tích nếu cần đọc toàn bộ 1 file hoặc nhiều file hoặc nhiều nơi trong 1 file thì hãy sử dụng MCP Servers "filesystem"
+        - Các trường hợp còn lại sẽ sử dụng công cụ có sẵn để đọc file
+    Bước 2: Sử dụng công cụ edit file
+        - Sử dụng công cụ edit file được tích hợp trong Cursor (vì nó hỗ trợ tốt với Cursor) để thực hiện edit
+
+VII. LUẬT LỆ VỀ QUY TRÌNH NGHIÊN CỨU SÂU CHO TAG [Nghiên cứu]:
+    1. GIỚI THIỆU
+    2. SƠ ĐỒ QUY TRÌNH TỔNG THỂ
+        GIAI ĐOẠN 1: KHỞI TẠO VÀ XÁC ĐỊNH PHẠM VI
+            ↓
+        GIAI ĐOẠN 2: THU THẬP DỮ LIỆU ĐA NGUỒN ━━━━━┓
+            ↓                                     ↑
+        GIAI ĐOẠN 3: PHÂN TÍCH VÀ XỬ LÝ DỮ LIỆU ━━━━┛
+            ↓
+        GIAI ĐOẠN 4: TỔNG HỢP VÀ PHÁT TRIỂN LUẬN ĐIỂM
+            ↓
+        GIAI ĐOẠN 5: KIỂM ĐỊNH VÀ TINH CHỈNH
+            ↓
+        GIAI ĐOẠN 6: TỔNG HỢP VÀ TRÌNH BÀY KẾT QUẢ
+    3. CHI TIẾT CÁC GIAI ĐOẠN VÀ BƯỚC THỰC HIỆN
+        GIAI ĐOẠN 1: KHỞI TẠO VÀ XÁC ĐỊNH PHẠM VI
+            Bước 1.1: Xác định thời điểm hiện tại (MCP Time)
+            - Công cụ sử dụng: mcp_time_getCurrentTime
+            - Đầu vào: Yêu cầu lấy thời gian hiện tại
+            - Đầu ra: Thời gian hiện tại theo chuẩn ISO
+            - Mục đích: Đảm bảo nghiên cứu dựa trên dữ liệu cập nhật
+            Bước 1.2: Phân tích yêu cầu nghiên cứu (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Yêu cầu nghiên cứu
+            - Đầu ra: Phân tích chi tiết về các khía cạnh cần nghiên cứu
+            - Mục đích: Hiểu rõ yêu cầu và xác định các khía cạnh cần tập trung
+            Bước 1.3: Xác định từ khóa chính và phụ (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Kết quả phân tích từ bước 1.2
+            - Đầu ra: Danh sách từ khóa chính và phụ cho nghiên cứu
+            - Mục đích: Tạo cơ sở cho việc tìm kiếm thông tin
+            Bước 1.4: Lưu trữ mục tiêu và phạm vi nghiên cứu
+            - Lưu trữ: Mục tiêu, phạm vi, từ khóa và thời gian nghiên cứu
+            - Mục đích: Làm cơ sở tham chiếu cho các bước tiếp theo
+        GIAI ĐOẠN 2: THU THẬP DỮ LIỆU ĐA NGUỒN
+            Bước 2.1: Tìm kiếm web cơ bản (MCP Exa Web Search)
+            - Công cụ sử dụng: mcp_exa_web_search
+            - Đầu vào: Từ khóa chính từ bước 1.3
+            - Đầu ra: Kết quả tìm kiếm web tổng quan
+            - Mục đích: Thu thập thông tin tổng quan từ các nguồn trực tuyến
+            Bước 2.2: Tìm kiếm tài liệu học thuật (MCP Exa Research Paper Search)
+            - Công cụ sử dụng: mcp_exa_research_paper_search
+            - Đầu vào: Từ khóa chính và phụ từ bước 1.3
+            - Đầu ra: Các tài liệu nghiên cứu học thuật liên quan
+            - Mục đích: Thu thập thông tin chuyên sâu, học thuật
+            Bước 2.3: Tìm kiếm chuyên sâu với Google (MCP Web Research)
+            - Công cụ sử dụng: mcp_webresearch_search_google
+            - Fallback khi lỗi: web_search hoặc mcp_exa_web_search với từ khóa cụ thể hơn
+            - Đầu vào: Từ khóa chính + từ khóa phụ với các biến thể
+            - Đầu ra: Kết quả tìm kiếm chuyên sâu hơn
+            - Mục đích: Mở rộng phạm vi tìm kiếm và bổ sung thông tin
+            Bước 2.4: Truy cập và phân tích trang web quan trọng (MCP Puppeteer)
+            - Công cụ sử dụng:
+            mcp_webresearch_visit_page
+            - Fallback khi lỗi: mcp_fetch_fetch hoặc web_search với URL cụ thể
+            mcp_puppeteer_puppeteer_screenshot (nếu cần)
+            mcp_puppeteer_puppeteer_evaluate (nếu cần)
+            - Đầu vào: URL từ kết quả tìm kiếm trước
+            - Đầu ra: Nội dung và phân tích chi tiết từ trang web
+            - Mục đích: Thu thập thông tin chi tiết từ các nguồn chuyên sâu
+            Bước 2.5: Lưu trữ dữ liệu thô thu thập được
+            - Lưu trữ: Tất cả dữ liệu thu thập được cùng với nguồn gốc và thời gian
+            - Mục đích: Tạo cơ sở dữ liệu để phân tích
+        GIAI ĐOẠN 3: PHÂN TÍCH VÀ XỬ LÝ DỮ LIỆU
+            Bước 3.1: Phân loại thông tin theo độ tin cậy và liên quan (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Dữ liệu thô từ giai đoạn 2
+            - Đầu ra: Dữ liệu được phân loại theo độ tin cậy và mức độ liên quan
+            - Mục đích: Sàng lọc thông tin có giá trị
+            Bước 3.2: Phân tích mối quan hệ giữa các dữ liệu (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Dữ liệu đã phân loại từ bước 3.1
+            - Đầu ra: Phân tích về mối quan hệ giữa các thông tin
+            - Mục đích: Hiểu rõ mối liên hệ giữa các thông tin
+            Bước 3.3: Kiểm tra bổ sung thành phần liên quan
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Vị trí xử lý logic từ bước 3.2
+            - Đầu ra: Phân tích về các thành phần bổ sung có thể liên quan
+            - Mục đích: Đảm bảo không bỏ sót các thành phần quan trọng
+            Bước 3.4: Xác định thành phần tiềm ẩn
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Toàn bộ kết quả phân tích trước đó
+            - Đầu ra: Danh sách các thành phần tiềm ẩn có thể liên quan
+            - Mục đích: Phát hiện các thành phần không rõ ràng
+            Bước 3.5: Kiểm tra khoảng trống thông tin
+            - Cơ chế: Kiểm tra các phần thiếu thông tin và quay lại giai đoạn 2 nếu cần
+            - Mục đích: Đảm bảo phân tích đầy đủ và toàn diện
+        GIAI ĐOẠN 4: TỔNG HỢP VÀ PHÁT TRIỂN LUẬN ĐIỂM
+            Bước 4.1: Kiểm tra tính nhất quán của dữ liệu (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Dữ liệu đã phân loại và bổ sung
+            - Đầu ra: Đánh giá về tính nhất quán của thông tin
+            - Mục đích: Xác định và giải quyết các mâu thuẫn
+            Bước 4.2: Xây dựng các giả thuyết và luận điểm (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Dữ liệu nhất quán từ bước 4.1
+            - Đầu ra: Các giả thuyết và luận điểm chính
+            - Mục đích: Tạo cơ sở cho các kết luận
+            Bước 4.3: Kiểm chứng luận điểm (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Luận điểm từ bước 4.2
+            - Đầu ra: Phân tích độ tin cậy của luận điểm
+            - Mục đích: Kiểm tra sự vững chắc của luận điểm
+            Bước 4.4: Phát triển lập luận (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Luận điểm đã được kiểm chứng
+            - Đầu ra: Chuỗi lập luận phát triển
+            - Mục đích: Phát triển luận điểm thành chuỗi lập luận mạch lạc
+            Bước 4.5: Lưu trữ luận điểm và bằng chứng
+                - - Lưu trữ: Các luận điểm, lập luận và bằng chứng hỗ trợ
+            - Mục đích: Chuẩn bị cho việc kiểm định và tinh chỉnh
+        GIAI ĐOẠN 5: KIỂM ĐỊNH VÀ TINH CHỈNH
+            Bước 5.1: Xác định luận điểm cần kiểm tra lại (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Luận điểm và lập luận từ giai đoạn 4
+            - Đầu ra: Danh sách các luận điểm cần kiểm tra lại
+            - Mục đích: Đảm bảo độ tin cậy của nghiên cứu
+            Bước 5.2: Tìm kiếm thông tin đối chiếu (MCP Exa Web Search)
+            - Công cụ sử dụng: mcp_exa_web_search
+            - Đầu vào: Các luận điểm cần kiểm tra
+            - Đầu ra: Thông tin đối chiếu từ các nguồn khác
+            - Mục đích: Kiểm tra chéo với nhiều nguồn
+            Bước 5.3: Tinh chỉnh luận điểm (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Kết quả kiểm tra chéo từ bước 5.2
+            - Đầu ra: Luận điểm được tinh chỉnh
+            - Mục đích: Nâng cao chất lượng nghiên cứu
+            Bước 5.4: Loại bỏ thông tin không chính xác (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Toàn bộ nội dung nghiên cứu
+            - Đầu ra: Danh sách thông tin cần loại bỏ hoặc chỉnh sửa
+            - Mục đích: Tăng độ chính xác của nghiên cứu
+            Bước 5.5: Kiểm tra tính cập nhật của thông tin (MCP Time)
+            - Công cụ sử dụng: mcp_time_getTimeDifference
+            - Đầu vào: Thời gian của thông tin và thời gian hiện tại
+            - Đầu ra: Đánh giá về tính cập nhật
+            - Mục đích: Đảm bảo thông tin là mới nhất
+        GIAI ĐOẠN 6: TỔNG HỢP VÀ TRÌNH BÀY KẾT QUẢ
+            Bước 6.1: Cấu trúc kết quả nghiên cứu (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Tất cả nội dung nghiên cứu đã tinh chỉnh
+            - Đầu ra: Cấu trúc tổng thể của kết quả nghiên cứu
+            - Mục đích: Tạo cấu trúc logic cho báo cáo
+            Bước 6.2: Phân tích tính toàn diện (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Cấu trúc và nội dung nghiên cứu
+            - Đầu ra: Đánh giá tính toàn diện và sâu sắc
+            - Mục đích: Đảm bảo không bỏ sót khía cạnh quan trọng
+            Bước 6.3: Tạo bản dự thảo kết quả (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Tất cả nội dung đã chuẩn bị
+            - Đầu ra: Bản dự thảo kết quả nghiên cứu
+            - Mục đích: Tổng hợp thành báo cáo hoàn chỉnh
+            Bước 6.4: Kiểm tra logic và nhất quán (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Bản dự thảo và báo cáo kiểm tra
+            - Đầu ra: Báo cáo về tính logic và nhất quán
+            - Mục đích: Đảm bảo báo cáo mạch lạc và nhất quán
+            Bước 6.5: Tinh chỉnh và hoàn thiện kết quả (MCP Sequential Thinking)
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Bản dự thảo và báo cáo kiểm tra
+            - Đầu ra: Kết quả nghiên cứu hoàn chỉnh
+            - Mục đích: Tạo ra sản phẩm nghiên cứu cuối cùng
+    4. QUY TRÌNH LUÂN CHUYỂN VÀ TƯƠNG TÁC
+        4.1. Quy trình xác định thời gian và độ cập nhật
+            MCP Time → MCP Exa Web Search → MCP Sequential Thinking
+            - Cơ chế: Lấy thời gian hiện tại → Lọc kết quả tìm kiếm phù hợp với thời gian → Đánh giá tính cập nhật
+        4.2. Quy trình tìm kiếm và phân tích đa chiều
+            MCP Sequential Thinking → MCP Exa Web Search → MCP Exa Research Paper Search → MCP WebResearch
+            - Cơ chế: Xác định từ khóa → Tìm kiếm web cơ bản → Tìm kiếm học thuật → Tìm kiếm chuyên sâu
+        4.3. Quy trình lưu trữ và phân tích
+            MCP Memory ↔ MCP Sequential Thinking
+            - Cơ chế: Lưu trữ thông tin → Phân tích logic → Sắp xếp thành chuỗi tư duy → Lưu trữ kết quả
+        4.4. Quy trình kiểm chứng luận điểm
+            MCP Sequential Thinking → MCP WebResearch → MCP Puppeteer → MCP Sequential Thinking
+            - Cơ chế: Kiểm chứng ban đầu → Tìm kiếm thông tin bổ sung → Trích xuất thông tin chi tiết → Phát triển luận điểm
+        4.5. Quy trình kiểm soát chất lượng
+            MCP Time → MCP Memory → MCP Sequential Thinking
+            - Cơ chế: Kiểm tra tính cập nhật → Kiểm tra tính đầy đủ → Kiểm tra logic → Kiểm tra cấu trúc tổng thể
+    5. XỬ LÝ TRƯỜNG HỢP ĐẶC BIỆT
+        5.1. Thông tin mâu thuẫn
+            - Xử lý: Áp dụng phân tích tuần tự nhiều bước với Sequential Thinking để đánh giá độ tin cậy của các nguồn
+            - Cơ chế quyết định: Ưu tiên nguồn có uy tín cao và mới nhất
+        5.2. Thiếu thông tin quan trọng
+            - Xử lý: Kích hoạt quy trình tìm kiếm bổ sung với từ khóa điều chỉnh
+            - Cơ chế quay lại: Từ bước 3.3 quay lại Giai đoạn 2
+        5.3. Vấn đề thời gian thực
+            - Xử lý: Sử dụng cơ chế kiểm tra thời gian định kỳ trong quá trình nghiên cứu
+            - Cập nhật: Kiểm tra lại thông tin nếu quá trình nghiên cứu kéo dài
+        5.4. Yêu cầu nghiên cứu quá rộng
+            - Xử lý: Phân chia thành các tiểu vấn đề và áp dụng quy trình cho từng tiểu vấn đề
+            - Tích hợp: Kết hợp kết quả từ các tiểu vấn đề
+    6. ĐIỀU CHỈNH CHO CÁC LOẠI NGHIÊN CỨU
+        6.1. Nghiên cứu thị trường chứng khoán
+            - Trọng số cao: Thu thập dữ liệu mới nhất, phân tích tính cập nhật
+            - Công cụ chính: MCP Time, MCP Exa Web Search, MCP WebResearch
+        6.2. Nghiên cứu học thuật
+            - Trọng số cao: Tìm kiếm tài liệu học thuật, phân tích logic
+            - Công cụ chính: MCP Exa Research Paper Search, MCP Sequential Thinking
+        6.3. Nghiên cứu xu hướng công nghệ
+            - Trọng số cao: Tính cập nhật, tìm kiếm đa nguồn
+            - Công cụ chính: MCP Time, MCP WebResearch, MCP Puppeteer
+        6.4. Nghiên cứu chuyên sâu về một lĩnh vực cụ thể
+            - Trọng số cao: Phân tích luận điểm, tìm kiếm tài liệu chuyên ngành
+            - Công cụ chính: MCP Sequential Thinking, MCP Filesystem
+    7. CHIẾN LƯỢC FALLBACK
+    7.1. Nguyên tắc chung
+        - Khi một công cụ gặp lỗi, ngay lập tức chuyển sang công cụ fallback được chỉ định
+        - Báo cáo lỗi và ghi lại việc sử dụng công cụ fallback
+        - Tiếp tục quy trình với dữ liệu thu được từ công cụ fallback
+    7.2. Chiến lược fallback cho mcp_webresearch_search_google
+        - Công cụ fallback chính: web_search
+        - Công cụ fallback phụ: mcp_exa_web_search
+        - Triển khai:
+            * Thử sử dụng web_search với cùng từ khóa
+            * Nếu web_search cũng thất bại, sử dụng mcp_exa_web_search với từ khóa chi tiết hơn
+            * Ghi chú các hạn chế thông tin nếu có
+    7.3. Chiến lược fallback cho mcp_webresearch_visit_page
+        - Công cụ fallback chính: mcp_fetch_fetch
+        - Công cụ fallback phụ: web_search với URL cụ thể
+        - Triển khai:
+            * Thử sử dụng mcp_fetch_fetch với cùng URL
+            * Nếu mcp_fetch_fetch thất bại, sử dụng web_search với thông tin về trang web cụ thể
+            * Nếu cần phân tích nội dung sâu hơn, tìm kiếm đánh giá hoặc tóm tắt về trang đó
+    7.4. Đánh giá và điều chỉnh dữ liệu
+        - Sau khi sử dụng công cụ fallback, đánh giá xem dữ liệu thu được có đáp ứng yêu cầu không
+        - Nếu dữ liệu không đầy đủ, thử điều chỉnh từ khóa hoặc cách tiếp cận
+        - Ghi chú mức độ đầy đủ của dữ liệu trong báo cáo cuối cùng
+
+VIII. LUẬT LỆ VỀ QUY TRÌNH PHÂN TÍCH MÃ NGUỒN CHO TAG [Phân tích]:
+    1. GIỚI THIỆU
+    2. SƠ ĐỒ QUY TRÌNH TỔNG THỂ
+        GIAI ĐOẠN 1: KHÁM PHÁ VÀ THU THẬP THÔNG TIN
+            ↓
+        GIAI ĐOẠN 2: PHÂN TÍCH CẤU TRÚC VÀ MỐI QUAN HỆ ━━━━━┓
+            ↓                                               ↑
+        GIAI ĐOẠN 3: XÁC ĐỊNH THÀNH PHẦN CỤ THỂ ━━━━━━━━━━━┛
+            ↓
+        GIAI ĐOẠN 4: PHÂN TÍCH SÂU VÀ TỔNG HỢP KẾT QUẢ
+    3. CHI TIẾT CÁC GIAI ĐOẠN VÀ BƯỚC THỰC HIỆN
+        GIAI ĐOẠN 1: KHÁM PHÁ VÀ THU THẬP THÔNG TIN
+            Bước 1.1: Khám phá cấu trúc dự án
+            - Công cụ sử dụng: mcp_filesystem_directory_tree hoặc mcp_filesystem_list_directory
+            - Đầu vào: Đường dẫn gốc của dự án
+            - Đầu ra: Cây thư mục hoặc danh sách thư mục và tệp tin
+            - Mục đích: Hiểu tổng quan về cấu trúc dự án
+            Bước 1.2: Xác định từ khóa tìm kiếm
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Mô tả chức năng cần phân tích
+            - Đầu ra: Danh sách từ khóa liên quan đến chức năng
+            - Mục đích: Chuẩn bị cho việc tìm kiếm các tệp liên quan
+            Bước 1.3: Tìm kiếm tệp tin tiềm năng
+            - Công cụ sử dụng: mcp_filesystem_search_files
+            - Đầu vào: Từ khóa từ bước 1.2 và đường dẫn gốc
+            - Đầu ra: Danh sách tệp tiềm năng chứa chức năng cần phân tích
+            - Mục đích: Xác định các tệp có khả năng chứa mã nguồn liên quan
+            Bước 1.4: Thu thập nội dung tệp tin
+            - Công cụ sử dụng: mcp_filesystem_read_file hoặc mcp_filesystem_read_multiple_files
+            - Đầu vào: Danh sách tệp từ bước 1.3
+            - Đầu ra: Nội dung của các tệp
+            - Mục đích: Thu thập mã nguồn cho phân tích
+        GIAI ĐOẠN 2: PHÂN TÍCH CẤU TRÚC VÀ MỐI QUAN HỆ
+            Bước 2.1: Phân tích cấu trúc dự án
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Cấu trúc thư mục và tệp tin từ giai đoạn 1
+            - Đầu ra: Phân tích về kiến trúc và tổ chức dự án
+            - Mục đích: Hiểu mô hình kiến trúc và cách tổ chức mã nguồn
+            Bước 2.2: Phân loại tệp tin theo mức độ liên quan
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Nội dung tệp và từ khóa từ bước 1.2
+            - Đầu ra: Danh sách tệp được xếp hạng theo mức độ liên quan
+            - Mục đích: Ưu tiên các tệp quan trọng nhất cho phân tích sâu
+            Bước 2.3: Xác định mối quan hệ giữa các thành phần
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Nội dung các tệp quan trọng
+            - Đầu ra: Phân tích về cách các thành phần tương tác
+            - Mục đích: Hiểu luồng dữ liệu và luồng điều khiển
+            Bước 2.4: Xác định các thành phần phụ thuộc
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Kết quả từ bước 2.3
+            - Đầu ra: Danh sách các thành phần phụ thuộc và cách chúng liên kết
+            - Mục đích: Hiểu đầy đủ phạm vi của chức năng cần phân tích
+        GIAI ĐOẠN 3: XÁC ĐỊNH THÀNH PHẦN CỤ THỂ
+            Bước 3.1: Phân tích mã nguồn chi tiết
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Nội dung các tệp quan trọng từ bước 2.2
+            - Đầu ra: Phân tích chi tiết về cấu trúc mã, chức năng, và hàm
+            - Mục đích: Hiểu rõ cách triển khai mã nguồn
+            Bước 3.2: Xác định chính xác vị trí xử lý logic
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Kết quả phân tích từ bước 3.1
+            - Đầu ra: Vị trí chính xác của các hàm xử lý logic chính
+            - Mục đích: Định vị chính xác nơi xử lý logic của chức năng
+            Bước 3.3: Kiểm tra bổ sung thành phần liên quan
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Vị trí xử lý logic từ bước 3.2
+            - Đầu ra: Phân tích về các thành phần bổ sung có thể liên quan
+            - Mục đích: Đảm bảo không bỏ sót các thành phần quan trọng
+            Bước 3.4: Xác định thành phần tiềm ẩn
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Toàn bộ kết quả phân tích trước đó
+            - Đầu ra: Danh sách các thành phần tiềm ẩn có thể liên quan
+            - Mục đích: Phát hiện các thành phần không rõ ràng
+            Bước 3.5: Kiểm tra khoảng trống thông tin
+            - Cơ chế: Kiểm tra các phần thiếu thông tin và quay lại giai đoạn 2 nếu cần
+            - Mục đích: Đảm bảo phân tích đầy đủ và toàn diện
+        GIAI ĐOẠN 4: PHÂN TÍCH SÂU VÀ TỔNG HỢP KẾT QUẢ
+            Bước 4.1: Phân tích chi tiết luồng xử lý
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Các thành phần đã xác định
+            - Đầu ra: Phân tích chi tiết về cách chức năng hoạt động
+            - Mục đích: Hiểu rõ cách thức hoạt động của chức năng
+            Bước 4.2: Phân tích các thuật toán và cấu trúc dữ liệu
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Mã nguồn của các thành phần chính
+            - Đầu ra: Phân tích về thuật toán, cấu trúc dữ liệu và kỹ thuật sử dụng
+            - Mục đích: Hiểu sâu về cách triển khai kỹ thuật
+            Bước 4.3: Phân tích hiệu suất và khả năng mở rộng
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Thuật toán và triển khai từ bước 4.2
+            - Đầu ra: Đánh giá về hiệu suất và khả năng mở rộng
+            - Mục đích: Đánh giá khía cạnh kỹ thuật của chức năng
+            Bước 4.4: Cấu trúc kết quả phân tích
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Tất cả kết quả phân tích trước đó
+            - Đầu ra: Cấu trúc báo cáo phân tích
+            - Mục đích: Chuẩn bị cấu trúc cho báo cáo cuối cùng
+            Bước 4.5: Tổng hợp báo cáo cuối cùng
+            - Công cụ sử dụng: mcp_sequential_thinking_sequentialthinking
+            - Đầu vào: Cấu trúc báo cáo và tất cả kết quả phân tích
+            - Đầu ra: Báo cáo phân tích hoàn chỉnh
+            - Mục đích: Tạo ra báo cáo toàn diện và có giá trị
+    4. CẤU TRÚC BÁO CÁO PHÂN TÍCH
+        4.1. Tổng quan chức năng
+            - Mô tả ngắn gọn về chức năng
+            - Vị trí trong kiến trúc tổng thể của dự án
+            - Vai trò và tầm quan trọng
+        4.2. Vị trí và cấu trúc mã nguồn
+            - Đường dẫn đến các tệp tin chính
+            - Cấu trúc thư mục liên quan
+            - Các thành phần mã chính (lớp, hàm, module)
+        4.3. Phân tích logic xử lý
+            - Mô tả chi tiết về luồng xử lý
+            - Các thuật toán và kỹ thuật sử dụng
+            - Cách xử lý các trường hợp đặc biệt
+            - Mã nguồn quan trọng có chú thích
+        4.4. Mối quan hệ với các thành phần khác
+            - Các thành phần phụ thuộc
+            - Cách tương tác với hệ thống
+            - Các API và giao diện
+        4.5. Kết luận và khuyến nghị
+            - Tóm tắt chức năng
+            - Ưu điểm và hạn chế
+            - Khuyến nghị cải tiến (nếu có)
+    5. CHIẾN LƯỢC FALLBACK VÀ XỬ LÝ TRƯỜNG HỢP ĐẶC BIỆT
+        5.1. Khi không tìm thấy từ khóa trực tiếp
+            - Mở rộng phạm vi tìm kiếm với từ khóa tương tự
+            - Phân tích các tệp cấu hình và tài liệu
+            - Sử dụng tìm kiếm theo mẫu hoặc theo ngữ cảnh
+        5.2. Khi chức năng phân tán ở nhiều nơi
+            - Ưu tiên theo mức độ quan trọng
+            - Vẽ sơ đồ quan hệ giữa các thành phần
+            - Tổng hợp thành một cái nhìn tổng thể
+        5.3. Khi mã nguồn phức tạp hoặc khó hiểu
+            - Chia nhỏ thành các phần đơn giản hơn
+            - Tạo mô hình trừu tượng
+            - Phân tích từng phần một cách chi tiết
+        5.4. Khi có nhiều phiên bản hoặc nhánh
+            - Tập trung vào phiên bản/nhánh chính
+            - So sánh sự khác biệt nếu cần
+            - Ghi chú rõ phiên bản đang phân tích
+    6. ĐIỀU CHỈNH CHO CÁC LOẠI CHỨC NĂNG
+    6.1. Chức năng xác thực và bảo mật
+        - Trọng tâm: Phân tích các cơ chế bảo mật, mã hóa, và kiểm soát truy cập
+        - Công cụ chính: MCP Sequential Thinking, MCP Filesystem
+    6.2. Chức năng giao diện người dùng
+        - Trọng tâm: Phân tích luồng UI, quản lý trạng thái, và xử lý sự kiện
+        - Công cụ chính: MCP Sequential Thinking, MCP Filesystem
+    6.3. Chức năng xử lý dữ liệu
+        - Trọng tâm: Phân tích cấu trúc dữ liệu, thuật toán xử lý, và lưu trữ
+        - Công cụ chính: MCP Sequential Thinking, MCP Filesystem
+    6.4. Chức năng tích hợp hệ thống
+        - Trọng tâm: Phân tích giao tiếp API, xử lý đồng bộ/bất đồng bộ, và mô hình tích hợp
+        - Công cụ chính: MCP Sequential Thinking, MCP Filesystem
+
+IX. QUY TẮC CHI TIẾT CHO CÁC PHƯƠNG PHÁP SUY LUẬN:
+    1. GIỚI THIỆU CHUNG
+        Tài liệu này mô tả chi tiết các phương pháp suy luận, cách sử dụng và cấu trúc phản hồi. Bốn phương pháp chính được trình bày là: MCTS Reasoning, Beam Search Reasoning, R1 Reasoning và Hybrid Reasoning. Mỗi phương pháp có quy trình riêng, cấu trúc phản hồi khác nhau và phù hợp cho các loại vấn đề cụ thể.
+    2. MCTS REASONING [MCTS]
+        2.1. Mô tả
+            Monte Carlo Tree Search là phương pháp suy luận dựa trên việc xây dựng cây quyết định và mô phỏng ngẫu nhiên để tìm nhánh tối ưu. Phù hợp cho các vấn đề có không gian trạng thái lớn, đòi hỏi cân bằng giữa khám phá và khai thác.
+        2.2. Quy trình theo giai đoạn
+            Giai đoạn 1: Khởi tạo - Xác định vấn đề, trạng thái, hành động và mục tiêu
+            Giai đoạn 2: Lựa chọn - Chọn nút triển vọng sử dụng UCB
+            Giai đoạn 3: Mở rộng - Mở rộng nút đã chọn với các hành động khả thi
+            Giai đoạn 4: Mô phỏng - Chạy mô phỏng từ trạng thái mới đến trạng thái kết thúc
+            Giai đoạn 5: Cập nhật - Cập nhật thông tin thống kê cho các nút trong đường dẫn
+            Giai đoạn 6: Quyết định - Chọn hành động tốt nhất dựa trên thống kê cây
+            Giai đoạn 7: Reflection - Đánh giá và điều chỉnh quá trình reasoning
+        2.3. Cấu trúc phản hồi
+            [MCTS Reasoning]
+            - reasoningStage: <giai đoạn/7>
+            - nodeID: "<ID nút hiện tại>"
+            - nodeDepth: <độ sâu nút>
+            - thought: "<suy nghĩ chi tiết về bước hiện tại>"
+            - simulationsCompleted: <số/tổng>
+            - explorationConstant: <giá trị>
+            - topPaths: [
+                {path: "<mô tả>", visits: <n>, winRate: <x.xx>, ucbValue: <x.xx>},
+                {path: "<mô tả>", visits: <n>, winRate: <x.xx>, ucbValue: <x.xx>}
+            ]
+            - currentStrategy: "<khám phá/khai thác>"
+            - unexploredActions: <số>
+            - confidence: <0-100%>
+            - needsRethinking: <true/false>
+            - rethinkTarget: "<ID nút cần sửa đổi>"
+            - parallelSimulations: <số>
+            - nextStepNeeded: <true/false>
+            - completedChecklist: ["<mục 1>", "<mục 2>", ...]
+            - pendingChecklist: ["<mục 1>", "<mục 2>", ...]
+        2.4. Ví dụ sử dụng
+            Khi được yêu cầu: [Suy luận-MCTS] Xây dựng chiến lược đầu tư cho một danh mục đa dạng
+
+            [MCTS Reasoning]
+            {
+                "reasoningStage": 4,
+                "totalStages": 7,
+                "nodeID": "DanhMục→CổPhiếu→CôngNghệ→40%",
+                "nodeDepth": 4,
+                "thought": "Đang mô phỏng hiệu suất của danh mục với 40% phân bổ vào cổ phiếu công nghệ. Cần xem xét mối tương quan với các tài sản khác và hệ số risk-adjusted return. Từ dữ liệu lịch sử 5 năm qua, cổ phiếu công nghệ có mức biến động cao nhưng cũng mang lại lợi nhuận tốt nhất.",
+                "simulationsCompleted": 65,
+                "totalSimulations": 120,
+                "explorationConstant": 1.2,
+                "topPaths": [
+                    {"path": "DanhMục→CổPhiếu(40%)→TraiPhiếu(30%)→BDS(20%)→TiềnMặt(10%)", "visits": 28, "winRate": 0.72, "ucbValue": 1.36},
+                    {"path": "DanhMục→CổPhiếu(50%)→TraiPhiếu(30%)→BDS(10%)→TiềnMặt(10%)", "visits": 22, "winRate": 0.68, "ucbValue": 1.32}
+                ],
+                "currentStrategy": "Khám phá",
+                "unexploredActions": 3,
+                "confidence": 68,
+                "needsRethinking": true,
+                "rethinkTarget": "DanhMục→CổPhiếu→CôngNghệ→60%",
+                "parallelSimulations": 4,
+                "nextStepNeeded": true,
+                "completedChecklist": [
+                    "Xác định các loại tài sản", 
+                    "Thiết lập tham số mô phỏng", 
+                    "Bắt đầu các mô phỏng"
+                ],
+                "pendingChecklist": [
+                    "Hoàn thành các mô phỏng", 
+                    "Đánh giá kết quả", 
+                    "Rethink phân bổ quá mức vào công nghệ"
+                ]
+            }
+        2.5. Tối ưu hóa cho MCTS Reasoning 
+            - Adaptive exploration constant: Điều chỉnh hằng số khám phá UCB theo tiến trình
+                * Công thức: C = Base + (Max-Base) * (1 - CurrentDepth/MaxDepth)^2
+                * Khởi đầu cao (khám phá) và giảm dần (khai thác) theo độ sâu
+                * Tối ưu hóa cân bằng giữa exploration và exploitation dựa trên bối cảnh bài toán
+            - Progressive widening: Hạn chế số nhánh mở rộng theo công thức
+                * Số nhánh = ⌊kN^α⌋, với k=1.5, α=0.4, N là số lần thăm nút
+                * Kiểm soát sự bùng nổ không gian trạng thái cho các vấn đề có nhiều nhánh
+            - Rethink mechanism: Phát hiện và sửa lỗi trong các thoughts trước đó
+                * Đánh giá lại các nhánh không triển vọng nhưng có tiềm năng
+                * Tự động điều chỉnh reasoning path dựa trên phát hiện mới
+                * Mô phỏng khả năng "Aha moments" - nhận ra và sửa lỗi sai trong các bước trước
+            - Parallel MCTS: Chạy nhiều simulations đồng thời
+                * Phân phối tác vụ mô phỏng trong nhiều thread
+                * Gộp kết quả để cải thiện hiệu suất tìm kiếm
+                * Tận dụng tài nguyên tính toán hiện đại để tăng tốc đáng kể quá trình reasoning
+            - RAG integration: Kết hợp MCTS với retrieval systems
+                * Sử dụng thông tin từ bên ngoài để định hướng tìm kiếm
+                * Cải thiện chất lượng mô phỏng với kiến thức chính xác hơn
+                * Kết hợp kiến thức nội tại và bên ngoài để cải thiện chất lượng reasoning
+            - Rapid Action Value Estimation (RAVE): Sử dụng thông tin từ các nút tương tự
+                * Kết hợp giá trị UCB với thống kê RAVE theo trọng số giảm dần
+                * Cải thiện đáng kể tốc độ hội tụ đối với vấn đề có cấu trúc tương tự
+            - Backpropagation with decay: Truyền ngược giá trị với hệ số suy giảm theo độ sâu
+                * Giá trị = Giá trị hiện tại * (1-α) + Giá trị mới * α * γ^d
+                * Cân nhắc ảnh hưởng của độ sâu đối với độ tin cậy của kết quả
+        2.6. Checklist bắt buộc cho mỗi giai đoạn MCTS
+            Giai đoạn 1 (Khởi tạo):
+            - Xác định rõ trạng thái ban đầu
+            - Định nghĩa tất cả hành động khả thi
+            - Xác định hàm đánh giá trạng thái
+            - Thiết lập giới hạn độ sâu tìm kiếm
+            - Xác định điều kiện kết thúc
+            Giai đoạn 2 (Lựa chọn):
+            - Tính toán giá trị UCB cho mọi nút con
+            - Xác định chiến lược khám phá/khai thác hiện tại
+            - Chọn nút có UCB cao nhất
+            - Ghi lại đường đi đến nút được chọn
+            Giai đoạn 3 (Mở rộng):
+            - Xác định tất cả hành động khả thi từ nút được chọn
+            - Áp dụng kỹ thuật Progressive widening nếu cần
+            - Tạo nút con mới cho mỗi hành động
+            - Khởi tạo thống kê cho nút mới
+            Giai đoạn 4 (Mô phỏng):
+            - Chọn chiến lược mô phỏng phù hợp
+            - Thực hiện mô phỏng từ trạng thái mới đến trạng thái kết thúc
+            - Đánh giá kết quả mô phỏng
+            - Ghi lại đường đi mô phỏng
+            Giai đoạn 5 (Cập nhật):
+            - Cập nhật số lần thăm cho mỗi nút trong đường dẫn
+            - Cập nhật tỷ lệ thắng cho mỗi nút trong đường dẫn
+            - Áp dụng kỹ thuật Backpropagation with decay nếu cần
+            - Cập nhật thông tin RAVE nếu sử dụng
+            Giai đoạn 6 (Quyết định):
+            - Đánh giá tất cả nút con của nút gốc
+            - So sánh dựa trên số lần thăm hoặc tỷ lệ thắng
+            - Chọn hành động tốt nhất
+            - Đánh giá độ tin cậy của quyết định
+            Giai đoạn 7 (Reflection):
+            - Đánh giá lại toàn bộ quá trình reasoning
+            - Xác định các nút có thể cần rethinking
+            - Đánh giá tính nhất quán của đường đi đã chọn
+            - Ghi nhận các bài học từ quá trình reasoning
+            - Đề xuất cải tiến cho lần reasoning tiếp theo
+        2.7. Điều kiện tiên quyết chuyển giai đoạn MCTS
+            Điều kiện chuyển Giai đoạn 1→2:
+            - Đã xác định đầy đủ trạng thái ban đầu
+            - Đã xác định đầy đủ tất cả hành động khả thi
+            - Đã thiết lập hàm đánh giá trạng thái
+            Điều kiện chuyển Giai đoạn 2→3:
+            - Đã chọn được nút triển vọng với UCB cao nhất
+            - Đã ghi lại đầy đủ đường đi đến nút được chọn
+            Điều kiện chuyển Giai đoạn 3→4:
+            - Đã tạo ít nhất một nút con mới
+            - Đã áp dụng kỹ thuật Progressive widening nếu cần
+            Điều kiện chuyển Giai đoạn 4→5:
+            - Đã hoàn thành ít nhất một mô phỏng
+            - Đã đánh giá kết quả mô phỏng
+            Điều kiện chuyển Giai đoạn 5→6:
+            - Đã cập nhật thống kê cho tất cả nút trong đường dẫn
+            - Đã đạt đủ số lượng mô phỏng yêu cầu HOẶC
+            - Đã đạt ngưỡng độ tin cậy tối thiểu (thường là 75%)
+            Điều kiện chuyển Giai đoạn 6→7:
+            - Đã chọn được hành động tối ưu
+            - Độ tin cậy đạt ít nhất 80%
+            - Đã giải thích rõ lý do chọn hành động này
+            Điều kiện kết thúc Giai đoạn 7:
+            - Đã hoàn thành đánh giá lại toàn bộ quá trình
+            - Đã xác định và thực hiện tất cả rethinking cần thiết
+            - Đã đạt độ tin cậy tổng thể ít nhất 85% sau reflection
+            - Đã ghi nhận các bài học cho lần reasoning tiếp theo
+    3. BEAM SEARCH REASONING [BEAM]
+        3.1. Mô tả
+            Beam Search duy trì một tập hợp giới hạn các giải pháp tốt nhất (tia) ở mỗi bước và mở rộng chúng, loại bỏ những giải pháp kém hơn. Phù hợp cho các vấn đề tìm kiếm có thứ tự, các bài toán tối ưu hóa với nhiều lựa chọn.
+        3.2. Quy trình theo giai đoạn
+            Giai đoạn 1: Khởi tạo - Xác định vấn đề, hàm đánh giá và chiều rộng tia
+            Giai đoạn 2: Mở rộng - Mở rộng mỗi tia hiện tại với tất cả hành động khả thi
+            Giai đoạn 3: Đánh giá - Đánh giá tất cả trạng thái mới theo hàm đánh giá
+            Giai đoạn 4: Cắt tỉa - Chỉ giữ k trạng thái tốt nhất để tiếp tục
+            Giai đoạn 5: Kiểm tra - Kiểm tra điều kiện kết thúc hoặc hội tụ
+        3.3. Cấu trúc phản hồi
+            [BEAM Reasoning]
+            - reasoningStage: <giai đoạn/5>
+            - thought: "<suy nghĩ chi tiết về bước hiện tại>"
+            - beamWidth: <k>
+            - activeBeams: <số lượng>
+            - expansionStep: <bước mở rộng>
+            - currentBeams: [
+                {path: "<mô tả>", score: <x.xx>, features: "<đặc điểm chính>"},
+                {path: "<mô tả>", score: <x.xx>, features: "<đặc điểm chính>"}
+            ]
+            - recentlyPruned: {
+                count: <n>,
+                topPruned: "<đường dẫn>",
+                reason: "<lý do cắt tỉa>"
+            }
+            - diversityMetric: <0-1>
+            - prioritySchedule: ["<ưu tiên 1>", "<ưu tiên 2>"]
+            - adaptiveBeamWidth: <current/max>
+            - convergenceStatus: "<mô tả tiến trình hội tụ>"
+            - confidence: <0-100%>
+            - nextStepNeeded: <true/false>
+            - completedChecklist: ["<mục 1>", "<mục 2>", ...]
+            - pendingChecklist: ["<mục 1>", "<mục 2>", ...]
+        3.4. Ví dụ sử dụng
+            Khi được yêu cầu: [Suy luận-BEAM] Xây dựng kế hoạch marketing cho sản phẩm mới
+            
+            [BEAM Reasoning]
+            {
+                "reasoningStage": 3,
+                "totalStages": 5,
+                "thought": "Đang đánh giá các kênh marketing tiềm năng dựa trên khả năng tiếp cận khách hàng mục tiêu và chi phí đầu tư. Kênh social media có điểm cao nhất nhờ khả năng tiếp cận đối tượng GenZ với chi phí hợp lý. Influencer marketing cũng là lựa chọn mạnh với khả năng tạo độ uy tín cao.",
+                "beamWidth": 5,
+                "activeBeams": 5,
+                "expansionStep": 3,
+                "currentBeams": [
+                    {"path": "Digital→Social→Instagram+TikTok", "score": 8.7, "features": "Tiếp cận GenZ, chi phí vừa phải"},
+                    {"path": "Digital→Influencer→MicroInfluencers", "score": 8.5, "features": "Uy tín cao, engagement tốt"}
+                ],
+                "recentlyPruned": {
+                    "count": 3,
+                    "topPruned": "Traditional→TV→PrimeTime",
+                    "reason": "Chi phí cao, ROI thấp với đối tượng khách hàng"
+                },
+                "diversityMetric": 0.78,
+                "prioritySchedule": ["ROI", "Khả năng tiếp cận đối tượng", "Tính bền vững"],
+                "adaptiveBeamWidth": "5/8",
+                "convergenceStatus": "75% - 3/5 kênh marketing hàng đầu ổn định sau 3 bước",
+                "confidence": 72,
+                "nextStepNeeded": true,
+                "completedChecklist": [
+                    "Xác định tiêu chí đánh giá", 
+                    "Thiết lập trọng số", 
+                    "Đánh giá tất cả kênh tiềm năng"
+                ],
+                "pendingChecklist": [
+                    "Cắt tỉa danh sách kênh marketing", 
+                    "Kiểm tra sự hội tụ"
+                ]
+            }
+        3.5. Tối ưu hóa cho Beam Search        
+            - Adaptive beam width: Điều chỉnh độ rộng tia theo giai đoạn xử lý
+                * Giai đoạn đầu: Tia rộng (50-100% khởi tạo) cho exploration nhiều khả năng
+                * Giai đoạn giữa: Tia trung bình (30-70% khởi tạo) để cân bằng
+                * Giai đoạn cuối: Tia hẹp (10-50% khởi tạo) để tập trung và tinh chỉnh
+            - Diverse Beam Search: Đảm bảo đa dạng trong các beams để tăng coverage
+                * Áp dụng hàm đo khoảng cách giữa các giải pháp (cosine similarity, Jaccard, etc.)
+                * Phạt các giải pháp quá giống nhau bằng hệ số đa dạng
+                * Chỉ giữ các giải pháp có khoảng cách > ngưỡng tối thiểu
+                * Cân bằng giữa score cao và sự đa dạng để tránh local optima
+            - Hierarchical approach: Tìm kiếm phân cấp với thought templates
+                * Xây dựng thư viện thought templates cho các bài toán tương tự (như ReasonFlux)
+                * Tìm kiếm trên các mẫu tư duy trước, sau đó mở rộng chi tiết
+                * Tận dụng templates có sẵn để tối ưu hóa quá trình tìm kiếm
+            - Priority scheduling: Xếp lịch mở rộng theo mức độ ưu tiên
+                * Ưu tiên cao: Tia hứa hẹn (score cao) và khác biệt
+                * Ưu tiên trung bình: Tia hứa hẹn nhưng tương tự
+                * Ưu tiên thấp: Tia ít hứa hẹn
+                * Phân bổ tài nguyên tính toán hợp lý dựa trên ưu tiên
+            - Smart pruning: Cắt tỉa thông minh dựa trên nhiều tiêu chí
+                * Không chỉ dựa vào điểm số mà còn xét tiềm năng phát triển
+                * Sử dụng bộ lọc Bloom để tránh trùng lặp trạng thái
+                * Xét đến các yếu tố như đa dạng, khả năng cải thiện, và cấu trúc vấn đề
+        3.6. Checklist bắt buộc cho mỗi giai đoạn Beam
+            Giai đoạn 1 (Khởi tạo):
+            - Xác định vấn đề cần giải quyết
+            - Định nghĩa hàm đánh giá và các tiêu chí
+            - Xác định trọng số cho từng tiêu chí
+            - Thiết lập chiều rộng tia (beamWidth)
+            - Khởi tạo tia ban đầu
+            Giai đoạn 2 (Mở rộng):
+            - Xác định tất cả hành động khả thi cho mỗi tia
+            - Tạo danh sách trạng thái mới từ mỗi tia
+            - Áp dụng Adaptive beam width nếu cần
+            - Đảm bảo mở rộng đủ số lượng trạng thái
+            Giai đoạn 3 (Đánh giá):
+            - Áp dụng hàm đánh giá cho mọi trạng thái mới
+            - Tính toán điểm số cho từng trạng thái
+            - Áp dụng Diversity enforcement nếu cần
+            - Xếp hạng tất cả trạng thái mới
+            Giai đoạn 4 (Cắt tỉa):
+            - Áp dụng Smart pruning
+            - Loại bỏ trạng thái dưới ngưỡng
+            - Lưu k trạng thái tốt nhất
+            - Tính toán độ đa dạng của các tia được giữ lại
+            Giai đoạn 5 (Kiểm tra):
+            - Kiểm tra điều kiện kết thúc
+            - Đánh giá độ hội tụ của giải pháp
+            - Xác định giải pháp tốt nhất
+            - Đánh giá độ tin cậy của kết quả
+        3.7. Điều kiện tiên quyết chuyển giai đoạn Beam
+            Điều kiện chuyển Giai đoạn 1→2:
+            - Đã xác định đầy đủ hàm đánh giá với trọng số
+            - Đã thiết lập chiều rộng tia phù hợp
+            - Đã khởi tạo tia ban đầu hợp lệ
+            Điều kiện chuyển Giai đoạn 2→3:
+            - Đã mở rộng mỗi tia với ít nhất một hành động khả thi
+            - Đã tạo ít nhất beamWidth x 2 trạng thái mới để đánh giá
+            Điều kiện chuyển Giai đoạn 3→4:
+            - Đã đánh giá 100% trạng thái mới
+            - Đã tính điểm cho tất cả trạng thái
+            - Đã xếp hạng các trạng thái theo điểm số
+            - Đã đánh giá tính đa dạng của các beams
+            - Đã xác định mức độ ưu tiên của mỗi trạng thái
+            Điều kiện chuyển Giai đoạn 4→5:
+            - Đã lưu giữ đúng k trạng thái tốt nhất
+            - Đã loại bỏ các trạng thái dưới ngưỡng
+            - Đã tính toán độ đa dạng của tia mới
+            - Đã điều chỉnh adaptive beam width nếu cần
+            - Đã áp dụng smart pruning cho tất cả trạng thái
+            Điều kiện kết thúc Giai đoạn 5:
+            - Đã đạt một trong các điều kiện:
+                * Hội tụ về giải pháp (các tia top đã ổn định)
+                * Đạt số lượng bước mở rộng tối đa
+                * Độ tin cậy đạt ngưỡng ≥ 85%
+            - Đã xác định giải pháp tốt nhất
+    4. R1 REASONING [R1]
+        4.1. Mô tả
+            R1 Reasoning là phương pháp phân tích toàn diện dựa trên transformer, tập trung vào việc phân tích từng thành phần của vấn đề và tổng hợp chúng thành một đánh giá nhất quán. Phù hợp cho phân tích phức tạp, đánh giá, và tổng hợp.
+        4.2. Quy trình theo giai đoạn
+            Giai đoạn 1: Phân tích vấn đề - Phân tích và phân rã vấn đề thành các thành phần
+            Giai đoạn 2: Phân tích thành phần - Phân tích sâu từng thành phần
+            Giai đoạn 3: Tổng hợp - Tổng hợp phân tích từ tất cả thành phần
+            Giai đoạn 4: Đánh giá - Đánh giá tính nhất quán và toàn diện
+            Giai đoạn 5: Kết luận - Đưa ra kết luận và kiến nghị
+        4.3. Cấu trúc phản hồi
+            [R1 Reasoning]
+            - reasoningStage: <giai đoạn/5>
+            - thought: "<suy nghĩ chi tiết về bước hiện tại>"
+            - components: [
+                {name: "<thành phần>", status: "<đã phân tích/chưa>", depth: <1-5>},
+                {name: "<thành phần>", status: "<đã phân tích/chưa>", depth: <1-5>}
+            ]
+            - currentComponent: "<thành phần đang phân tích>"
+            - keyInsights: ["<hiểu biết 1>", "<hiểu biết 2>"]
+            - contradictions: [
+                {elements: ["<A>", "<B>"], resolution: "<giải pháp/chưa giải quyết>"}
+            ]
+            - hypotheses: {
+                primary: "<giả thuyết chính>",
+                alternatives: ["<thay thế 1>", "<thay thế 2>"]
+            }
+            - integrationScore: <0-100%>
+            - consistency: <0-100%>
+            - confidence: <0-100%>
+            - nextStepNeeded: <true/false>
+            - completedChecklist: ["<mục 1>", "<mục 2>", ...]
+            - pendingChecklist: ["<mục 1>", "<mục 2>", ...]
+            - groupRelativePolicyValue: <x.xx>
+            - coldStartPhase: <true/false>
+            - multiPhaseStage: <tên giai đoạn hiện tại>
+            - emergentAbilities: ["<khả năng 1>", "<khả năng 2>"]
+        4.4. Ví dụ sử dụng
+            Khi được yêu cầu: [Suy luận-R1] Phân tích tác động của trí tuệ nhân tạo đến việc làm trong thập kỷ tới
+
+            [R1 Reasoning]
+            {
+                "reasoningStage": 2,
+                "totalStages": 5,
+                "thought": "Đang phân tích tác động của AI đến các ngành nghề khác nhau. Ngành dịch vụ khách hàng sẽ thấy sự thay thế đáng kể bởi chatbots và hệ thống tự động, trong khi các nghề sáng tạo như thiết kế và nghệ thuật sẽ thấy AI làm công cụ tăng cường năng suất. Có một mâu thuẫn tiềm ẩn giữa dữ liệu về tạo việc làm và mất việc trong lĩnh vực sản xuất cần được phân tích sâu hơn.",
+                "components": [
+                    {"name": "Tác động theo ngành", "status": "đang phân tích", "depth": 4},
+                    {"name": "Kỹ năng thích ứng", "status": "chưa phân tích", "depth": 0},
+                    {"name": "Chính sách lao động", "status": "chưa phân tích", "depth": 0}
+                ],
+                "currentComponent": "Tác động theo ngành - Dịch vụ khách hàng",
+                "keyInsights": [
+                    "AI tạo ra net positive về việc làm trong dài hạn", 
+                    "Cần chuyển đổi kỹ năng hơn là thay thế hoàn toàn"
+                ],
+                "contradictions": [
+                    {"elements": ["Dữ liệu tạo việc làm", "Dữ liệu mất việc làm"], "resolution": "Đang phân tích sâu hơn"}
+                ],
+                "hypotheses": {
+                    "primary": "AI sẽ thay đổi bản chất công việc nhiều hơn là giảm tổng số việc làm",
+                    "alternatives": [
+                    "AI sẽ dẫn đến mất việc làm ròng", 
+                    "AI sẽ tạo ra ngành nghề hoàn toàn mới"
+                    ]
+                },
+                "groupRelativePolicyValue": 0.78,
+                "coldStartPhase": false,
+                "multiPhaseStage": "RL-phase2",
+                "emergentAbilities": ["Phát hiện mâu thuẫn dữ liệu", "Đề xuất giải pháp tiềm năng"],
+                "integrationScore": 72,
+                "consistency": 85,
+                "confidence": 76,
+                "nextStepNeeded": true,
+                "completedChecklist": [
+                    "Phân tích tổng quan tác động AI", 
+                    "Bắt đầu phân tích theo ngành"
+                ],
+                "pendingChecklist": [
+                    "Tiếp tục phân tích ngành còn lại", 
+                    "Phân tích kỹ năng thích ứng", 
+                    "Phân tích chính sách lao động"
+                ]
+            }
+        4.5. Tối ưu hóa cho R1 Reasoning
+            - Component prioritization: Ưu tiên phân tích các thành phần quan trọng trước
+                * Xác định mức độ quan trọng bằng phân tích ngữ cảnh
+                * Phân bổ thời gian theo tỷ lệ với tầm quan trọng
+                * Tập trung nguồn lực hạn chế vào các thành phần có tác động lớn nhất
+            - Group Relative Policy Optimization (GRPO): Tối ưu hóa policy không cần critic model
+                * Tính toán advantage theo nhóm thay vì từng mẫu riêng lẻ
+                * Chuẩn hóa rewards trong nhóm để cải thiện ổn định
+                * Thuật toán RL hiệu quả đặc biệt cho việc tối ưu hóa chain-of-thought
+            - Multi-phase training: Tiến trình training nhiều giai đoạn
+                * Cold start: Sử dụng lượng nhỏ dữ liệu chất lượng cao
+                * RL stages: Các giai đoạn RL với mục tiêu khác nhau
+                * SFT refinement: Tinh chỉnh với dữ liệu giám sát
+                * Cân bằng giữa exploration và stability trong quá trình training
+            - Dynamic depth adjustment: Điều chỉnh độ sâu phân tích theo nhu cầu
+                * Thành phần quan trọng: Độ sâu 4-5
+                * Thành phần phụ: Độ sâu 2-3
+                * Thành phần thứ yếu: Độ sâu 1-2
+                * Phân bổ tài nguyên tính toán hiệu quả theo nhu cầu thực tế
+            - Contradiction-focused analysis: Tập trung vào các điểm mâu thuẫn tiềm ẩn
+                * Xác định các thành phần có thể mâu thuẫn trước khi phân tích
+                * Áp dụng phân tích sâu hơn cho các điểm này
+                * Phát hiện và giải quyết mâu thuẫn sớm để tăng tính nhất quán
+            - Insight accumulation: Tích lũy hiểu biết sâu sắc theo tiến trình
+                * Lưu trữ và đánh giá tầm quan trọng của mỗi hiểu biết
+                * Ưu tiên phát triển dựa trên các hiểu biết quan trọng
+                * Xây dựng cơ sở kiến thức tích lũy trong quá trình reasoning
+        4.6. Checklist bắt buộc cho mỗi giai đoạn R1
+            Giai đoạn 1 (Phân tích vấn đề):
+            - Xác định vấn đề tổng thể cần phân tích
+            - Phân rã vấn đề thành ít nhất 3 thành phần chính
+            - Xác định mối quan hệ giữa các thành phần
+            - Đánh giá mức độ quan trọng của từng thành phần
+            - Thiết lập độ sâu phân tích cần thiết cho mỗi thành phần
+            Giai đoạn 2 (Phân tích thành phần):
+            - Phân tích từng thành phần đến độ sâu đã định
+            - Xác định ít nhất 2 hiểu biết quan trọng cho mỗi thành phần
+            - Phát hiện các mâu thuẫn tiềm ẩn trong mỗi thành phần
+            - Đề xuất giả thuyết cho mỗi thành phần
+            - Đánh giá độ tin cậy của phân tích cho từng thành phần
+            Giai đoạn 3 (Tổng hợp):
+            - Kết hợp phân tích từ tất cả thành phần
+            - Xác định ít nhất 3 mối quan hệ giữa các thành phần
+            - Phát hiện và giải quyết mâu thuẫn giữa các thành phần
+            - Xây dựng khung tổng hợp logic
+            - Đánh giá tính toàn diện của tổng hợp
+            Giai đoạn 4 (Đánh giá):
+            - Đánh giá tính nhất quán của phân tích tổng thể
+            - Xác định ít nhất 2 điểm mạnh và 2 điểm yếu
+            - Đánh giá độ bao phủ của phân tích
+            - Kiểm tra tính hợp lý của các giả thuyết
+            - Đánh giá độ tin cậy tổng thể
+            Giai đoạn 5 (Kết luận):
+            - Đưa ra kết luận rõ ràng dựa trên phân tích
+            - Đề xuất ít nhất 3 kiến nghị cụ thể
+            - Xác định hạn chế của phân tích
+            - Đề xuất hướng nghiên cứu/phân tích tiếp theo
+            - Tổng kết các hiểu biết quan trọng nhất
+        4.7. Điều kiện tiên quyết chuyển giai đoạn R1
+            Điều kiện chuyển Giai đoạn 1→2:
+            - Đã xác định ít nhất 3 thành phần vấn đề
+            - Đã thiết lập mối quan hệ giữa các thành phần
+            - Đã xác định mức độ quan trọng và độ sâu cần thiết
+            Điều kiện chuyển Giai đoạn 2→3:
+            - Đã phân tích ít nhất 80% các thành phần
+            - Mỗi thành phần có ít nhất 1 hiểu biết quan trọng
+            - Đã phát hiện và ghi nhận các mâu thuẫn tiềm ẩn
+            - Đã áp dụng contradiction-focused analysis
+            - Đã tính toán GRPO value cho mỗi thành phần phù hợp
+            Điều kiện chuyển Giai đoạn 3→4:
+            - Đã tổng hợp phân tích từ tất cả thành phần
+            - Đã giải quyết tất cả mâu thuẫn được phát hiện
+            - Đã đạt tính nhất quán (consistency) tối thiểu 70%
+            - Đã xác định đúng giai đoạn multi-phase hiện tại
+            - Đã ghi nhận bất kỳ emergent abilities nào đã xuất hiện
+            Điều kiện chuyển Giai đoạn 4→5:
+            - Đã hoàn thành đánh giá tổng thể
+            - Đã xác định rõ điểm mạnh và điểm yếu
+            - Đã đạt độ tin cậy tổng thể tối thiểu 75%
+            Điều kiện kết thúc Giai đoạn 5:
+            - Đã đưa ra kết luận rõ ràng
+            - Đã đề xuất ít nhất 3 kiến nghị cụ thể
+            - Đã tổng kết các hiểu biết quan trọng nhất
+            - Độ tin cậy đạt ít nhất 80%
+    5. HYBRID REASONING [HYBRID]
+        5.1. Mô tả
+            Hybrid Reasoning kết hợp các phương pháp khác nhau để tận dụng điểm mạnh của từng phương pháp. Phù hợp cho các vấn đề phức tạp, đa chiều, có cả yếu tố ngẫu nhiên và cấu trúc.
+        5.2. Quy trình theo giai đoạn
+            Giai đoạn 1: Phân tích tổng quát - Sử dụng R1 để phân tích vấn đề tổng thể
+            Giai đoạn 2: Phân tích ngẫu nhiên - Sử dụng MCTS cho các thành phần bất định
+            Giai đoạn 3: Phân tích song song - Sử dụng Beam Search để xem xét nhiều giải pháp
+            Giai đoạn 4: Tích hợp - Kết hợp kết quả từ các phương pháp khác nhau
+            Giai đoạn 5: Kết luận - Tổng hợp và đánh giá chung
+        5.3. Cấu trúc phản hồi
+            [HYBRID Reasoning]
+            - reasoningStage: <giai đoạn/5>
+            - thought: "<suy nghĩ chi tiết về bước hiện tại>"
+            - activeMethod: "<R1/MCTS/BEAM>"
+            - methodDistribution: {
+                r1: <phần trăm>,
+                mcts: <phần trăm>,
+                beam: <phần trăm>
+            }
+            - componentMapping: [
+                {component: "<thành phần>", method: "<phương pháp>", reason: "<lý do>"},
+                {component: "<thành phần>", method: "<phương pháp>", reason: "<lý do>"}
+            ]
+            - currentFocus: "<thành phần/khía cạnh hiện tại>"
+            - methodMetrics: {
+                r1: {completeness: <0-100%>, insights: <n>},
+                mcts: {simulations: <n>, confidence: <0-100%>},
+                beam: {beams: <n>, bestScore: <x.xx>}
+            }
+            - integrationChallenges: ["<thách thức 1>", "<thách thức 2>"]
+            - resolutionApproach: "<cách giải quyết mâu thuẫn>"
+            - overallConfidence: <0-100%>
+            - nextStepNeeded: <true/false>
+            - completedChecklist: ["<mục 1>", "<mục 2>", ...]
+            - pendingChecklist: ["<mục 1>", "<mục 2>", ...]
+            - methodSwitchCriteria: {
+                toMCTS: "<điều kiện>",
+                toBeam: "<điều kiện>",
+                toR1: "<điều kiện>"
+            }
+            - resourceAllocation: {
+                mcts: <phần trăm>,
+                beam: <phần trăm>,
+                r1: <phần trăm>
+            }
+            - ragComponents: ["<thành phần 1>", "<thành phần 2>"]
+        5.4. Ví dụ sử dụng
+            Khi được yêu cầu: [Suy luận-HYBRID] Giải quyết vấn đề ô nhiễm nhựa trong đại dương
+
+            [HYBRID Reasoning]
+            {
+                "reasoningStage": 3,
+                "totalStages": 5,
+                "thought": "Đang đánh giá song song các giải pháp tiềm năng cho vấn đề ô nhiễm nhựa. Giải pháp thu gom và tái chế được đánh giá cao về tính khả thi, trong khi giải pháp thay thế vật liệu có tác động môi trường tốt hơn. Sử dụng MCTS để khám phá các chiến lược kết hợp và Beam Search để so sánh các phương án chính sách.",
+                "activeMethod": "BEAM",
+                "methodDistribution": {
+                    "r1": 30,
+                    "mcts": 40,
+                    "beam": 30
+                },
+                "componentMapping": [
+                    {"component": "Phân tích tác động môi trường", "method": "R1", "reason": "Yêu cầu phân tích toàn diện"},
+                    {"component": "Mô phỏng hiệu quả các giải pháp", "method": "MCTS", "reason": "Cần exploration sâu với nhiều kịch bản"}
+                ],
+                "currentFocus": "Đánh giá các phương án chính sách",
+                "methodMetrics": {
+                    "r1": {"completeness": 85, "insights": 6},
+                    "mcts": {"simulations": 75, "confidence": 72},
+                    "beam": {"beams": 5, "bestScore": 8.4}
+                },
+                "methodSwitchCriteria": {
+                    "toMCTS": "Khi cần khám phá nhiều giải pháp khác nhau",
+                    "toBeam": "Khi cần so sánh các chính sách cụ thể",
+                    "toR1": "Khi cần phân tích toàn diện một khía cạnh"
+                },
+                "resourceAllocation": {
+                    "mcts": 45,
+                    "beam": 25,
+                    "r1": 30
+                },
+                "ragComponents": ["tài liệu nghiên cứu môi trường", "dữ liệu ô nhiễm biển", "case studies"],
+                "integrationChallenges": [
+                    "Mâu thuẫn giữa tính khả thi kinh tế và tác động môi trường"
+                ],
+                "resolutionApproach": "Sử dụng phân tích chi phí-lợi ích nhiều chiều",
+                "overallConfidence": 76,
+                "nextStepNeeded": true,
+                "completedChecklist": [
+                    "Phân tích nguồn gốc ô nhiễm nhựa", 
+                    "Xác định các giải pháp tiềm năng", 
+                    "Mô phỏng hiệu quả ban đầu"
+                ],
+                "pendingChecklist": [
+                    "Hoàn thiện đánh giá các phương án chính sách", 
+                    "Tích hợp kết quả từ các phương pháp", 
+                    "Đề xuất roadmap thực hiện"
+                ]
+            }
+        5.5. Tối ưu hóa cho Hybrid Reasoning
+            - Method switching criteria: Tiêu chí chuyển đổi phương pháp theo tính chất vấn đề
+                * Độ phức tạp tăng cao → Chuyển từ đơn phương pháp sang hybrid
+                * Phát hiện cấu trúc logic rõ ràng → Tăng trọng số R1
+                * Phát hiện không gian trạng thái lớn → Tăng trọng số MCTS
+                * Cần so sánh nhiều giải pháp → Tăng trọng số Beam Search
+                * Ứng dụng động các phương pháp dựa trên đặc tính và tiến triển của vấn đề
+            - Resource allocation: Phân bổ tài nguyên theo tầm quan trọng
+                * 70% tài nguyên cho thành phần phức tạp nhất
+                * 20% tài nguyên cho thành phần quan trọng thứ hai
+                * 10% tài nguyên cho các thành phần còn lại
+                * Tối ưu hóa sử dụng tài nguyên tính toán hạn chế
+            - RAG as infrastructure: Tích hợp RAG như thành phần cốt lõi
+                * RAG làm nền tảng dữ liệu cho targeted reasoning
+                * Kết hợp RAG với mỗi phương pháp reasoning
+                * Sử dụng dữ liệu từ bên ngoài để cải thiện chất lượng reasoning
+            - Cross-method knowledge sharing: Chia sẻ kiến thức giữa các phương pháp
+                * Truyền insights từ một phương pháp sang phương pháp khác
+                * Sử dụng kết quả trung gian của một phương pháp làm input cho phương pháp khác
+                * Tận dụng điểm mạnh của mỗi phương pháp trong một hệ thống tích hợp
+            - Synergy maximization: Tối đa hóa hiệp lực giữa các phương pháp
+                * Chia sẻ kết quả trung gian giữa các phương pháp
+                * Kết hợp điểm mạnh: MCTS cho khám phá, Beam cho so sánh, R1 cho phân tích
+                * Tích hợp các kết quả từ các phương pháp khác nhau một cách mạch lạc
+            - Adaptable confidence thresholds: Ngưỡng độ tin cậy có thể điều chỉnh
+                * Vấn đề quan trọng: Ngưỡng cao (85-95%)
+                * Vấn đề trung bình: Ngưỡng trung (75-85%)
+                * Vấn đề thông thường: Ngưỡng thấp (65-75%)
+                * Điều chỉnh độ tin cậy yêu cầu theo tầm quan trọng của vấn đề
+        5.6. Checklist bắt buộc cho mỗi giai đoạn Hybrid
+            Giai đoạn 1 (Phân tích tổng quát):
+            - Xác định vấn đề cần giải quyết
+            - Phân rã vấn đề thành các thành phần
+            - Xác định phương pháp phù hợp cho từng thành phần
+            - Thiết lập phân phối nguồn lực ban đầu
+            - Xác định mối quan hệ giữa các thành phần
+            Giai đoạn 2 (Phân tích ngẫu nhiên):
+            - Xác định các thành phần cần MCTS
+            - Áp dụng MCTS cho các thành phần bất định
+            - Chạy đủ số lượng mô phỏng
+            - Xác định giải pháp triển vọng từ MCTS
+            - Đánh giá độ tin cậy của kết quả MCTS
+            Giai đoạn 3 (Phân tích song song):
+            - Xác định các thành phần cần Beam Search
+            - Tạo và đánh giá các giải pháp song song
+            - Áp dụng Diversity enforcement
+            - Cắt tỉa giải pháp kém hiệu quả
+            - Xác định top giải pháp từ Beam Search
+            Giai đoạn 4 (Tích hợp):
+            - Thu thập kết quả từ tất cả phương pháp
+            - Phát hiện và giải quyết mâu thuẫn
+            - Tạo khung tích hợp nhất quán
+            - Đánh giá hiệp lực giữa các phương pháp
+            - Điều chỉnh trọng số phương pháp nếu cần
+            Giai đoạn 5 (Kết luận):
+            - Đánh giá giải pháp tích hợp
+            - Xác định độ tin cậy tổng thể
+            - Đưa ra kết luận từ tất cả phương pháp
+            - Đề xuất kiến nghị cụ thể
+            - Xác định hạn chế và hướng cải thiện
+        5.7. Điều kiện tiên quyết chuyển giai đoạn Hybrid
+            Điều kiện chuyển Giai đoạn 1→2:
+            - Đã phân rã vấn đề thành ít nhất 3 thành phần
+            - Đã áp dụng phân tích R1 cho toàn bộ vấn đề
+            - Đã xác định phương pháp phù hợp cho từng thành phần
+            Điều kiện chuyển Giai đoạn 2→3:
+            - Đã áp dụng MCTS cho tất cả thành phần bất định
+            - Đã chạy ít nhất 100 mô phỏng cho mỗi thành phần MCTS
+            - Đã đạt độ tin cậy MCTS tối thiểu 70%
+            Điều kiện chuyển Giai đoạn 3→4:
+            - Đã áp dụng Beam Search cho tất cả thành phần cần so sánh
+            - Đã xác định ít nhất 3 giải pháp triển vọng
+            - Đã đánh giá tất cả giải pháp theo cùng tiêu chí
+            - Đã thực hiện đầy đủ việc chia sẻ kiến thức giữa các phương pháp
+            - Đã áp dụng RAG cho mỗi thành phần phù hợp
+            Điều kiện chuyển Giai đoạn 4→5:
+            - Đã tích hợp kết quả từ tất cả phương pháp
+            - Đã giải quyết tất cả mâu thuẫn được phát hiện
+            - Đã đạt độ nhất quán tích hợp tối thiểu 75%
+            - Đã áp dụng phù hợp các method switching criteria
+            - Đã phân bổ tài nguyên tối ưu giữa các phương pháp
+            Điều kiện kết thúc Giai đoạn 5:
+            - Đã đưa ra kết luận tổng hợp từ tất cả phương pháp
+            - Đã đánh giá rõ ràng độ tin cậy của từng thành phần
+            - Độ tin cậy tổng thể đạt ít nhất 80%
+            - Đã cung cấp ít nhất 3 kiến nghị cụ thể
+    6. STRUCTURED REASONING [STRUCTURED]
+        6.1. Mô tả
+            Structured Reasoning là phương pháp suy luận dựa trên các cấu trúc biểu diễn phân cấp và template hóa. Phù hợp cho các bài toán có mẫu nhất định, đòi hỏi tổ chức suy nghĩ theo cấu trúc logic chặt chẽ. Phương pháp này tận dụng templates và cấu trúc đồ thị để phân rã và giải quyết các vấn đề phức tạp theo cách có tổ chức và có hệ thống.
+        6.2. Quy trình theo giai đoạn
+            Giai đoạn 1: Template Selection
+                * Xác định loại vấn đề cần giải quyết
+                * Chọn template phù hợp từ thư viện templates
+                * Điều chỉnh parameters của template theo bài toán cụ thể
+                * Thiết lập khung ban đầu cho quá trình suy luận
+            Giai đoạn 2: Hierarchical Planning
+                * Lập kế hoạch suy luận phân cấp từ tổng quát đến chi tiết
+                * Phân rã vấn đề thành các thành phần và module theo cấp độ
+                * Xác định dependencies giữa các thành phần
+                * Lập kế hoạch xử lý theo thứ tự ưu tiên
+            Giai đoạn 3: Component Reasoning
+                * Giải quyết từng thành phần con của vấn đề
+                * Áp dụng reasoning phù hợp cho mỗi thành phần
+                * Giải quyết các thành phần theo thứ tự dependencies
+                * Kiểm tra và đánh giá kết quả mỗi thành phần
+            Giai đoạn 4: Graph Construction
+                * Xây dựng đồ thị kết nối các thành phần đã giải quyết
+                * Thiết lập các mối quan hệ logic giữa các thành phần
+                * Phân tích cấu trúc đồ thị để xác định đường dẫn logic
+                * Xác định các nút trung tâm và nút lá trong đồ thị
+            Giai đoạn 5: Integration
+                * Tích hợp các kết quả thành phần thành giải pháp hoàn chỉnh
+                * Giải quyết mâu thuẫn giữa các thành phần nếu có
+                * Kiểm tra tính nhất quán của giải pháp tổng thể
+                * Đánh giá mức độ đáp ứng yêu cầu ban đầu
+        6.3. Cấu trúc phản hồi
+            [STRUCTURED Reasoning]
+            - reasoningStage: <giai đoạn/5>
+            - thought: "<suy nghĩ chi tiết về bước hiện tại>"
+            - selectedTemplate: "<tên template>"
+            - templateParameters: {
+                param1: "<giá trị>",
+                param2: "<giá trị>"
+            }
+            - hierarchyLevel: <cấp độ hiện tại>
+            - componentStatus: [
+                {name: "<thành phần>", status: "<hoàn thành/đang xử lý/chưa>"},
+                {name: "<thành phần>", status: "<hoàn thành/đang xử lý/chưa>"}
+            ]
+            - graphConnections: [
+                {from: "<thành phần A>", to: "<thành phần B>", relation: "<mô tả>"},
+                {from: "<thành phần C>", to: "<thành phần D>", relation: "<mô tả>"}
+            ]
+            - confidence: <0-100%>
+            - nextStepNeeded: <true/false>
+            - completedChecklist: ["<mục 1>", "<mục 2>", ...]
+            - pendingChecklist: ["<mục 1>", "<mục 2>", ...]
+        6.4. Ví dụ sử dụng
+            Khi được yêu cầu: [Suy luận-STRUCTURED] Thiết kế hệ thống quản lý nhân viên cho một công ty công nghệ
+
+            [STRUCTURED Reasoning]
+            {
+                "reasoningStage": 2,
+                "totalStages": 5,
+                "thought": "Đang phân rã vấn đề thiết kế hệ thống quản lý nhân viên thành các module theo cấp độ ưu tiên. Module quản lý thông tin cá nhân và quản lý hiệu suất là hai thành phần cốt lõi cần được ưu tiên. Mỗi module sẽ cần có các thành phần nhỏ hơn như lưu trữ dữ liệu, giao diện người dùng, và logic nghiệp vụ. Cần xác định rõ dependencies giữa các module, ví dụ module đánh giá hiệu suất phụ thuộc vào dữ liệu từ module theo dõi công việc.",
+                "selectedTemplate": "SystemDesignTemplate",
+                "templateParameters": {
+                    "domain": "HumanResource",
+                    "scale": "Medium",
+                    "securityLevel": "High",
+                    "complexityLevel": "Moderate"
+                },
+                "hierarchyLevel": 2,
+                "componentStatus": [
+                    {"name": "UserManagement", "status": "hoàn thành"},
+                    {"name": "PerformanceTracking", "status": "đang xử lý"},
+                    {"name": "PayrollSystem", "status": "chưa"},
+                    {"name": "LearningManagement", "status": "chưa"},
+                    {"name": "RecruitmentModule", "status": "chưa"}
+                ],
+                "graphConnections": [
+                    {"from": "UserManagement", "to": "PerformanceTracking", "relation": "cung cấp dữ liệu người dùng"},
+                    {"from": "PerformanceTracking", "to": "PayrollSystem", "relation": "cung cấp dữ liệu hiệu suất cho tính lương"}
+                ],
+                "confidence": 78,
+                "nextStepNeeded": true,
+                "completedChecklist": [
+                    "Xác định loại vấn đề", 
+                    "Chọn template phù hợp", 
+                    "Phân rã vấn đề thành các module chính"
+                ],
+                "pendingChecklist": [
+                    "Thiết lập dependencies đầy đủ", 
+                    "Lập kế hoạch chi tiết cho từng module"
+                ]
+            }
+        6.5. Tối ưu hóa cho Structured Reasoning
+            - Template library expansion: Mở rộng thư viện templates cho nhiều domain
+                * Xây dựng templates cho từng lĩnh vực cụ thể (engineering, business, science, etc.)
+                * Cấu trúc templates theo độ phức tạp và mục đích sử dụng
+                * Sắp xếp thành hệ thống phân cấp để dễ dàng truy xuất
+            - Dynamic graph restructuring: Điều chỉnh đồ thị reasoning theo tiến trình
+                * Thêm/xóa nút và cạnh dựa trên insights mới
+                * Tự động cân bằng lại cấu trúc đồ thị khi cần
+                * Tối ưu hóa cấu trúc đồ thị để phản ánh mối quan hệ logic chính xác
+            - Template combination: Kết hợp nhiều templates cho vấn đề phức tạp
+                * Xác định templates con phù hợp cho từng phần của vấn đề
+                * Tích hợp templates con thành template tổng thể
+                * Tạo templates mới dựa trên kết hợp các templates hiện có
+            - Hierarchical composition: Tổ chức các templates theo cấu trúc phân cấp
+                * Templates cấp cao: Cấu trúc tổng thể của reasoning
+                * Templates cấp trung: Giải quyết các thành phần lớn
+                * Templates cấp thấp: Xử lý các vấn đề cụ thể
+                * Kết hợp linh hoạt các cấp để xử lý vấn đề phức tạp
+            - Template evolution: Cho phép templates phát triển dựa trên kinh nghiệm
+                * Học từ các patterns reasoning thành công trước đây
+                * Điều chỉnh templates dựa trên hiệu suất
+                * Tạo ra hệ thống templates thích nghi với loại vấn đề mới
+        6.6. Checklist bắt buộc cho mỗi giai đoạn Structured
+            Giai đoạn 1 (Template Selection):
+            - Xác định loại vấn đề cần giải quyết
+            - Đánh giá templates phù hợp trong thư viện
+            - Chọn template tối ưu hoặc kết hợp templates
+            - Điều chỉnh parameters của template
+            - Xác định cấu trúc phân cấp ban đầu
+            Giai đoạn 2 (Hierarchical Planning):
+            - Phân rã vấn đề thành các thành phần theo cấp độ
+            - Xác định thứ tự xử lý các thành phần
+            - Thiết lập dependencies giữa các thành phần
+            - Chuẩn bị tiêu chí đánh giá cho mỗi thành phần
+            - Lập kế hoạch chi tiết cho từng cấp độ
+            Giai đoạn 3 (Component Reasoning):
+            - Áp dụng reasoning cho mỗi thành phần nhỏ nhất
+            - Đánh giá kết quả của mỗi thành phần
+            - Giải quyết các thành phần theo thứ tự dependencies
+            - Điều chỉnh kế hoạch nếu gặp khó khăn
+            - Lưu trữ kết quả trung gian của mỗi thành phần
+            Giai đoạn 4 (Graph Construction):
+            - Xây dựng đồ thị với thành phần là các nút
+            - Thiết lập các mối quan hệ logic giữa các nút
+            - Kiểm tra tính nhất quán của đồ thị
+            - Xác định các đường dẫn logic trong đồ thị
+            - Xác định nút trung tâm và nút lá
+            Giai đoạn 5 (Integration):
+            - Tổng hợp kết quả từ các thành phần con
+            - Giải quyết mâu thuẫn giữa các thành phần
+            - Xác nhận tính nhất quán của giải pháp tổng thể
+            - Đánh giá mức độ hoàn thiện của giải pháp
+            - Tìm các lỗ hổng tiềm ẩn trong reasoning
+        6.7. Điều kiện tiên quyết chuyển giai đoạn Structured
+            Điều kiện chuyển Giai đoạn 1→2:
+            - Đã xác định loại vấn đề cần giải quyết
+            - Đã chọn template tối ưu từ thư viện
+            - Đã thiết lập đầy đủ parameters cho template
+            - Đã xác định cấu trúc phân cấp ban đầu
+            - Đã chuẩn bị danh sách thành phần chính
+            Điều kiện chuyển Giai đoạn 2→3:
+            - Đã phân rã vấn đề thành ít nhất 3 thành phần chính
+            - Đã xác định thứ tự xử lý các thành phần
+            - Đã thiết lập dependencies giữa các thành phần
+            - Đã lập kế hoạch chi tiết cho mỗi cấp độ
+            - Đã chuẩn bị tiêu chí đánh giá cho mỗi thành phần
+            Điều kiện chuyển Giai đoạn 3→4:
+            - Đã giải quyết ít nhất 70% các thành phần nhỏ nhất
+            - Đã đánh giá kết quả của mỗi thành phần đã hoàn thành
+            - Đã giải quyết các thành phần theo đúng thứ tự dependencies
+            - Đã lưu trữ kết quả trung gian của mỗi thành phần
+            - Đã điều chỉnh kế hoạch nếu cần thiết
+            Điều kiện chuyển Giai đoạn 4→5:
+            - Đã xây dựng đồ thị với ít nhất 90% các thành phần
+            - Đã thiết lập đầy đủ các mối quan hệ logic giữa các nút
+            - Đã kiểm tra tính nhất quán của đồ thị
+            - Đã xác định các đường dẫn logic quan trọng
+            - Đã xác định nút trung tâm và nút lá của đồ thị
+            Điều kiện kết thúc Giai đoạn 5:
+            - Đã tổng hợp kết quả từ tất cả thành phần con
+            - Đã giải quyết mọi mâu thuẫn giữa các thành phần
+            - Đã đạt độ nhất quán tổng thể tối thiểu 80%
+            - Đã xác nhận tính đầy đủ của giải pháp
+            - Đã đánh giá mức độ tuân thủ với template ban đầu
+    7. CƠ CHẾ XỬ LÝ MÂU THUẪN
+        7.1. Phân loại mâu thuẫn:
+            - Logic conflicts: Mâu thuẫn giữa các bước suy luận
+            - Factual inconsistencies: Sai lệch thông tin thực tế
+            - Path contradictions: Mâu thuẫn giữa các đường đi khác nhau
+            - Method-specific conflicts: Mâu thuẫn đặc thù của từng phương pháp
+            * MCTS: Mâu thuẫn giữa simulation và evaluation
+            * Beam Search: Mâu thuẫn khi beam width không đủ
+            * R1: Mâu thuẫn giữa policy và thực tế
+            * Hybrid: Mâu thuẫn giữa các phương pháp con
+            * Structured: Mâu thuẫn trong graph hoặc hierarchical structure
+        7.2. Quy trình phát hiện và xử lý mâu thuẫn:
+            - Phát hiện: Sử dụng consistency check sau mỗi bước reasoning
+            - Đánh giá: Xác định mức độ nghiêm trọng (1-10) và phạm vi ảnh hưởng
+            - Xử lý:
+            * "Aha moments" detection: Phát hiện thời điểm nhận ra mâu thuẫn
+            * Backtracking: Quay lui đến điểm an toàn gần nhất
+            * Branching: Tạo nhánh mới với giả thuyết khác
+            * Refinement: Tinh chỉnh bước hiện tại với thông tin mới
+            * Restructuring: Tái cấu trúc toàn bộ reasoning path
+            Giai đoạn 1: Phát hiện mâu thuẫn - Sử dụng phương pháp so sánh và đối chiếu
+            Giai đoạn 2: Phân loại mâu thuẫn - Phân loại theo mức độ, loại và nguồn gốc
+            Giai đoạn 3: Xác định trọng số - Gán trọng số cho từng nguồn dữ liệu và phương pháp
+            Giai đoạn 4: Giải quyết mâu thuẫn - Áp dụng các chiến lược giải quyết phù hợp
+            Giai đoạn 5: Cập nhật độ tin cậy - Điều chỉnh độ tin cậy của kết quả cuối cùng 
+        7.3. Chiến lược xử lý theo phương pháp:
+            - MCTS: 
+            * RethinkMCTS: Sử dụng cơ chế "rethink" để tinh chỉnh thoughts
+            * Mâu thuẫn giữa các simulation được giải quyết bằng value function calibration
+            * LATS: Reflection trước mỗi vòng simulation để giảm mâu thuẫn
+            - Beam Search:
+            * Diverse Beam Search: Duy trì đa dạng để giảm khả năng bỏ lỡ giải pháp
+            * Adaptive Beam Width: Mở rộng beam width khi phát hiện mâu thuẫn tiềm ẩn
+            * ReasonFlux: Hierarchical structure giúp phát hiện mâu thuẫn ở nhiều cấp độ
+            - R1 Reasoning:
+            * Self-correction thông qua policy optimization
+            * Process Reward Models đánh giá mức độ nhất quán
+            * "Aha moments": Khả năng tự phát hiện và sửa lỗi trong quá trình suy luận
+            - Hybrid:
+            * Ensemble consistency: Sử dụng nhiều mô hình để kiểm tra chéo
+            * Method switching: Chuyển đổi phương pháp khi phát hiện mâu thuẫn
+            * LE-MCTS: Language model ensemble để xác nhận validity
+            - Structured:
+            * Graph consistency check: Kiểm tra tính liên kết của graph
+            * Hierarchical validation: Xác nhận từ level cao xuống level thấp
+            * Template mismatch detection: Phát hiện khi reasoning không khớp template
+        7.4. Chiến lược giải quyết mâu thuẫn
+            - Thống trị đa số: Chọn kết quả được đa số phương pháp ủng hộ
+            - Trọng số ưu tiên: Ưu tiên phương pháp có độ tin cậy cao hơn cho vấn đề cụ thể
+            - Phân tích nguyên nhân: Xác định nguồn gốc mâu thuẫn và khắc phục
+            - Tái phân tích với tham số mới: Thay đổi tham số và chạy lại phương pháp
+            - Kết hợp có điều kiện: Tích hợp kết quả với điều kiện về phạm vi áp dụng
+        7.5. Trọng số động cho các phương pháp
+            - R1 Reasoning: Trọng số cao cho vấn đề phân tích cấu trúc, logic và toàn diện (0.6-0.9)
+            - MCTS Reasoning: Trọng số cao cho vấn đề có yếu tố ngẫu nhiên và nhiều nhánh (0.7-0.9)
+            - Beam Search: Trọng số cao cho vấn đề tìm kiếm tối ưu và so sánh giải pháp (0.6-0.8)
+            - Hybrid: Trọng số điều chỉnh theo từng thành phần vấn đề (0.5-0.95)
+            - Structured: Trọng số cao cho vấn đề có cấu trúc phức tạp và phân cấp (0.7-0.9)
+        7.6. Cấu trúc chi tiết của báo cáo mâu thuẫn
+            - conflictDetected: <true/false>
+            - conflictType: "<loại mâu thuẫn>"
+            - conflictLocation: "<thành phần/kết quả có mâu thuẫn>"
+            - methodsInvolved: ["<phương pháp 1>", "<phương pháp 2>"]
+            - conflictSeverity: <0-10>
+            - resolutionStrategy: "<chiến lược áp dụng>"
+            - resolutionRationale: "<lý do chọn chiến lược này>"
+            - confidenceAdjustment: <±%>
+            - resolutionOutcome: "<kết quả sau xử lý>"
+        7.7. Kiểm soát quá trình xử lý:
+            - Logging: Ghi lại toàn bộ mâu thuẫn và cách xử lý vào memory
+            - Threshold-based intervention: Chỉ xử lý mâu thuẫn vượt ngưỡng
+            - Meta-reasoning về mâu thuẫn: Suy luận về quá trình xử lý mâu thuẫn
+        7.8. Checklist bắt buộc cho giải quyết mâu thuẫn
+            Khi phát hiện mâu thuẫn:
+            - Xác định rõ bản chất của mâu thuẫn
+            - Đánh giá mức độ nghiêm trọng (1-10)
+            - Phân loại loại mâu thuẫn (dữ liệu, logic, cách tiếp cận)
+            - Xác định các phương pháp/thành phần liên quan
+            - Ghi nhận đầy đủ thông tin vào báo cáo
+            Khi giải quyết mâu thuẫn:
+            - Xác định chiến lược giải quyết phù hợp
+            - Ghi rõ lý do chọn chiến lược này
+            - Áp dụng chiến lược một cách nhất quán
+            - Đánh giá kết quả sau khi giải quyết
+            - Cập nhật độ tin cậy tổng thể 
+            - Khi kết thúc quá trình suy luận, phải có báo cáo tổng kết đầy đủ:
+            * Phương pháp sử dụng và lý do lựa chọn
+            * Tổng số giai đoạn đã hoàn thành
+            * Số lượng khía cạnh đã phân tích
+            * Danh sách mâu thuẫn đã phát hiện và cách giải quyết
+            * Thời gian và tài nguyên sử dụng cho mỗi giai đoạn
+            * Độ tin cậy tổng thể và giải thích
+            - Xác nhận Memory đã được xóa sau khi hoàn thành
+        7.9. Cơ chế khóa giai đoạn
+            - Sau khi hoàn thành một giai đoạn, phải "khóa" giai đoạn đó trong Memory
+            - Quay lại giai đoạn đã khóa chỉ được phép khi:
+            * Phát hiện mâu thuẫn nghiêm trọng (mức độ ≥ 7/10)
+            * Tìm ra thông tin mới quan trọng ảnh hưởng đến kết quả
+            * Độ tin cậy của giai đoạn hiện tại quá thấp (<50%)
+            - Khi quay lại giai đoạn trước, phải ghi rõ trong Memory:
+            * Lý do quay lại
+            * Các thay đổi dự kiến
+            * Tác động dự kiến đến các giai đoạn sau
+    8. METRICS ĐÁNH GIÁ CHẤT LƯỢNG SUY LUẬN
+        8.1. Metrics tổng quát:
+            - Accuracy: Độ chính xác của kết quả cuối cùng (0-100%)
+            - Consistency: Mức độ nhất quán trong quá trình suy luận (0-100%)
+            - Coverage: Mức độ bao phủ tất cả khía cạnh của vấn đề (0-100%)
+            - Explainability: Khả năng giải thích các bước suy luận (0-100%)
+            - Efficiency: Tỷ lệ giữa chất lượng kết quả và tài nguyên sử dụng (0-100%)
+            - Emergent ability score: Khả năng thể hiện "Aha moments" và self-correction (0-100%)
+            - Composite reliability: Tổng hợp từ tất cả metrics (0-100%)
+        8.2. Metrics đặc thù theo phương pháp:
+            - MCTS:
+            * Exploration/exploitation balance: Cân bằng giữa khám phá và khai thác
+            * Tree depth efficiency: Hiệu quả của độ sâu cây tìm kiếm
+            * Simulation quality: Chất lượng của mỗi simulation
+            * Backpropagation accuracy: Độ chính xác của việc cập nhật giá trị ngược
+            * explorationDepth: <0-100%> - Độ sâu khám phá không gian trạng thái
+            * stateSpaceCoverage: <0-100%> - Độ bao phủ không gian trạng thái
+            * simulationAccuracy: <0-100%> - Độ chính xác của các mô phỏng
+            * pruningEfficiency: <0-100%> - Hiệu quả cắt tỉa nhánh không triển vọng
+            - Beam Search:
+            * Beam diversity: Mức độ đa dạng của các beams
+            * Pruning accuracy: Độ chính xác của việc cắt tỉa beams
+            * Width optimization: Mức độ tối ưu của beam width
+            * ReasonFlux metrics: Đánh giá hiệu quả của hierarchical structure
+            * diversityScore: <0-100%> - Độ đa dạng của các giải pháp
+            * optimalityGap: <0-100%> - Khoảng cách tới giải pháp tối ưu
+            * pruningPrecision: <0-100%> - Độ chính xác của quá trình cắt tỉa
+            * convergenceRate: <0-100%> - Tốc độ hội tụ tới giải pháp tốt
+            - R1 Reasoning:
+            * Policy improvement rate: Tốc độ cải thiện của policy
+            * Process reward consistency: Mức độ nhất quán của process rewards
+            * Self-correction frequency: Tần suất tự sửa lỗi
+            * Learning efficiency: Hiệu quả học từ các lỗi trước đó
+            * componentCoverage: <0-100%> - Độ bao phủ các thành phần của vấn đề
+            * insightRelevance: <0-100%> - Tính liên quan của các hiểu biết sâu sắc
+            * logicalCoherence: <0-100%> - Tính mạch lạc logic trong phân tích
+            * counterArgumentQuality: <0-100%> - Chất lượng phản biện
+            - Hybrid:
+            * Integration smoothness: Mức độ mượt mà khi kết hợp các phương pháp
+            * Method selection accuracy: Độ chính xác khi chọn phương pháp phù hợp
+            * Adaptation speed: Tốc độ thích nghi với loại vấn đề
+            * Fallback efficiency: Hiệu quả của cơ chế fallback
+            * methodSynergy: <0-100%> - Mức độ hiệp lực giữa các phương pháp
+            * adaptabilityScore: <0-100%> - Khả năng thích ứng với thay đổi
+            * conflictResolutionQuality: <0-100%> - Chất lượng giải quyết mâu thuẫn
+            * robustnessScore: <0-100%> - Độ mạnh mẽ của kết quả trước nhiễu
+            - Structured:
+            * Structure validity: Tính hợp lệ của cấu trúc được tạo
+            * Template utilization: Mức độ tận dụng các templates
+            * Hierarchical efficiency: Hiệu quả của phân cấp trong suy luận
+            * Graph coherence: Tính liên kết logic trong graph of thoughts
+        8.3. Process-based vs Outcome-based Metrics:
+            - Process-based:
+            * Step-by-step evaluation: Đánh giá từng bước riêng biệt
+            * Reasoning trace quality: Chất lượng của chuỗi suy luận
+            * Intermediate state validity: Tính hợp lệ của các trạng thái trung gian
+            * Knowledge utilization: Mức độ tận dụng kiến thức có sẵn
+            - Outcome-based:
+            * Final answer correctness: Độ chính xác của câu trả lời cuối cùng
+            * Solution optimality: Mức độ tối ưu của giải pháp
+            * Generalization capability: Khả năng áp dụng cho các vấn đề tương tự
+            * Robustness to variations: Khả năng chịu đựng biến đổi của vấn đề
+        8.4. Quy trình kiểm định kết quả
+            Giai đoạn 1: Thiết lập chuẩn - Xác định tiêu chuẩn đánh giá
+            Giai đoạn 2: Kiểm tra tự sự - Đánh giá tính nhất quán nội bộ
+            Giai đoạn 3: Kiểm tra luận lý - Đánh giá tính hợp lý của logic
+            Giai đoạn 4: Kiểm tra thực nghiệm - Đối chiếu với dữ liệu thực tế nếu có
+            Giai đoạn 5: Kiểm tra biên - Thử nghiệm với trường hợp biên và đặc biệt
+            Giai đoạn 6: Tổng hợp đánh giá - Tích hợp tất cả kết quả kiểm định
+        8.5. Evaluation frameworks:
+            - Benchmarking suite: Tập hợp các bài toán chuẩn hóa
+            - Comparative analysis: So sánh với các phương pháp khác
+            - Ablation studies: Nghiên cứu loại bỏ từng thành phần
+            - User-centric evaluation: Đánh giá từ góc độ người dùng
+            - Meta-evaluation: Đánh giá về chính quá trình đánh giá
+        8.6. Checklist bắt buộc đánh giá chất lượng
+            Trước khi kết thúc suy luận:
+            - Đã tính toán tất cả 7 metrics tổng thể
+            - Đã tính toán ít nhất 4 chỉ số chi tiết cho phương pháp sử dụng
+            - Đã hoàn thành tất cả 6 giai đoạn kiểm định kết quả
+            - Đã xác định rõ độ tin cậy tổng hợp
+            - Đã liệt kê rõ các hạn chế của kết quả
+            Tiêu chuẩn tối thiểu cho kết quả chấp nhận được:
+            - Độ chính xác ≥ 75%
+            - Tính nhất quán ≥ 80%
+            - Độ bao phủ ≥ 70%
+            - Tính giải thích được ≥ 85%
+            - Hiệu quả ≥ 70%
+            - Emergent ability score ≥ 65%
+            - Độ tin cậy tổng hợp ≥ 75%
+    9. TÍCH HỢP MEMORY TRONG REASONER
+        9.1. Cấu trúc memory:
+            - Episodic memory: Lưu trữ các sự kiện và bước suy luận đã thực hiện
+            - Semantic memory: Lưu trữ kiến thức và concepts liên quan
+            - Working memory: Lưu trữ thông tin đang được xử lý
+            - Meta-memory: Lưu trữ thông tin về quá trình suy luận
+            - Hierarchical memory structure: Phù hợp cho Structured Reasoning
+        9.2. Memory operations:
+            - Storage:
+            * Checkpoint creation: Tạo điểm khôi phục sau mỗi giai đoạn quan trọng
+            * Differential storage: Chỉ lưu thay đổi để tối ưu không gian
+            * Compression: Nén thông tin không quan trọng
+            * Priority-based storage: Ưu tiên lưu thông tin quan trọng
+            - Retrieval:
+            * Context-aware retrieval: Lấy thông tin phù hợp với ngữ cảnh hiện tại
+            * Similarity-based retrieval: Lấy thông tin tương tự
+            * Temporal retrieval: Lấy thông tin dựa trên thời gian
+            * Causal retrieval: Lấy thông tin dựa trên quan hệ nhân quả
+            - Update:
+            * Conflict resolution: Giải quyết xung đột khi cập nhật
+            * Merge operations: Gộp thông tin từ nhiều nguồn
+            * Forgetting mechanisms: Loại bỏ thông tin không còn liên quan
+            * Reinforcement: Tăng cường thông tin được sử dụng thường xuyên
+        9.3. Mục đích sử dụng Memory
+            - Hỗ trợ tự kiểm soát quá trình suy luận
+            - Lưu trữ tạm thời điểm mốc quan trọng trong quá trình suy luận
+            - Theo dõi tiến trình và trạng thái của suy luận
+            - KHÔNG sử dụng để lưu trữ vĩnh viễn kiến thức từ reasoner    
+        9.4. Quy trình sử dụng Memory
+            9.4.1. Khởi tạo Memory:
+            - Tạo entity để lưu trữ thông tin reasoner khi bắt đầu tiến trình
+            - Cấu trúc: {
+                name: "ReasonerSession_<ID>", 
+                entityType: "ReasonerProgress",
+                observations: ["Vấn đề đang giải quyết", "Phương pháp đang sử dụng"]
+                }
+            9.4.2. Lưu điểm mốc trong quá trình suy luận:
+            - Lưu trạng thái sau mỗi giai đoạn quan trọng
+            - Lưu các hiểu biết quan trọng vừa phát hiện
+            - Lưu các mâu thuẫn và cách giải quyết
+            9.4.3. Tham khảo trong quá trình suy luận:
+            - Tra cứu các kết quả trung gian đã lưu
+            - Kiểm tra tính nhất quán với các bước trước
+            - Phát hiện tiến triển hoặc lặp lại không cần thiết
+            9.4.4. Xóa bỏ Memory sau khi hoàn thành:
+            - Thực hiện xóa entity memory khi suy luận hoàn tất
+            - Chỉ giữ lại kết quả suy luận cuối cùng trong phản hồi    
+        9.5. Tích hợp với các phương pháp reasoning:
+            - MCTS:
+            * Tree structure memory: Lưu trữ cây tìm kiếm
+            * Simulation results cache: Cache kết quả simulation
+            * Path evaluation history: Lịch sử đánh giá các đường đi
+            * RAG-Star: Tích hợp với Retrieval-Augmented Generation
+            - Beam Search:
+            * Beam history: Lịch sử các beams đã xét
+            * Pruned solutions archive: Lưu trữ các giải pháp đã bị cắt tỉa
+            * Diversity metrics: Thông tin về mức độ đa dạng
+            * ReasonFlux memory: Đặc biệt cho hierarchical reasoning
+            - R1 Reasoning:
+            * Policy evolution trace: Dấu vết tiến hóa của policy
+            * Self-correction history: Lịch sử tự sửa lỗi
+            * Process reward signals: Tín hiệu reward cho từng bước
+            * Training experience replay: Replay buffer cho RL
+            - Hybrid:
+            * Method switching log: Nhật ký chuyển đổi phương pháp
+            * Cross-method validation: Xác nhận chéo giữa các phương pháp
+            * Integration state: Trạng thái tích hợp giữa các phương pháp
+            * Meta-selection criteria: Tiêu chí chọn phương pháp
+            - Structured:
+            * Graph persistence: Lưu trữ graph of thoughts
+            * Template registry: Đăng ký các templates
+            * Hierarchical state: Trạng thái phân cấp
+            * Inter-node relationships: Quan hệ giữa các nodes
+        9.6. Cấu trúc Memory cho Reasoner
+            {
+            reasonerSession: {
+                problemID: "<ID vấn đề>",
+                method: "<MCTS/BEAM/R1/HYBRID/STRUCTURED>",
+                stage: <giai đoạn hiện tại>,
+                checkpoints: [
+                {
+                    timestamp: "<thời điểm>",
+                    stage: <giai đoạn>,
+                    state: "<mô tả trạng thái>",
+                    confidence: <0-100%>
+                }
+                ],
+                keyInsights: [
+                "<hiểu biết quan trọng 1>",
+                "<hiểu biết quan trọng 2>"
+                ],
+                resolvedConflicts: [
+                {
+                    conflict: "<mô tả mâu thuẫn>",
+                    resolution: "<cách giải quyết>"
+                }
+                ],
+                completedChecklists: [
+                {
+                    stage: <giai đoạn>,
+                    items: ["<mục 1>", "<mục 2>", ...]
+                }
+                ]
+            }
+            }
+        9.7. Synchronization và consistency:
+            - Transaction-based updates: Cập nhật theo transaction
+            - Versioning: Quản lý phiên bản của memory
+            - Conflict detection: Phát hiện xung đột giữa các phiên bản
+            - Rollback mechanisms: Cơ chế quay lại phiên bản trước
+            - Cross-validation: Xác nhận chéo giữa các phần của memory 
+        9.8. Quy trình xóa Memory
+            9.8.1. Lưu trữ kết quả cuối cùng vào phản hồi
+            9.8.2. Tạo báo cáo tổng kết về quá trình suy luận
+            9.8.3. Gọi hàm delete_entities để xóa memory reasoner
+            9.8.4. Xác nhận việc xóa memory trong báo cáo cuối cùng
+    10. CƠ CHẾ RÀNG BUỘC BẮT BUỘC
+        10.1. Ràng buộc tổng quát:
+            - Logical consistency: Tính nhất quán logic trong quá trình suy luận
+            - Factual accuracy: Độ chính xác của các sự kiện được sử dụng
+            - Resource constraints: Giới hạn về tài nguyên (thời gian, memory)
+            - Format compliance: Tuân thủ định dạng output
+            - Explainability requirements: Yêu cầu về khả năng giải thích   
+        10.2. Ràng buộc đặc thù theo phương pháp:
+            - MCTS:
+            * Simulation depth limits: Giới hạn độ sâu của simulation
+            * Exploration parameter bounds: Giới hạn tham số exploration
+            * Tree pruning rules: Quy tắc cắt tỉa cây
+            * Backpropagation constraints: Ràng buộc khi cập nhật ngược
+            * LATS reflection requirements: Yêu cầu về reflection
+            - Beam Search:
+            * Beam width restrictions: Giới hạn độ rộng beam
+            * Pruning criteria: Tiêu chí cắt tỉa
+            * Path extension limits: Giới hạn mở rộng đường đi
+            * Diversity requirements: Yêu cầu về tính đa dạng
+            * ReasonFlux template conformance: Tuân thủ templates
+            - R1 Reasoning:
+            * Policy update frequency: Tần suất cập nhật policy
+            * Process reward thresholds: Ngưỡng của process rewards
+            * Self-correction triggers: Điều kiện kích hoạt tự sửa lỗi
+            * Training stability requirements: Yêu cầu về tính ổn định khi training
+            * Cold-start data quality: Yêu cầu về chất lượng dữ liệu ban đầu
+            - Hybrid:
+            * Method selection criteria: Tiêu chí chọn phương pháp
+            * Integration rules: Quy tắc tích hợp giữa các phương pháp
+            * Fallback conditions: Điều kiện chuyển sang phương pháp dự phòng
+            * Resource allocation constraints: Ràng buộc phân bổ tài nguyên
+            * Cross-method validation requirements: Yêu cầu xác nhận chéo
+            - Structured:
+            * Graph formation rules: Quy tắc hình thành graph
+            * Hierarchical consistency: Tính nhất quán phân cấp
+            * Template matching requirements: Yêu cầu khớp với templates
+            * Inter-node relationship constraints: Ràng buộc quan hệ giữa các nodes
+            * Structure validity conditions: Điều kiện hợp lệ của cấu trúc
+        10.3. Checklist bắt buộc cho mỗi giai đoạn
+            - Mỗi giai đoạn phải có danh sách kiểm tra bắt buộc phải hoàn thành
+            - Không được chuyển sang giai đoạn tiếp theo khi còn mục nào chưa hoàn thành
+            - Tại cuối mỗi giai đoạn, phải liệt kê rõ các mục đã hoàn thành trong phần completedChecklist
+            - Các mục chưa hoàn thành phải được liệt kê trong phần pendingChecklist
+        10.4. Enforcement mechanisms:
+            - Hard constraints: Bắt buộc tuân thủ, không được vi phạm
+            - Soft constraints: Ưu tiên tuân thủ, có thể vi phạm với penalty
+            - Dynamic constraints: Thay đổi theo tiến trình suy luận
+            - Meta-constraints: Ràng buộc về việc áp dụng các ràng buộc khác
+            - External validation: Xác nhận bởi thành phần bên ngoài  
+        10.5. Điều kiện tiên quyết chuyển giai đoạn
+            - Mỗi giai đoạn có các điều kiện tiên quyết phải đạt được mới được chuyển giai đoạn
+            - Phải xác nhận rõ ràng từng điều kiện đã được đáp ứng
+            - Nếu điều kiện chưa thỏa mãn, phải quay lại xử lý trước khi tiếp tục
+            - Không được chuyển giai đoạn khi còn điều kiện tiên quyết chưa đáp ứng
+        10.6. Constraint relaxation và adaptation:
+            - Progressive relaxation: Nới lỏng dần các ràng buộc khi cần
+            - Context-aware adaptation: Điều chỉnh theo ngữ cảnh
+            - Constraint prioritization: Ưu tiên các ràng buộc quan trọng
+            - Feedback-based adjustment: Điều chỉnh dựa trên phản hồi
+            - Meta-reasoning về ràng buộc: Suy luận về việc áp dụng ràng buộc
+        10.7. Quy định báo cáo trạng thái
+            - Tại mỗi bước suy luận, phải báo cáo:
+            * Tóm tắt các bước đã hoàn thành (completedChecklist)
+            * Các khía cạnh đã phân tích (theo phương pháp cụ thể)
+            * Các khía cạnh chưa phân tích (pendingChecklist)
+            - Trước khi kết thúc, bắt buộc thực hiện kiểm tra cuối cùng:
+            * Xác nhận tất cả giai đoạn đã hoàn thành
+            * Xác nhận tất cả khía cạnh vấn đề đã được phân tích
+            * Báo cáo mức độ tin cậy cho từng phần của giải pháp  
+        10.8. Cơ chế xác nhận hoàn thành
+            - Khi kết thúc quá trình suy luận, phải có báo cáo tổng kết đầy đủ:
+            * Phương pháp sử dụng và lý do lựa chọn
+            * Tổng số giai đoạn đã hoàn thành
+            * Số lượng khía cạnh đã phân tích
+            * Danh sách mâu thuẫn đã phát hiện và cách giải quyết
+            * Thời gian và tài nguyên sử dụng cho mỗi giai đoạn
+            * Độ tin cậy tổng thể và giải thích
+            - Xác nhận Memory đã được xóa sau khi hoàn thành       
+        10.9. Cơ chế khóa giai đoạn
+            - Sau khi hoàn thành một giai đoạn, phải "khóa" giai đoạn đó trong Memory
+            - Quay lại giai đoạn đã khóa chỉ được phép khi:
+            * Phát hiện mâu thuẫn nghiêm trọng (mức độ ≥ 7/10)
+            * Tìm ra thông tin mới quan trọng ảnh hưởng đến kết quả
+            * Độ tin cậy của giai đoạn hiện tại quá thấp (<50%)
+            - Khi quay lại giai đoạn trước, phải ghi rõ trong Memory:
+            * Lý do quay lại
+            * Các thay đổi dự kiến
+            * Tác động dự kiến đến các giai đoạn sau
+    11. XỬ LÝ LỖI VÀ KHÔI PHỤC
+        11.1. Phân loại lỗi:
+            - Dữ liệu: Thiếu, không nhất quán, sai định dạng
+            - Mô hình: Không hội tụ, đạt giới hạn lặp, kết quả không hợp lý
+            - Tích hợp: Mâu thuẫn không giải quyết được, không tương thích
+            - Method-specific:
+            * MCTS: Exploration failure, simulation errors, value estimation issues
+            * Beam Search: Beam collapse, diversity loss, promising path pruning
+            * R1: Policy divergence, reward sparsity, training instability
+            * Hybrid: Method interference, integration failures, resource exhaustion
+            * Structured: Structure breakdown, template mismatch, graph inconsistency
+        11.2. Detection mechanisms:
+            - Anomaly detection: Phát hiện bất thường trong quá trình suy luận
+            - Consistency checking: Kiểm tra tính nhất quán của kết quả
+            - Performance monitoring: Theo dõi hiệu suất reasoning
+            - Resource utilization alerts: Cảnh báo sử dụng tài nguyên quá mức
+            - Meta-level evaluation: Đánh giá ở cấp meta về quá trình reasoning
+        11.3. Quy trình khôi phục:
+            - Checkpointing:
+            * Automatic checkpoints: Tự động tạo điểm khôi phục
+            * Milestone-based: Tạo điểm khôi phục tại các cột mốc quan trọng
+            * State serialization: Lưu trữ trạng thái đầy đủ
+            * Memory integration: Tích hợp với hệ thống memory
+            * Lưu điểm kiểm tra (checkpoint) vào memory sau mỗi giai đoạn 
+            - Recovery strategies:
+            * Rollback to checkpoint: Quay lại điểm khôi phục gần nhất
+            * Partial rollback: Chỉ quay lại một phần của quá trình
+            * Alternative path exploration: Khám phá đường đi thay thế
+            * Hybrid fallback: Chuyển sang phương pháp reasoning khác
+            * Parameter adjustment: Điều chỉnh tham số và thử lại
+            * Khi gặp lỗi, truy xuất điểm kiểm tra gần nhất từ memory
+            * Thử với cấu hình thay thế (fallback configuration) 
+            - Method-specific recovery:
+            * MCTS: 
+                - Tree re-balancing: Tái cân bằng cây tìm kiếm
+                - Exploration parameter tuning: Điều chỉnh tham số exploration
+                - Simulation enhancement: Cải thiện quá trình simulation
+                - LATS reflection boost: Tăng cường reflection
+            * Beam Search:
+                - Beam width expansion: Mở rộng beam width
+                - Diversity injection: Tiêm tính đa dạng vào beams
+                - Re-scoring: Đánh giá lại các beams
+                - ReasonFlux template switch: Chuyển đổi templates
+            * R1 Reasoning:
+                - Policy reset: Khôi phục policy về trạng thái ổn định
+                - Process reward calibration: Hiệu chỉnh process rewards
+                - Training stabilization: Ổn định quá trình training
+                - Cold-start data augmentation: Bổ sung dữ liệu cold-start
+            * Hybrid:
+                - Method re-selection: Chọn lại phương pháp phù hợp
+                - Integration reconfiguration: Cấu hình lại quá trình tích hợp
+                - Resource reallocation: Phân bổ lại tài nguyên
+                - Sequential fallback: Fallback tuần tự qua các phương pháp dự phòng
+            * Structured:
+                - Structure repair: Sửa chữa cấu trúc
+                - Template adaptation: Điều chỉnh templates
+                - Graph simplification: Đơn giản hóa graph
+                - Hierarchical reorganization: Tổ chức lại cấu trúc phân cấp
+        11.4. Learning from failures:
+            - Error logging: Ghi lại các lỗi và cách xử lý
+            - Pattern recognition: Nhận diện các mẫu lỗi thường gặp
+            - Failure analysis: Phân tích nguyên nhân gốc rễ
+            - Adaptive improvement: Cải thiện dựa trên các lỗi trước đó
+            - Knowledge transfer: Chuyển giao kiến thức về lỗi giữa các phương pháp
+            - Ghi lại lỗi và giải pháp xử lý để cải thiện
+    12. CÁCH SỬ DỤNG
+        TAG ĐÁNH DẤU
+            - [Suy luận-MCTS] - MCTS REASONING [MCTS]
+            - [Suy luận-BEAM] - BEAM SEARCH REASONING [BEAM]
+            - [Suy luận-R1] - R1 REASONING [R1]
+            - [Suy luận-HYBRID] - HYBRID REASONING [HYBRID]
+            - [Suy luận-STRUCTURED] - STRUCTURED REASONING [STRUCTURED]

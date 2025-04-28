@@ -1,0 +1,383 @@
+{
+    "simple_game": {
+        "initial_state": {
+            "position": 0,
+            "goal": 5
+        },
+        "state_representation": {
+            "player_marker": "X"
+        },
+        "get_legal_actions_logic": {
+            "type": "enumerate_options",
+            "options": [
+                1,
+                2
+            ]
+        },
+        "apply_action_logic": {
+            "type": "select_option"
+        },
+        "is_terminal_logic": {
+            "type": "goal_achieved",
+            "goal_state": {
+                "position": 5,
+                "goal": 5
+            }
+        },
+        "get_reward_logic": {
+            "type": "goal_reward",
+            "reward_value": 1,
+            "default_reward": 0
+        },
+        "simulation_policy_config": {
+            "type": "random_rollout",
+            "max_depth": 10
+        }
+    },
+    "game_tictactoe": {
+        "initial_state": {
+            "board": [
+                [
+                    "",
+                    "",
+                    ""
+                ],
+                [
+                    "",
+                    "",
+                    ""
+                ],
+                [
+                    "",
+                    "",
+                    ""
+                ]
+            ],
+            "current_player": "X"
+        },
+        "state_representation": {
+            "player_marker": {
+                "p1": "X",
+                "p2": "O"
+            },
+            "empty_cell": "",
+            "board_type": "grid"
+        },
+        "get_legal_actions_logic": {
+            "type": "find_empty_cells"
+        },
+        "apply_action_logic": {
+            "type": "place_marker",
+            "next_player_rule": "alternate"
+        },
+        "is_terminal_logic": {
+            "type": "win_loss_draw_condition",
+            "win_patterns": [
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        1
+                    ],
+                    [
+                        0,
+                        2
+                    ]
+                ],
+                [
+                    [
+                        1,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        1,
+                        2
+                    ]
+                ],
+                [
+                    [
+                        2,
+                        0
+                    ],
+                    [
+                        2,
+                        1
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ],
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        0
+                    ],
+                    [
+                        2,
+                        0
+                    ]
+                ],
+                [
+                    [
+                        0,
+                        1
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        1
+                    ]
+                ],
+                [
+                    [
+                        0,
+                        2
+                    ],
+                    [
+                        1,
+                        2
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ],
+                [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2
+                    ]
+                ],
+                [
+                    [
+                        0,
+                        2
+                    ],
+                    [
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        0
+                    ]
+                ]
+            ]
+        },
+        "get_reward_logic": {
+            "type": "win_loss_reward",
+            "win_reward": 1,
+            "loss_reward": -1,
+            "draw_reward": 0
+        }
+    },
+    "Bài toán tìm đường đi trên bàn cờ 20x20 cho quân mã từ ô (0,0) tới ô (19,19) đi qua mỗi ô đúng một lần": {
+        "initial_state": {
+            "board_size": 20,
+            "current_position": [
+                0,
+                0
+            ],
+            "end_position": [
+                19,
+                19
+            ],
+            "knight_moves": [
+                [
+                    -2,
+                    -1
+                ],
+                [
+                    -2,
+                    1
+                ],
+                [
+                    -1,
+                    -2
+                ],
+                [
+                    -1,
+                    2
+                ],
+                [
+                    1,
+                    -2
+                ],
+                [
+                    1,
+                    2
+                ],
+                [
+                    2,
+                    -1
+                ],
+                [
+                    2,
+                    1
+                ]
+            ],
+            "visited_cells": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "is_terminal": "lambda state: len(state['visited_cells']) == state['board_size'] * state['board_size'] and state['current_position'] == state['end_position']",
+        "get_legal_actions": "lambda state: [move for move in state['knight_moves'] if is_valid_move(state, move)]",
+        "get_next_state": "lambda state, action: get_next_knight_state(state, action)",
+        "get_reward": "lambda state: 1 if len(state['visited_cells']) == state['board_size'] * state['board_size'] and state['current_position'] == state['end_position'] else 0"
+    },
+    "Bài toán N-Queens với N = 100, tìm cách đặt 100 quân hậu trên bàn cờ 100x100 sao cho không quân hậu nào tấn công quân hậu khác": {
+        "n": 100,
+        "initial_state": {
+            "n": 100,
+            "queens": [],
+            "current_row": 0
+        },
+        "is_terminal": "lambda state: len(state['queens']) == state['n']",
+        "get_legal_actions": "lambda state: [col for col in range(state['n']) if is_valid_position(state, state['current_row'], col)]",
+        "get_next_state": "lambda state, action: {'n': state['n'], 'queens': state['queens'] + [(state['current_row'], action)], 'current_row': state['current_row'] + 1}",
+        "get_reward": "lambda state: 1 if len(state['queens']) == state['n'] else 0",
+        "is_valid_position": "lambda state, row, col: all(row != r and col != c and abs(row - r) != abs(col - c) for r, c in state['queens'])"
+    },
+    "Bài toán tối ưu hóa hàm với nhiều biến và rất nhiều cực trị địa phương": {
+        "dimensions": 1000,
+        "search_range": [
+            -1000,
+            1000
+        ],
+        "initial_state": {
+            "position": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "step_size": 10,
+            "iterations": 0,
+            "max_iterations": 10000
+        },
+        "is_terminal": "lambda state: state['iterations'] >= state['max_iterations']",
+        "get_legal_actions": "lambda state: [{'dimension': dim, 'direction': dir} for dim in range(len(state['position'])) for dir in [-1, 1]]",
+        "get_next_state": "lambda state, action: {'position': [state['position'][i] + (state['step_size'] * action['direction'] if i == action['dimension'] else 0) for i in range(len(state['position']))], 'step_size': state['step_size'] * 0.99, 'iterations': state['iterations'] + 1, 'max_iterations': state['max_iterations']}",
+        "get_reward": "lambda state: -1 * sum([(x**2 - 10 * math.cos(2 * math.pi * x) + 10) for x in state['position']]) / len(state['position'])"
+    },
+    "Bài toán với vòng lặp vô hạn trong quá trình mô phỏng": {
+        "initial_state": {
+            "counter": 0
+        },
+        "is_terminal": "lambda state: False",
+        "get_legal_actions": "lambda state: [0, 1]",
+        "get_next_state": "lambda state, action: {'counter': state['counter'] + action}",
+        "get_reward": "lambda state: state['counter']"
+    },
+    "Tạo vòng lặp vô hạn trong một hàm Python để kiểm tra xử lý timeout": {
+        "initial_state": {
+            "counter": 0
+        },
+        "is_terminal": "lambda state: False",
+        "get_legal_actions": "lambda state: [0]",
+        "get_next_state": "lambda state, action: {'counter': state['counter'] + 1} if not infinite_loop() else state",
+        "get_reward": "lambda state: state['counter']",
+        "infinite_loop": "lambda: exec('while True: pass') or False"
+    },
+    "Lặp vô hạn với recursive lambda function gây tràn stack": {
+        "initial_state": {
+            "depth": 0
+        },
+        "is_terminal": "lambda state: state['depth'] > 1000000",
+        "get_legal_actions": "lambda state: [1]",
+        "get_next_state": "lambda state, action: recursive_call(state)",
+        "get_reward": "lambda state: state['depth']",
+        "recursive_call": "lambda state: recursive_call({'depth': state['depth'] + 1}) if state['depth'] < 1000000 else state"
+    },
+    "Bài toán với vòng lặp vô tận thông qua việc gọi hàm đệ quy không có điều kiện dừng": {
+        "initial_state": {
+            "depth": 0
+        },
+        "is_terminal": "lambda state: False",
+        "get_legal_actions": "lambda state: [0]",
+        "get_next_state": "lambda state, action: {'depth': state['depth'] + 1}",
+        "get_reward": "lambda state: 0",
+        "simulate": "lambda state, timeout=None: simulate_recursive(state, timeout)",
+        "simulate_recursive": "lambda state, timeout: simulate_recursive(get_next_state(state, 0), timeout)"
+    },
+    "Tính toán số Fibonacci thứ n = 10000 bằng đệ quy không có nhớ": {
+        "initial_state": {
+            "n": 10000,
+            "current": 0
+        },
+        "is_terminal": "lambda state: state['current'] >= state['n']",
+        "get_legal_actions": "lambda state: [1]",
+        "get_next_state": "lambda state, action: {'n': state['n'], 'current': state['current'] + action}",
+        "get_reward": "lambda state: fibonacci(state['current']) if state['current'] == state['n'] else 0",
+        "fibonacci": "lambda n: n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)"
+    },
+    "Test Case - Mismatched Logic Types": {
+        "initial_state": [
+            [
+                " ",
+                " ",
+                " "
+            ],
+            [
+                " ",
+                " ",
+                " "
+            ],
+            [
+                " ",
+                " ",
+                " "
+            ]
+        ],
+        "get_legal_actions_logic": {
+            "type": "enumerate_options",
+            "options": [
+                1,
+                2,
+                3
+            ]
+        },
+        "apply_action_logic": {
+            "type": "select_option"
+        },
+        "is_terminal_logic": {
+            "type": "win_loss_draw_condition"
+        },
+        "state_representation": {
+            "empty_cell": " ",
+            "player_marker": "X"
+        }
+    }
+}
