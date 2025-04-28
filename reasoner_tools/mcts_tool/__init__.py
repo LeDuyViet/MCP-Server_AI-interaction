@@ -16,10 +16,6 @@ import re
 # Import các thành phần cốt lõi từ các module khác
 from .node import MCTSNode # Lớp Node
 from .engine import run_mcts # Engine MCTS
-# Registry và logic cụ thể không còn cần thiết cho việc truyền code động
-# from .logic.registry import PROBLEM_LOGIC_REGISTRY
-# from .logic import basic_number_guessing
-# from .logic import simple_grid_planning
 
 # Cấu hình logging cơ bản
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,13 +24,12 @@ from .engine import run_mcts # Engine MCTS
 def mcts_reasoning(
     strategy_name: str,
     strategy_params: Dict[str, Any],
-    num_iterations: int = 1000,
     exploration_constant: float = 1.414,
-    time_limit_seconds: float = None,
-    debug_simulation_limit: int = None
+    time_limit_seconds: float = 10.0, # Giới hạn thời gian mặc định là 10 giây
+    debug_simulation_limit: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Thực thi một chiến lược suy luận MCTS.
+    Thực thi một chiến lược suy luận MCTS dựa trên giới hạn thời gian.
 
     Args:
         strategy_name: Tên của chiến lược cần thực thi.
@@ -57,11 +52,9 @@ def mcts_reasoning(
                              "max_simulation_depth": Optional[int] = 50, # (Không dùng trực tiếp trong MCTS, có thể dùng trong logic nếu cần)
                              "evaluation_logic": Optional[str] = "random_reward" # Cách đánh giá mô phỏng (hiện chỉ hỗ trợ "random_reward").
                            }
-        num_iterations (int): Số lượt lặp MCTS tối đa (mặc định 1000). Bị bỏ qua nếu `time_limit_seconds` được cung cấp giá trị khác None.
         exploration_constant (float): Hệ số khám phá UCB1 (mặc định 1.414).
-        time_limit_seconds (float): Giới hạn thời gian chạy tối đa (giây). Nếu được cung cấp giá trị khác None,
-                                    thuật toán sẽ chạy cho đến khi hết thời gian và bỏ qua `num_iterations`.
-                                    Mặc định là None (không giới hạn thời gian, chỉ giới hạn bởi `num_iterations`).
+        time_limit_seconds (float): Giới hạn thời gian chạy tối đa (giây).
+                                    Mặc định là 10.0 giây.
         debug_simulation_limit (Optional[int]): Số lượng mô phỏng gần nhất để lưu log (ví dụ: 5). Mặc định là None (không log).
 
     Returns:
@@ -74,10 +67,10 @@ def mcts_reasoning(
             "best_action_found": "move_right", # Hành động tốt nhất tìm được
             "best_action_score": 0.95,       # Điểm MCTS ước tính
             "score_type": "average_reward",
-            "iterations_attempted": 1000,
-            "iterations_completed": 1000,
-            "time_elapsed_seconds": 8.2,
-            "root_node_total_visits": 1000,
+            # "iterations_attempted": Bị loại bỏ,
+            "iterations_completed": 150234, # Số lượt lặp thực tế hoàn thành trong time limit
+            "time_elapsed_seconds": 10.05,  # Thời gian chạy thực tế
+            "root_node_total_visits": 150234,
             "error_type": None,
             "error_details": None,
             "warnings": [],
@@ -104,7 +97,7 @@ def mcts_reasoning(
         "best_action_found": None,
         "best_action_score": None,
         "score_type": None, # Sẽ được cập nhật nếu MCTS chạy thành công
-        "iterations_attempted": num_iterations,
+        # "iterations_attempted": Bị loại bỏ,
         "iterations_completed": 0,
         "time_elapsed_seconds": 0.0,
         "root_node_total_visits": 0,
@@ -126,6 +119,14 @@ def mcts_reasoning(
         return base_result
     if not isinstance(strategy_params, dict):
         base_result["message"] = "'strategy_params' must be a dictionary."
+        base_result["error_type"] = "InvalidParameter"
+        base_result["error_details"] = base_result["message"]
+        logging.error(base_result["message"])
+        base_result["time_elapsed_seconds"] = time.time() - start_func_time
+        return base_result
+    if not isinstance(time_limit_seconds, (int, float)) or time_limit_seconds <= 0:
+        # Đảm bảo time_limit_seconds là số dương
+        base_result["message"] = "'time_limit_seconds' must be a positive number."
         base_result["error_type"] = "InvalidParameter"
         base_result["error_details"] = base_result["message"]
         logging.error(base_result["message"])
@@ -299,9 +300,7 @@ def mcts_reasoning(
 
             # 4. Call the Core MCTS Engine
             logging.info(f"Calling run_mcts for '{strategy_name}' with dynamically defined logic...")
-            # Xác định số lượt lặp thực tế dựa trên time_limit_seconds
-            mcts_num_iterations = sys.maxsize if time_limit_seconds is not None else num_iterations
-            base_result["iterations_attempted"] = mcts_num_iterations # Cập nhật số lượt thử thực tế
+            # Luôn sử dụng time_limit_seconds, không còn num_iterations
 
             mcts_results = run_mcts(
                 initial_state=current_state,
@@ -309,9 +308,8 @@ def mcts_reasoning(
                 apply_action_func=apply_action_with_context, # apply_action_func trong run_mcts sẽ tự nhận action
                 is_terminal_func=is_terminal_with_context,
                 simulation_policy_func=simulation_policy_with_context,
-                num_iterations=mcts_num_iterations, # Truyền số lượt lặp đã điều chỉnh
                 exploration_constant=exploration_constant,
-                time_limit_seconds=time_limit_seconds,
+                time_limit_seconds=time_limit_seconds, # Luôn truyền time limit
                 debug_simulation_limit=debug_simulation_limit
             )
 
@@ -417,9 +415,7 @@ def mcts_reasoning(
 
             # 3. Call the Core MCTS Engine
             logging.info("Calling run_mcts for 'evaluate_options'...")
-            # Xác định số lượt lặp thực tế dựa trên time_limit_seconds
-            mcts_num_iterations = sys.maxsize if time_limit_seconds is not None else num_iterations
-            base_result["iterations_attempted"] = mcts_num_iterations # Cập nhật số lượt thử thực tế
+            # Luôn sử dụng time_limit_seconds
 
             mcts_results = run_mcts(
                 initial_state=initial_context_eval,
@@ -427,9 +423,8 @@ def mcts_reasoning(
                 apply_action_func=_apply_action_eval,
                 is_terminal_func=_is_terminal_eval,
                 simulation_policy_func=_simulation_policy_eval,
-                num_iterations=mcts_num_iterations, # Truyền số lượt lặp đã điều chỉnh
                 exploration_constant=exploration_constant,
-                time_limit_seconds=time_limit_seconds,
+                time_limit_seconds=time_limit_seconds, # Luôn truyền time limit
                 debug_simulation_limit=debug_simulation_limit
             )
 

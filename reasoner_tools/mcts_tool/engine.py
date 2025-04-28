@@ -24,13 +24,12 @@ def run_mcts(
     apply_action_func: ApplyActionFunc,
     is_terminal_func: IsTerminalStateFunc,
     simulation_policy_func: SimulationPolicyFunc,
-    num_iterations: int = 1000,
     exploration_constant: float = 1.414,
     time_limit_seconds: Optional[float] = None,
     debug_simulation_limit: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Thực thi thuật toán Monte Carlo Tree Search cốt lõi.
+    Thực thi thuật toán Monte Carlo Tree Search cốt lõi dựa trên giới hạn thời gian.
 
     Args:
         initial_state: Trạng thái bắt đầu của vấn đề.
@@ -38,9 +37,8 @@ def run_mcts(
         apply_action_func: Hàm nhận state và action, trả về state mới.
         is_terminal_func: Hàm nhận state, trả về True nếu là trạng thái kết thúc.
         simulation_policy_func: Hàm nhận state, chạy mô phỏng đến hết và trả về phần thưởng.
-        num_iterations: Số lượt lặp tối đa để chạy MCTS.
         exploration_constant: Hệ số C trong công thức UCB1.
-        time_limit_seconds: Giới hạn thời gian chạy tối đa (ghi đè num_iterations nếu có).
+        time_limit_seconds: Giới hạn thời gian chạy tối đa (giây). Bắt buộc.
         debug_simulation_limit: Số lượng mô phỏng gần nhất để lưu log (nếu được cung cấp).
 
     Returns:
@@ -48,7 +46,7 @@ def run_mcts(
             - best_action: Hành động tốt nhất được tìm thấy từ gốc.
             - best_action_score: Điểm số của hành động tốt nhất (ví dụ: reward trung bình).
             - score_type: Loại điểm số được sử dụng (ví dụ: 'average_reward', 'visits').
-            - iterations_completed: Số lượt lặp MCTS thực sự hoàn thành.
+            - iterations_completed: Số lượt lặp MCTS thực sự hoàn thành trong thời gian giới hạn.
             - time_elapsed_seconds: Tổng thời gian chạy.
             - root_node_visits: Tổng số lượt thăm nút gốc.
             - error: Chuỗi lỗi nếu có lỗi nghiêm trọng xảy ra, None nếu thành công.
@@ -93,16 +91,13 @@ def run_mcts(
         logging.debug(f"Root node created: {root_node}")
 
         iterations_done = 0
-        # --- 2. Vòng lặp MCTS Chính ---
+        # --- 2. Vòng lặp MCTS Chính --- (Chỉ dừng theo thời gian)
         while True:
-            # 2.1. Kiểm tra Điều kiện Dừng
+            # 2.1. Kiểm tra Điều kiện Dừng (Chỉ thời gian)
             current_time = time.time()
             time_elapsed = current_time - start_time
             if time_limit_seconds is not None and time_elapsed > time_limit_seconds:
-                logging.info(f"MCTS stopping due to time limit ({time_limit_seconds:.2f}s).")
-                break
-            if iterations_done >= num_iterations:
-                logging.info(f"MCTS stopping after reaching iteration limit ({num_iterations}).")
+                logging.info(f"MCTS stopping due to time limit ({time_limit_seconds:.2f}s reached).")
                 break
 
             # --- Bắt đầu một lượt lặp MCTS ---
