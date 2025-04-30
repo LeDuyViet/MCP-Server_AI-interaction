@@ -17,6 +17,13 @@ GetLegalActionsFunc = Callable[[Any], List[Any]]
 ApplyActionFunc = Callable[[Any, Any], Any]
 IsTerminalStateFunc = Callable[[Any], bool]
 SimulationPolicyFunc = Callable[[Any], float] # Nhận state, trả về reward cuối cùng của rollout
+GetStateHashFunc = Optional[Callable[[Any], Any]] # Hàm hash trạng thái, trả về giá trị hashable
+
+def _format_dynamic_code_error(error: Exception, function_name: str) -> str:
+    """
+    Helper function to format dynamic code execution errors.
+    """
+    return f"Error executing {function_name}: {str(error)}"
 
 def run_mcts(
     initial_state: Any,
@@ -26,7 +33,9 @@ def run_mcts(
     simulation_policy_func: SimulationPolicyFunc,
     exploration_constant: float = 1.414,
     time_limit_seconds: Optional[float] = None,
-    debug_simulation_limit: Optional[int] = None
+    debug_simulation_limit: Optional[int] = None,
+    enable_transposition_table: bool = False,
+    get_state_hash_func: GetStateHashFunc = None
 ) -> Dict[str, Any]:
     """
     Thực thi thuật toán Monte Carlo Tree Search cốt lõi dựa trên giới hạn thời gian.
@@ -40,6 +49,8 @@ def run_mcts(
         exploration_constant: Hệ số C trong công thức UCB1.
         time_limit_seconds: Giới hạn thời gian chạy tối đa (giây). Bắt buộc.
         debug_simulation_limit: Số lượng mô phỏng gần nhất để lưu log (nếu được cung cấp).
+        enable_transposition_table: Bật/tắt việc sử dụng Transposition Table (mặc định False).
+        get_state_hash_func: Hàm để tính hash của state (bắt buộc nếu enable_transposition_table=True).
 
     Returns:
         Dictionary chứa kết quả và thống kê MCTS, bao gồm:
@@ -72,11 +83,40 @@ def run_mcts(
     if debug_simulation_limit is not None and debug_simulation_limit > 0:
         simulation_debug_log = collections.deque(maxlen=debug_simulation_limit)
 
+    # Khởi tạo Transposition Table nếu được bật
+    transposition_table: Optional[Dict[Any, MCTSNode]] = None
+    if enable_transposition_table:
+         # Không cần kiểm tra get_state_hash_func ở đây nữa vì sẽ thử hash tự động
+         # if get_state_hash_func is None:
+         #      logging.error("Transposition table enabled but get_state_hash_func is missing!")
+         #      default_result["error"] = "Configuration Error: Transposition table enabled but get_state_hash_func is missing."
+         #      return default_result
+         transposition_table = {}
+         logging.info("Transposition Table enabled. Will attempt auto-hashing if get_state_hash_func is not provided.")
+
     try:
         # --- 1. Khởi tạo Node Gốc ---
         logging.debug(f"Initializing MCTS with state: {str(initial_state)[:200]}...")
-        initial_legal_actions = get_legal_actions_func(initial_state)
-        is_initial_terminal = is_terminal_func(initial_state)
+        # <<< Bắt lỗi gọi hàm động >>>
+        initial_legal_actions = []
+        is_initial_terminal = False
+        try:
+            initial_legal_actions = get_legal_actions_func(initial_state)
+        except Exception as e_init_legal:
+            detailed_error = _format_dynamic_code_error(e_init_legal, 'get_legal_actions_func (initial)') # Gọi helper mới
+            logging.error(detailed_error)
+            default_result["error"] = detailed_error
+            default_result["time_elapsed_seconds"] = time.time() - start_time
+            return default_result
+        try:
+            is_initial_terminal = is_terminal_func(initial_state)
+        except Exception as e_init_term:
+            detailed_error = _format_dynamic_code_error(e_init_term, 'is_terminal_func (initial)') # Gọi helper mới
+            logging.error(detailed_error)
+            default_result["error"] = detailed_error
+            default_result["time_elapsed_seconds"] = time.time() - start_time
+            return default_result
+        # <<< Kết thúc bắt lỗi >>>
 
         if is_initial_terminal:
             logging.warning("Initial state is already terminal. MCTS will likely provide limited value.")
@@ -90,6 +130,49 @@ def run_mcts(
         )
         logging.debug(f"Root node created: {root_node}")
 
+        # Thêm node gốc vào Transposition Table nếu được bật
+        if enable_transposition_table and transposition_table is not None:
+            root_hash = None
+            can_hash_root = True
+            try:
+                if get_state_hash_func is not None:
+                    # Sử dụng hàm hash tùy chỉnh
+                    # <<< Bắt lỗi gọi hàm động >>>
+                    try:
+                        root_hash = get_state_hash_func(root_node.state)
+                        # Kiểm tra tính hashable (lỗi này không phải từ code động)
+                        hash(root_hash)
+                    except TypeError as te_custom_hash_result:
+                         logging.warning(f"Custom get_state_hash_func returned an unhashable type '{type(root_hash).__name__}' for initial state. Skipping TT for root.")
+                         can_hash_root = False
+                         root_hash = None
+                    except Exception as e_hash_root_dyn:
+                        detailed_error = _format_dynamic_code_error(e_hash_root_dyn, 'get_state_hash_func (initial)') # Gọi helper mới
+                        logging.error(detailed_error)
+                        default_result["error"] = detailed_error
+                        default_result["time_elapsed_seconds"] = time.time() - start_time
+                        return default_result
+                    # <<< Kết thúc bắt lỗi >>>
+                else:
+                    # Thử hash tự động
+                    try:
+                        root_hash = hash(root_node.state)
+                        logging.debug(f"Auto-hashing root state successful.")
+                    except TypeError:
+                        logging.warning(f"Auto-hashing failed for initial state (type: {type(root_node.state).__name__}). Initial state cannot be added to TT.")
+                        can_hash_root = False # Đánh dấu không hash được
+
+                if can_hash_root and root_hash is not None:
+                    transposition_table[root_hash] = root_node
+                    logging.debug(f"Root node added to TT with hash: {root_hash}")
+
+            except Exception as e_hash_root:
+                 # Lỗi từ hàm hash tùy chỉnh hoặc lỗi không mong muốn khác
+                 logging.error(f"Error obtaining hash for initial state: {e_hash_root}", exc_info=True)
+                 default_result["error"] = f"Error obtaining hash for initial state: {e_hash_root}"
+                 default_result["time_elapsed_seconds"] = time.time() - start_time # Cập nhật thời gian trước khi return
+                 return default_result
+
         iterations_done = 0
         # --- 2. Vòng lặp MCTS Chính --- (Chỉ dừng theo thời gian)
         while True:
@@ -102,6 +185,7 @@ def run_mcts(
 
             # --- Bắt đầu một lượt lặp MCTS ---
             node = root_node # Bắt đầu từ gốc
+            expanded_node = None # Reset cho mỗi iteration
 
             try:
                 # 2.2. Selection: Đi xuống cây dùng UCB1 cho đến khi gặp nút chưa mở rộng hoặc nút lá
@@ -116,29 +200,159 @@ def run_mcts(
                 # 2.3. Expansion: Nếu nút không phải terminal và chưa mở rộng hết, tạo một nút con mới
                 if not node.is_terminal and not node.is_fully_expanded():
                     action_to_expand = node.untried_actions.pop(0)
+                    # expanded_node = None # Node sẽ được dùng cho simulation/backprop # Đã reset ở trên
                     try:
-                        new_state = apply_action_func(node.state, action_to_expand)
-                        is_new_terminal = is_terminal_func(new_state)
-                        new_legal_actions = []
-                        if not is_new_terminal:
-                            new_legal_actions = get_legal_actions_func(new_state)
+                        # <<< Bắt lỗi gọi hàm động: apply_action_func >>>
+                        new_state = None
+                        try:
+                            new_state = apply_action_func(node.state, action_to_expand)
+                        except Exception as e_apply:
+                            detailed_error = _format_dynamic_code_error(e_apply, 'apply_action_func') # Gọi helper mới
+                            logging.error(detailed_error)
+                            default_result["error"] = detailed_error
+                            default_result["time_elapsed_seconds"] = time.time() - start_time
+                            default_result["iterations_completed"] = iterations_done
+                            return default_result
+                        # <<< Kết thúc bắt lỗi >>>
 
-                        node = node.add_child(
-                            child_state=new_state,
-                            action=action_to_expand,
-                            untried_actions=new_legal_actions,
-                            is_terminal=is_new_terminal
-                        )
+                        # <<< Logic Transposition Table >>>
+                        existing_node = None
+                        new_state_hash = None
+                        # <<< THAY ĐỔI: Giả định có thể hash ban đầu >>>
+                        can_hash_new_state = True # Assume hashable initially
+
+                        if enable_transposition_table and transposition_table is not None:
+                            try:
+                                state_to_hash = new_state # State to potentially hash
+
+                                # --- BỔ SUNG: Thử chuyển đổi kiểu phổ biến --- 
+                                if isinstance(state_to_hash, list):
+                                    try:
+                                        # Cố gắng chuyển đổi list thành tuple (có thể cần đệ quy nếu list chứa list/dict)
+                                        state_to_hash = tuple(state_to_hash) 
+                                        # Ví dụ đệ quy đơn giản (chỉ 1 cấp): 
+                                        # state_to_hash = tuple(tuple(item) if isinstance(item, list) else item for item in state_to_hash)
+                                        logging.debug(f"Converted list state to tuple for hashing.")
+                                    except TypeError:
+                                        # Phần tử bên trong list không hashable
+                                        can_hash_new_state = False
+                                        logging.warning(f"Could not convert list state elements to hashable tuple for TT hashing. State type: {type(new_state).__name__}. Skipping TT for this state.")
+                                # --- KẾT THÚC BỔ SUNG ---
+                                
+                                # Chỉ tiếp tục nếu chưa bị đánh dấu là không hash được
+                                if can_hash_new_state: 
+                                    if get_state_hash_func is not None:
+                                        # Dùng hàm hash tùy chỉnh, bọc trong try-except
+                                        try:
+                                            # <<< Bắt lỗi gọi hàm động: get_state_hash_func >>>
+                                            new_state_hash = get_state_hash_func(state_to_hash) # Use potentially converted state
+                                            hash(new_state_hash)
+                                            # <<< Kết thúc bắt lỗi >>>
+                                        except TypeError as te_custom_hash_result:
+                                            can_hash_new_state = False
+                                            logging.warning(f"Custom get_state_hash_func returned an unhashable type '{type(new_state_hash).__name__}'. Skipping TT for this state. Value: {str(new_state_hash)[:100]}...")
+                                            new_state_hash = None
+                                        except Exception as e_custom_hash_dyn:
+                                            can_hash_new_state = False
+                                            detailed_error = _format_dynamic_code_error(e_custom_hash_dyn, 'get_state_hash_func') # Gọi helper mới
+                                            logging.error(f"{detailed_error}\nSkipping TT for this state.")
+                                            new_state_hash = None
+                                        # <<< Kết thúc bắt lỗi >>>
+                                    else:
+                                        # Thử hash tự động (với state_to_hash đã chuyển đổi nếu có)
+                                        try:
+                                            new_state_hash = hash(state_to_hash)
+                                        except TypeError:
+                                            can_hash_new_state = False
+                                            logging.warning(f"Auto-hashing failed for state type {type(state_to_hash).__name__}. Skipping TT for this state.")
+
+                                    # Kiểm tra TT nếu hash thành công và hash có giá trị
+                                    if can_hash_new_state and new_state_hash is not None and new_state_hash in transposition_table:
+                                        existing_node = transposition_table[new_state_hash]
+                                        # logging.debug(f"TT Hit: State hash {new_state_hash} found. Reusing node.") # Có thể quá nhiều log
+
+                            except Exception as e_hash_prepare: # Bắt lỗi trong quá trình chuẩn bị hash
+                                 can_hash_new_state = False 
+                                 logging.warning(f"Unexpected error during state hashing preparation: {e_hash_prepare}. Skipping TT for this state.")
+
+                        if existing_node is not None:
+                            # --- Tái sử dụng node từ TT ---
+                            # Thêm node đã tồn tại làm con của node hiện tại
+                            # Lưu ý: Không thay đổi parent của existing_node
+                            if existing_node not in node.children:
+                                node.children.append(existing_node)
+                                # Quan trọng: Không set parent của existing_node thành node
+                                # để giữ backpropagation đơn giản theo đường đi hiện tại.
+                                # Nếu cần, có thể thêm một liên kết yếu hoặc danh sách "reached_by" nếu muốn theo dõi tất cả các đường đến.
+
+                            # Node để simulation/backprop là node đã tồn tại
+                            expanded_node = existing_node
+                        else:
+                            # --- Tạo node mới như bình thường --- VÀ thêm vào TT nếu có thể hash
+                            # <<< Bắt lỗi gọi hàm động: is_terminal_func & get_legal_actions_func >>>
+                            is_new_terminal = False
+                            new_legal_actions = []
+                            try:
+                                is_new_terminal = is_terminal_func(new_state)
+                            except Exception as e_term_new:
+                                detailed_error = _format_dynamic_code_error(e_term_new, 'is_terminal_func') # Gọi helper mới
+                                logging.error(detailed_error)
+                                default_result["error"] = detailed_error
+                                default_result["time_elapsed_seconds"] = time.time() - start_time
+                                default_result["iterations_completed"] = iterations_done
+                                return default_result
+
+                            if not is_new_terminal:
+                                try:
+                                    new_legal_actions = get_legal_actions_func(new_state)
+                                except Exception as e_legal_new:
+                                    detailed_error = _format_dynamic_code_error(e_legal_new, 'get_legal_actions_func') # Gọi helper mới
+                                    logging.error(detailed_error)
+                                    default_result["error"] = detailed_error
+                                    default_result["time_elapsed_seconds"] = time.time() - start_time
+                                    default_result["iterations_completed"] = iterations_done
+                                    return default_result
+                            # <<< Kết thúc bắt lỗi >>>
+
+                            child_node = node.add_child(
+                                child_state=new_state,
+                                action=action_to_expand,
+                                untried_actions=new_legal_actions,
+                                is_terminal=is_new_terminal
+                            )
+
+                            # Thêm node mới vào TT nếu được bật VÀ hash thành công
+                            if enable_transposition_table and transposition_table is not None and can_hash_new_state and new_state_hash is not None:
+                                transposition_table[new_state_hash] = child_node
+                                logging.debug(f"New node added to TT with hash: {new_state_hash}")
+                            elif enable_transposition_table and not can_hash_new_state:
+                                # Log nếu TT bật nhưng không hash được để biết node không được lưu
+                                logging.debug(f"New node created but not added to TT because state (type: {type(new_state).__name__}) is not hashable.")
+
+                            expanded_node = child_node
+                        # <<< Kết thúc Logic Transposition Table >>>
+
                     except Exception as e_expand_inner:
                         logging.error(f"Error during expansion step (action: {action_to_expand}): {e_expand_inner}", exc_info=True)
-                        continue # Bỏ qua iteration này để tránh backprop sai
+                        continue # Bỏ qua iteration này
 
                 # 2.4. Simulation (Rollout): Từ nút hiện tại (lá hoặc mới mở rộng), mô phỏng đến hết
                 simulation_reward = 0.0 # Phần thưởng mặc định nếu mô phỏng lỗi
                 try:
-                    simulation_reward = simulation_policy_func(node.state)
-                except Exception as e_sim:
-                    logging.error(f"Error during simulation step from state {node.state}: {e_sim}", exc_info=True)
+                    # Dùng expanded_node (hoặc node nếu không expansion) cho simulation
+                    sim_start_node = expanded_node if expanded_node is not None else node
+                    # <<< Bắt lỗi gọi hàm động: simulation_policy_func >>>
+                    try:
+                        simulation_reward = simulation_policy_func(sim_start_node.state)
+                    except Exception as e_sim_dyn:
+                        detailed_error = _format_dynamic_code_error(e_sim_dyn, 'simulation_policy_func') # Gọi helper mới
+                        sim_state_repr = str(sim_start_node.state)[:200] if sim_start_node else "None"
+                        logging.error(f"{detailed_error}\nOccurred during simulation from state: {sim_state_repr}")
+                        simulation_reward = 0.0 # Giữ reward là 0.0
+                    # <<< Kết thúc bắt lỗi >>>
+                except Exception as e_sim: # Bắt lỗi logic chung khác trong pha simulation (không phải từ code động)
+                    sim_state_repr = str(sim_start_node.state)[:200] if sim_start_node else "None"
+                    logging.error(f"Error during simulation step setup or logic (not dynamic code execution) from state {sim_state_repr}: {e_sim}", exc_info=True)
                     simulation_reward = 0.0 # Giữ reward là 0.0 nếu lỗi
 
                 # Ghi log debug simulation nếu được bật
@@ -146,8 +360,9 @@ def run_mcts(
                     try:
                         # Lưu trạng thái bắt đầu và phần thưởng
                         # Cần deepcopy nếu state là mutable để tránh bị thay đổi sau này
+                        sim_start_node = expanded_node if expanded_node is not None else node
                         log_entry = {
-                            "start_state": copy.deepcopy(node.state), # Deepcopy để đảm bảo
+                            "start_state": copy.deepcopy(sim_start_node.state), # Deepcopy để đảm bảo
                             "reward": simulation_reward
                         }
                         simulation_debug_log.append(log_entry)
@@ -156,7 +371,8 @@ def run_mcts(
                         logging.warning(f"Could not log simulation debug info: {e_debug_log}")
 
                 # 2.5. Backpropagation: Cập nhật visits và reward ngược lên cây
-                backprop_node = node
+                # Bắt đầu backprop từ node được mở rộng (hoặc node hiện tại nếu không expansion)
+                backprop_node = expanded_node if expanded_node is not None else node
                 while backprop_node is not None:
                     backprop_node.visits += 1
                     backprop_node.reward += simulation_reward

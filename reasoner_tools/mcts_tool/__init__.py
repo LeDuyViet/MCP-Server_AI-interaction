@@ -8,14 +8,14 @@ import random
 import time
 import logging
 import sys
-from typing import Dict, List, Any, Optional, Callable, Union
+from typing import Dict, List, Any, Optional, Callable, Union, Hashable
 import copy
 from functools import partial
 import re
 
 # Import các thành phần cốt lõi từ các module khác
 from .node import MCTSNode # Lớp Node
-from .engine import run_mcts # Engine MCTS
+from .engine import run_mcts, _format_dynamic_code_error # Engine MCTS và hàm format lỗi
 
 # Cấu hình logging cơ bản
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,10 +26,16 @@ def mcts_reasoning(
     strategy_params: Dict[str, Any],
     exploration_constant: float = 1.414,
     time_limit_seconds: float = 10.0, # Giới hạn thời gian mặc định là 10 giây
-    debug_simulation_limit: Optional[int] = None
+    debug_simulation_limit: int = None,
+    enable_transposition_table: bool = False # <-- Thêm tham số mới
 ) -> Dict[str, Any]:
     """
     Thực thi một chiến lược suy luận MCTS dựa trên giới hạn thời gian.
+
+    **Cách hoạt động cốt lõi:** Bạn cung cấp trạng thái ban đầu và các đoạn code Python định nghĩa
+    logic của vấn đề (lấy hành động, áp dụng hành động, kiểm tra kết thúc, đánh giá mô phỏng,
+    và tùy chọn là hàm hash trạng thái). Engine MCTS sẽ sử dụng logic này để tìm kiếm
+    hành động tốt nhất từ trạng thái ban đầu trong thời gian cho phép.
 
     Args:
         strategy_name: Tên của chiến lược cần thực thi.
@@ -39,12 +45,25 @@ def mcts_reasoning(
         strategy_params: Dictionary chứa các tham số cần thiết cho chiến lược.
                          - Cho "find_best_next_step": {
                              "current_state": Any,                 # Trạng thái hiện tại của vấn đề.
-                             "problem_context": Optional[Dict[str, Any]] = {}, # (Tùy chọn) Context bổ sung cho logic.
-                             "simulation_config": Optional[Dict[str, Any]] = {}, # (Tùy chọn) Cấu hình cho simulation_policy (ví dụ: max_depth, epsilon).
-                             "get_legal_actions_code": str,      # Code Python (dạng chuỗi) định nghĩa hàm get_legal_actions(state, context).
-                             "apply_action_code": str,           # Code Python định nghĩa hàm apply_action(state, action, context).
-                             "is_terminal_code": str,            # Code Python định nghĩa hàm is_terminal(state, context).
-                             "simulation_policy_code": str       # Code Python định nghĩa hàm simulation_policy(state, context) -> float.
+                             "problem_context": Optional[Dict[str, Any]] = {},
+                                 # (Tùy chọn) Chứa thông tin tĩnh hoặc cấu hình chung của bài toán (ví dụ: kích thước bàn cờ, luật chơi đặc biệt).
+                                 # Sẽ được gộp vào `context` chung.
+                             "simulation_config": Optional[Dict[str, Any]] = {},
+                                 # (Tùy chọn) Chứa cấu hình *riêng* cho hàm `simulation_policy` (ví dụ: max_depth, epsilon).
+                                 # Sẽ được gộp vào `context` chung, **ghi đè** các key trùng tên từ `problem_context`.
+                             # **QUAN TRỌNG:** Cả `problem_context` và `simulation_config` được gộp thành một dict `context` duy nhất
+                             # được truyền vào *tất cả* các hàm logic (get_legal_actions, apply_action, ...).
+                             # Truy cập các giá trị bằng `context['your_key']`.
+                             "get_legal_actions_code": str,      # Code Python (dạng chuỗi) định nghĩa hàm
+                             "apply_action_code": str,           # Code Python định nghĩa hàm
+                             "is_terminal_code": str,            # Code Python định nghĩa hàm
+                             "simulation_policy_code": str,       # Code Python định nghĩa hàm
+                             "get_state_hash_code": Optional[str] = None # (Tùy chọn, Bắt buộc nếu enable_transposition_table=True) Code định nghĩa hàm get_state_hash(state, context) -> Hashable
+                             # (Tùy chọn) Chỉ cần cung cấp nếu `enable_transposition_table=True` VÀ bạn muốn dùng hàm hash tùy chỉnh.
+                             # Nếu `enable_transposition_table=True` và code này không được cung cấp, engine sẽ thử hash `state` trực tiếp.
+                             # Yêu cầu signature: `get_state_hash(state: Any, context: Dict[str, Any]) -> Hashable`.
+                             # **QUAN TRỌNG:** Giá trị trả về phải là kiểu **hashable** (vd: int, float, str, tuple).
+                             # Trả về kiểu không hashable (vd: list, dict) sẽ gây lỗi.
                            }
                          - Cho "evaluate_options": {
                              "initial_context": Any,      # Ngữ cảnh/Trạng thái ban đầu để đánh giá.
@@ -55,10 +74,27 @@ def mcts_reasoning(
         exploration_constant (float): Hệ số khám phá UCB1 (mặc định 1.414).
         time_limit_seconds (float): Giới hạn thời gian chạy tối đa (giây).
                                     Mặc định là 10.0 giây.
-        debug_simulation_limit (Optional[int]): Số lượng mô phỏng gần nhất để lưu log (ví dụ: 5). Mặc định là None (không log).
+        debug_simulation_limit (int): Số lượng mô phỏng gần nhất để lưu log (ví dụ: 5). Mặc định là None (không log).
+        enable_transposition_table (bool): Bật/tắt Transposition Table để tái sử dụng node cho các trạng thái giống nhau (mặc định False).
+                                           Nếu bật, engine sẽ thử hash trạng thái tự động. Cung cấp `get_state_hash_code` nếu muốn tùy chỉnh.
 
     Returns:
         Dictionary chứa kết quả và thống kê MCTS, hoặc thông tin lỗi chi tiết.
+        - `status`: "success" hoặc "error".
+        - `message`: Mô tả ngắn gọn kết quả hoặc lỗi.
+        - `best_action_found`: Hành động tốt nhất tìm được từ trạng thái gốc (thường theo điểm trung bình).
+        - `best_action_score`: Điểm MCTS ước tính của hành động tốt nhất.
+        - `best_action_by_visits`: Hành động được thăm nhiều nhất từ gốc.
+        - `best_action_visits_score`: Số lượt thăm của hành động tốt nhất theo visits.
+        - `score_type`: Loại điểm số được dùng cho `best_action_score` (vd: "average_reward").
+        - `iterations_completed`: Số lượt MCTS thực tế hoàn thành.
+        - `time_elapsed_seconds`: Thời gian chạy thực tế.
+        - `root_node_total_visits`: Tổng lượt thăm nút gốc.
+        - `error_type`: Loại lỗi nếu `status` là "error" (vd: "InvalidInputOrCodeError", "ExecutionOrLogicError").
+        - `error_details`: Chi tiết lỗi (thường là thông báo từ exception Python, đã được cải thiện để dễ hiểu hơn).
+        - `warnings`: Danh sách các cảnh báo (vd: ghi đè key context, TT không dùng được cho state không hashable).
+        - `simulation_debug_log`: Danh sách log các mô phỏng cuối cùng (nếu `debug_simulation_limit` > 0).
+
         Ví dụ thành công ("find_best_next_step"):
         {
             "status": "success",
@@ -145,15 +181,26 @@ def mcts_reasoning(
                 "current_state", "problem_context",
                 "simulation_config",
                 "get_legal_actions_code", "apply_action_code",
-                "is_terminal_code", "simulation_policy_code"
+                "is_terminal_code", "simulation_policy_code",
+                "get_state_hash_code" # <-- Thêm khóa cho hash code
             }
             required_keys = {
                 "current_state",
                 "get_legal_actions_code", "apply_action_code",
                 "is_terminal_code", "simulation_policy_code"
             }
+            # Thêm yêu cầu cho get_state_hash_code nếu TT được bật *VÀ* người dùng cung cấp code (không dùng auto-hash)
+            # Hiện tại, engine sẽ tự động thử hash nếu code không được cung cấp, nên không cần bắt buộc ở đây nữa.
+            # if enable_transposition_table:
+            #      # Kiểm tra xem người dùng có CỐ TÌNH cung cấp get_state_hash_code không
+            #      if "get_state_hash_code" in strategy_params and strategy_params["get_state_hash_code"] is not None:
+            #          required_keys.add("get_state_hash_code") # Chỉ bắt buộc nếu được cung cấp tường minh
+            #      # Else: Sẽ thử auto-hash trong engine
 
-            # Kiểm tra các khóa bắt buộc
+            # Lấy get_state_hash_code (có thể là None nếu TT bật nhưng muốn auto-hash)
+            get_state_hash_code = strategy_params.get("get_state_hash_code")
+
+            # Kiểm tra các khóa bắt buộc (không bao gồm get_state_hash_code nữa)
             missing_keys = required_keys - strategy_params.keys()
             if missing_keys:
                 raise ValueError(f"Missing required keys in strategy_params for '{strategy_name}': {missing_keys}. Required: {required_keys}")
@@ -167,7 +214,6 @@ def mcts_reasoning(
                  base_result["warnings"].append(warning_msg)
                  # raise ValueError(f"Unexpected keys found in strategy_params for '{strategy_name}': {unexpected_keys}. Allowed keys: {allowed_keys}")
 
-
             # Lấy giá trị tham số sau khi validate keys
             current_state = strategy_params["current_state"]
             problem_context = strategy_params.get("problem_context", {}) # Lấy an toàn với giá trị mặc định
@@ -176,6 +222,9 @@ def mcts_reasoning(
             apply_action_code = strategy_params["apply_action_code"]
             is_terminal_code = strategy_params["is_terminal_code"]
             simulation_policy_code = strategy_params["simulation_policy_code"]
+            # Validate get_state_hash_code chỉ khi nó được cung cấp
+            if get_state_hash_code is not None and (not isinstance(get_state_hash_code, str) or not get_state_hash_code):
+                 raise ValueError("If provided, 'get_state_hash_code' must be a non-empty string.")
 
             # Validate kiểu dữ liệu cơ bản
             if not isinstance(problem_context, dict):
@@ -213,16 +262,14 @@ def mcts_reasoning(
                                  continue
                              raise ValueError(f"Forbidden pattern '{pattern}' found in code for '{code_name}'. File system access is disallowed.")
 
-            # Tạo namespace riêng để tránh xung đột và tăng cường bảo mật (ở mức độ nào đó)
+            # Tạo namespace riêng
             logic_namespace = {
-                "math": math, # Cung cấp module math nếu cần
-                "copy": copy, # Cung cấp module copy nếu cần
-                "logging": logging, # Cung cấp logging nếu cần
+                "math": math,
+                "copy": copy,
+                "logging": logging,
+                "random": random, # Thêm random vào namespace để dễ sử dụng trong simulation
                 # Thêm các thư viện an toàn khác nếu logic cần
             }
-            # Thêm context vào namespace để các hàm có thể truy cập trực tiếp (hoặc truyền qua partial)
-            # logic_namespace['problem_context'] = problem_context # Cách 1: Inject context vào namespace
-            # Cách 2 (Ưu tiên hơn): Dùng partial để truyền context tường minh
 
             defined_funcs = {}
             func_codes = {
@@ -231,7 +278,11 @@ def mcts_reasoning(
                 "is_terminal": is_terminal_code,
                 "simulation_policy": simulation_policy_code
             }
+            # Thêm code hash vào chỉ khi được cung cấp
+            if get_state_hash_code:
+                 func_codes["get_state_hash"] = get_state_hash_code
 
+            current_failed_func_name = None # Theo dõi hàm đang exec để báo lỗi tốt hơn
             try:
                 # <<< VALIDATE CODE TRƯỚC KHI EXEC >>>
                 func_codes_to_validate = {
@@ -240,63 +291,159 @@ def mcts_reasoning(
                     "is_terminal": is_terminal_code,
                     "simulation_policy": simulation_policy_code
                 }
+                # Thêm code hash vào danh sách validate chỉ khi được cung cấp
+                if get_state_hash_code:
+                    func_codes_to_validate["get_state_hash"] = get_state_hash_code
+
                 for name, code in func_codes_to_validate.items():
-                    _validate_code_safety(code, name) # Gọi hàm kiểm tra
+                     current_failed_func_name = name # Cập nhật tên hàm đang validate/exec
+                     _validate_code_safety(code, name) # Gọi hàm kiểm tra
 
                 # Nếu kiểm tra qua, tiếp tục với exec
                 for name, code in func_codes.items():
-                    # Thực thi code trong namespace đã chuẩn bị
-                    # globals() được truyền vào để cho phép import cơ bản nếu cần, nhưng cần cẩn trọng
+                    current_failed_func_name = name # Cập nhật tên hàm đang validate/exec
                     exec(code, globals(), logic_namespace)
-                    # Kiểm tra xem hàm có được định nghĩa đúng tên không
                     if name not in logic_namespace or not callable(logic_namespace[name]):
-                        raise RuntimeError(f"Code provided for '{name}' did not define a callable function named '{name}'.")
+                        # Lỗi này thực sự là lỗi logic trong code cung cấp
+                        raise RuntimeError(f"Code provided for '{name}' did not define a callable function named '{name}'. Check the function definition (def {name}(...):).")
                     defined_funcs[name] = logic_namespace[name]
+                current_failed_func_name = None # Reset khi exec thành công
+
+            # <<< Xử lý lỗi exec chi tiết hơn >>>
             except ValueError as ve_validate:
                  # Bắt lỗi từ _validate_code_safety
-                 raise ValueError(f"Security validation failed: {ve_validate}") from ve_validate
-            except SyntaxError as se: # Giữ lại các except khác
-                raise ValueError(f"Syntax error in provided code for '{name}': {se}") from se
+                 raise ValueError(f"Security validation failed for '{current_failed_func_name}': {ve_validate}") from ve_validate
+            except SyntaxError as se:
+                # Lỗi cú pháp trong code
+                error_line = getattr(se, 'lineno', 'unknown')
+                error_offset = getattr(se, 'offset', 'unknown')
+                error_text = getattr(se, 'text', '').strip()
+                raise ValueError(
+                    f"Syntax error in provided code for '{current_failed_func_name}' (line ~{error_line}, offset ~{error_offset}): {se.msg}. Problematic code snippet: '{error_text}'"
+                ) from se
             except NameError as ne:
-                 # Bổ sung thông báo lỗi NameError rõ ràng hơn
-                 available_globals = list(globals().keys()) # Lấy globals thực tế
+                 # Lỗi không tìm thấy biến/hàm
+                 missing_name = str(ne).split("'")[1] # Trích xuất tên bị thiếu
                  available_locals = list(logic_namespace.keys())
-                 hint = f"Is the variable defined? Are you trying to import a disallowed module (like os, io, sys)? Remember only standard libraries (like random, math if imported) and pre-defined locals ({available_locals}) are available."
-                 raise ValueError(f"Name error in provided code for '{name}': {ne}. {hint}") from ne
+                 hint = (f"Name '{missing_name}' is not defined. Is it available in the 'problem_context'? "
+                         f"Did you forget to import a standard library (only safe ones like 'math', 'random', 'copy' are pre-imported in the execution namespace)? "
+                         f"Available names in the execution namespace: {available_locals}. "
+                         f"Attempting to import disallowed modules (like 'os', 'sys') will also fail silently or raise errors.")
+                 raise ValueError(f"Name error in provided code for '{current_failed_func_name}': {ne}. {hint}") from ne
+            except TypeError as te_exec:
+                 # Lỗi kiểu dữ liệu khi thực thi định nghĩa hàm (ít gặp nhưng có thể)
+                 raise ValueError(f"Type error during definition of function '{current_failed_func_name}': {te_exec}. Check the code logic inside the function.") from te_exec
+            except RuntimeError as rte_exec:
+                 # Lỗi do raise RuntimeError trong hàm kiểm tra signature/hashable ở dưới, hoặc lỗi logic định nghĩa hàm
+                 raise rte_exec # Re-raise lỗi đã được định dạng
             except Exception as e_exec:
-                # Bắt các lỗi khác từ exec()
-                raise RuntimeError(f"Error executing provided code for '{name}': {e_exec}") from e_exec
+                # Bắt các lỗi không mong đợi khác từ exec()
+                raise RuntimeError(f"Unexpected error executing provided code definition for '{current_failed_func_name}': {type(e_exec).__name__} - {e_exec}") from e_exec
 
             # 3. Chuẩn bị Hàm Logic với Context (Sử dụng partial)
-            # Cách này tường minh hơn là inject context vào namespace của exec
             try:
-                # Tạo bản sao context để tránh thay đổi ngoài ý muốn nếu cần
+                # Tạo bản sao context
                 effective_context = copy.deepcopy(problem_context)
-                # Hợp nhất simulation_config vào context. Ưu tiên giá trị trong simulation_config nếu trùng key.
-                effective_context["simulation_config"] = simulation_config
+                # Gộp simulation_config vào, ghi đè nếu trùng key
+                overwritten_keys = set(effective_context.keys()) & set(simulation_config.keys())
+                if overwritten_keys:
+                    logging.warning(f"Context keys from 'simulation_config' are overwriting keys in 'problem_context': {overwritten_keys}")
+                effective_context.update(simulation_config)
 
-                # Sử dụng effective_context đã bao gồm simulation_config
+                # Sử dụng effective_context
                 get_actions_with_context = partial(defined_funcs["get_legal_actions"], context=effective_context)
                 apply_action_with_context = partial(defined_funcs["apply_action"], context=effective_context)
                 is_terminal_with_context = partial(defined_funcs["is_terminal"], context=effective_context)
                 simulation_policy_with_context = partial(defined_funcs["simulation_policy"], context=effective_context)
 
-                # Kiểm tra nhanh signature (không hoàn hảo nhưng giúp bắt lỗi sớm)
-                # Thử gọi với các tham số giả định cơ bản nhất
-                try: get_actions_with_context(current_state)
-                except TypeError as te: raise RuntimeError(f"Function 'get_legal_actions' (from code) might have wrong signature. Expected (state, context). Error: {te}")
+                # Kiểm tra nhanh signature các hàm cơ bản
+                # <<< Cải thiện báo lỗi signature >>>
+                try:
+                    # Thử gọi với state giả để kiểm tra signature (không cần context vì partial đã xử lý)
+                    # Lưu ý: Giả sử state có thể được dùng độc lập, hoặc tạo state giả đơn giản nếu cần
+                    _ = get_actions_with_context(current_state)
+                except TypeError as te_sig_get:
+                    raise RuntimeError(f"Function 'get_legal_actions' (from code) likely has an incorrect signature or logic error. It should accept 'state' and 'context'. Error during test call: {te_sig_get}")
                 # Không thể kiểm tra apply_action dễ dàng vì cần action hợp lệ
-                try: is_terminal_with_context(current_state)
-                except TypeError as te: raise RuntimeError(f"Function 'is_terminal' (from code) might have wrong signature. Expected (state, context). Error: {te}")
-                try: simulation_policy_with_context(current_state)
-                except TypeError as te: raise RuntimeError(f"Function 'simulation_policy' (from code) might have wrong signature. Expected (state, context). Error: {te}")
+                try:
+                    _ = is_terminal_with_context(current_state)
+                except TypeError as te_sig_term:
+                    raise RuntimeError(f"Function 'is_terminal' (from code) likely has an incorrect signature or logic error. It should accept 'state' and 'context'. Error during test call: {te_sig_term}")
+                try:
+                    _ = simulation_policy_with_context(current_state)
+                except TypeError as te_sig_sim:
+                    raise RuntimeError(f"Function 'simulation_policy' (from code) likely has an incorrect signature or logic error. It should accept 'state' and 'context'. Error during test call: {te_sig_sim}")
+                # <<< Kết thúc cải thiện báo lỗi signature >>>
+
+
+                # Tạo và kiểm tra hàm hash nếu TT được bật VÀ code được cung cấp
+                get_state_hash_func = None
+                if enable_transposition_table and get_state_hash_code:
+                    if "get_state_hash" not in defined_funcs:
+                         # Lỗi này chỉ xảy ra nếu code hash được cung cấp nhưng exec lỗi
+                         raise RuntimeError(f"Internal Error: 'get_state_hash' function was provided but not defined after exec. Check the provided code for '{current_failed_func_name}'.")
+                    get_state_hash_func = partial(defined_funcs["get_state_hash"], context=effective_context)
+                    # <<< Cải thiện báo lỗi hash >>>
+                    try:
+                        # <<< THAY ĐỔI: Xử lý state ban đầu là list cho kiểm tra >>>
+                        state_for_check = current_state
+                        if isinstance(state_for_check, list):
+                            try:
+                                state_for_check = tuple(state_for_check)
+                                logging.debug("Initial state is list, converted to tuple for preliminary hash check.")
+                            except TypeError:
+                                # Nếu không chuyển được list->tuple (ví dụ list chứa dict), thì chắc chắn không hash được
+                                raise RuntimeError(
+                                    f"Initial state is a list containing unhashable elements and cannot be converted to tuple for hashing. "
+                                    f"Cannot use Transposition Table with this state type. State starts with: {str(current_state)[:100]}..."
+                                )
+                        # <<< KẾT THÚC THAY ĐỔI >>>
+
+                        sample_hash = get_state_hash_func(state_for_check) # Sử dụng state_for_check
+                        # Kiểm tra tính hashable
+                        try:
+                            hash(sample_hash)
+                        except TypeError as te_hashable:
+                             raise RuntimeError(
+                                 f"Function 'get_state_hash' (from code) returned an unhashable type '{type(sample_hash).__name__}'. "
+                                 f"The state hash must be an immutable, hashable type (e.g., int, float, str, tuple of hashables). "
+                                 f"Value returned: {str(sample_hash)[:100]}..."
+                             ) from te_hashable
+                    except TypeError as te_sig_hash:
+                         # Lỗi signature của hàm hash
+                         # <<< Sửa lại thông báo lỗi signature hash >>>
+                         # Kiểm tra xem lỗi có phải do thiếu context không
+                         if "context" in str(te_sig_hash):
+                             raise RuntimeError(f"Function 'get_state_hash' (from code) is missing the 'context' parameter or has incorrect signature. It should accept 'state' and 'context'. Error during test call: {te_sig_hash}")
+                         else:
+                             raise RuntimeError(f"Function 'get_state_hash' (from code) likely has an incorrect signature or logic error (other than missing context). It should accept 'state' and 'context'. Error during test call: {te_sig_hash}")
+                    except RuntimeError as rte_hash_check: # Bắt lỗi unhashable từ trên hoặc lỗi chuyển đổi list->tuple
+                         raise rte_hash_check # Re-raise lỗi đã được định dạng
+                    except Exception as e_hash_test:
+                         # Lỗi khác khi chạy thử hàm hash
+                         # Sử dụng hàm helper mới để định dạng lỗi từ code động
+                         detailed_error = _format_dynamic_code_error(e_hash_test, 'get_state_hash') # <-- Gọi helper nếu lỗi xảy ra *bên trong* hàm hash
+                         raise RuntimeError(f"Error executing 'get_state_hash' function during initial test: {detailed_error}") from e_hash_test
+                    # <<< Kết thúc cải thiện báo lỗi hash >>>
 
             except KeyError as ke:
                 # Lỗi này không nên xảy ra nếu bước 2 thành công
-                raise RuntimeError(f"Internal Error: Failed to find function '{ke}' after exec.")
+                raise RuntimeError(f"Internal Error: Failed to find function '{ke}' after exec. This indicates a problem in the mcts_reasoning function itself.")
             except TypeError as e_partial:
-                 # Lỗi nếu hàm gốc không chấp nhận 'context' hoặc có signature sai
-                raise RuntimeError(f"Error preparing logic function with context (likely incorrect function signature in provided code): {e_partial}") from e_partial
+                 # Lỗi nếu hàm gốc không chấp nhận 'context' hoặc có signature sai (đã được xử lý tốt hơn ở trên)
+                 # Giữ lại để bắt các trường hợp khác
+                problematic_func = "unknown"
+                # Cố gắng xác định hàm gây lỗi dựa trên thông điệp lỗi
+                if "'get_legal_actions'" in str(e_partial): problematic_func = "get_legal_actions"
+                elif "'apply_action'" in str(e_partial): problematic_func = "apply_action"
+                elif "'is_terminal'" in str(e_partial): problematic_func = "is_terminal"
+                elif "'simulation_policy'" in str(e_partial): problematic_func = "simulation_policy"
+                elif "'get_state_hash'" in str(e_partial): problematic_func = "get_state_hash"
+                raise RuntimeError(f"Error preparing function '{problematic_func}' with context using partial (likely incorrect function signature in the provided code, missing 'context' parameter?): {e_partial}") from e_partial
+            except RuntimeError as rte_sig_hash:
+                 # Bắt lỗi từ kiểm tra signature/hash ở trên và re-raise
+                 raise rte_sig_hash
+
 
             # 4. Call the Core MCTS Engine
             logging.info(f"Calling run_mcts for '{strategy_name}' with dynamically defined logic...")
@@ -310,7 +457,9 @@ def mcts_reasoning(
                 simulation_policy_func=simulation_policy_with_context,
                 exploration_constant=exploration_constant,
                 time_limit_seconds=time_limit_seconds, # Luôn truyền time limit
-                debug_simulation_limit=debug_simulation_limit
+                debug_simulation_limit=debug_simulation_limit,
+                enable_transposition_table=enable_transposition_table, # Truyền vào engine
+                get_state_hash_func=get_state_hash_func # Truyền hàm hash vào engine
             )
 
             # 5. Process and Return Results for this strategy
@@ -381,6 +530,12 @@ def mcts_reasoning(
                 # Hiện tại chỉ hỗ trợ random_reward
                 logging.warning(f"Unsupported 'evaluation_logic': '{evaluation_logic_eval}'. Using default 'random_reward'.")
                 evaluation_logic_eval = "random_reward"
+
+            # Cảnh báo nếu TT được bật cho chiến lược này (không được hỗ trợ)
+            if enable_transposition_table:
+                 warning_msg = "Warning: Transposition Table (enable_transposition_table=True) is not currently supported for the 'evaluate_options' strategy and will be ignored."
+                 logging.warning(warning_msg)
+                 base_result["warnings"].append(warning_msg)
 
             # 2. Define Strategy-Specific Logic Functions (hàm lồng)
             def _get_legal_actions_eval(state):
@@ -460,31 +615,31 @@ def mcts_reasoning(
 
     # --- Xử lý lỗi chung ---
     except ValueError as ve:
-        # Lỗi do người dùng cung cấp tham số không hợp lệ hoặc strategy không được hỗ trợ
-        error_msg = f"Invalid parameters or unsupported strategy '{strategy_name}': {str(ve)}"
-        logging.error(error_msg)
-        base_result["message"] = error_msg
-        base_result["error_type"] = "InvalidStrategyParameters"
-        base_result["error_details"] = str(ve)
+        # Lỗi do người dùng cung cấp tham số không hợp lệ, strategy không được hỗ trợ, hoặc lỗi cú pháp/name/type trong code cung cấp
+        error_msg = f"Invalid parameters, unsupported strategy '{strategy_name}', or error in provided code: {str(ve)}"
+        logging.error(error_msg) # Ghi log lỗi đầy đủ
+        base_result["message"] = f"Error processing strategy '{strategy_name}': Check parameters and provided code logic. Details: {str(ve)[:500]}..." # Rút gọn cho message
+        base_result["error_type"] = "InvalidInputOrCodeError" # Gộp lỗi tham số và lỗi code
+        base_result["error_details"] = str(ve) # Chi tiết đầy đủ trong details
         base_result["time_elapsed_seconds"] = time.time() - start_func_time
         return base_result
 
     except RuntimeError as rte:
-         # Lỗi nội bộ (ví dụ: lỗi khi exec code, lỗi signature hàm động)
-         error_msg = f"Internal execution error for strategy '{strategy_name}': {str(rte)}"
-         logging.error(error_msg, exc_info=True)
-         base_result["message"] = error_msg
-         base_result["error_type"] = "InternalExecutionError" # Đổi loại lỗi
+         # Lỗi nội bộ (ví dụ: lỗi khi exec code không phải cú pháp/name, lỗi signature hàm động, lỗi test hash)
+         error_msg = f"Internal execution error or code logic issue for strategy '{strategy_name}': {str(rte)}"
+         logging.error(error_msg, exc_info=True) # Ghi log kèm traceback
+         base_result["message"] = f"Execution error for strategy '{strategy_name}'. Details: {str(rte)[:500]}..."
+         base_result["error_type"] = "ExecutionOrLogicError" # Đổi loại lỗi
          base_result["error_details"] = str(rte)
          base_result["time_elapsed_seconds"] = time.time() - start_func_time
          return base_result
 
     except Exception as e:
-        # Các lỗi không mong đợi khác trong quá trình thực thi
-        error_msg = f"Unexpected error executing strategy '{strategy_name}': {e}"
+        # Các lỗi không mong đợi khác
+        error_msg = f"Unexpected critical error executing strategy '{strategy_name}': {type(e).__name__} - {e}"
         logging.critical(error_msg, exc_info=True)
         base_result["message"] = error_msg
-        base_result["error_type"] = "StrategyExecutionError"
+        base_result["error_type"] = "UnexpectedCriticalError"
         base_result["error_details"] = str(e)
         base_result["time_elapsed_seconds"] = time.time() - start_func_time
         return base_result 
