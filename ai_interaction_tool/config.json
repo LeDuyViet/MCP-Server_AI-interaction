@@ -1,3 +1,12 @@
 {
-  "language": "vi"
+  "language": "vi",
+  "window_size": {
+    "width": 700,
+    "height": 500
+  },
+  "ui_preferences": {
+    "continue_chat_default": true,
+    "remember_last_path": true,
+    "auto_expand_folders": true
+  }
 }

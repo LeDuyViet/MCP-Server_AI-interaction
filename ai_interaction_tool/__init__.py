@@ -1,10 +1,41 @@
-import sys
-import os
+# AI Interaction Tool Package
+# Refactored for better maintainability and organization
 
-# Thêm đường dẫn đến thư mục chứa module
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from .core.dialog import InputDialog
+from .core.config import ConfigManager
+from .ui.file_dialog import FileAttachDialog
+from .ui.file_tree import FileTreeView, FileSystemModel, FileTreeDelegate
+from .ui.styles import get_main_stylesheet, get_file_dialog_stylesheet
+from .utils.translations import get_translations, get_translation
+from .utils.file_utils import read_file_content, validate_file_path
 
+# Legacy compatibility - main entry point
 from .engine import run_ui
+
+__version__ = "2.0.0"
+__author__ = "AI Interaction Tool Team"
+__all__ = [
+    # Core components
+    'InputDialog',
+    'ConfigManager',
+    
+    # UI components
+    'FileAttachDialog',
+    'FileTreeView',
+    'FileSystemModel', 
+    'FileTreeDelegate',
+    'get_main_stylesheet',
+    'get_file_dialog_stylesheet',
+    
+    # Utilities
+    'get_translations',
+    'get_translation',
+    'read_file_content',
+    'validate_file_path',
+    
+    # Main entry point
+    'run_ui'
+]
 
 def ai_interaction(*args, **kwargs):
     return run_ui(*args, **kwargs)
