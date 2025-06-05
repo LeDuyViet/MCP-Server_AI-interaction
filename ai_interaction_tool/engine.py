@@ -4,7 +4,6 @@ from PyQt5 import QtWidgets, QtGui
 import sys
 import json
 from .core.dialog import InputDialog
-from .constants import METADATA_FORMAT
 
 # Legacy classes for backward compatibility (now imported from separate modules)
 from .ui.file_tree import FileSystemModel, FileTreeView, FileTreeDelegate
@@ -22,9 +21,6 @@ def run_ui(*args, **kwargs):
     app.setFont(font)
     
     text, continue_chat, ok = InputDialog.getText()
-    
-    # Chuẩn bị chuỗi metadata
-    metadata_str = METADATA_FORMAT.format(str(continue_chat).lower())
 
     if ok:
         # Phân tích nội dung từ dialog
@@ -35,59 +31,85 @@ def run_ui(*args, **kwargs):
             attached_files = result_dict.get("attached_files", [])
             language = result_dict.get("language", "en")  # Lấy thông tin ngôn ngữ
             
-            # Tạo kết quả văn bản thuần túy, bắt đầu với tin nhắn của người dùng
-            core_text = user_text
-            
-            # Thêm nội dung file đính kèm vào văn bản kết quả (nếu có)
-            if attached_files:
-                # Chọn tiêu đề phù hợp với ngôn ngữ
-                attachment_header = "Files Attached" if language == "en" else "Files Đính Kèm"
-                core_text += f"\n\n------ {attachment_header} ------"
-                
-                for idx, file_info in enumerate(attached_files):
-                    if "content" in file_info:
-                        file_path = file_info.get('path', 'unknown_path')
-                        file_name = file_info.get('name', 'unnamed')
-                        file_content = file_info.get('content', '')
-                        
-                        # Thêm thông tin file vào kết quả văn bản
-                        core_text += f"\n\n{file_path}:\n{file_content}"
-                        
-                        # Thêm dấu phân cách giữa các file (trừ file cuối)
-                        if idx < len(attached_files) - 1:
-                            core_text += "\n\n---"
-            
             # Log về trạng thái continue_chat
-            warning_msg = "[AI_INTERACTION_TOOL] WARNING: continue_chat=True - Agent MUST call this tool again after responding!" if language == "en" else "[AI_INTERACTION_TOOL] CẢNH BÁO: continue_chat=True - Agent PHẢI gọi lại tool này sau khi trả lời!"
-            info_msg = "[AI_INTERACTION_TOOL] continue_chat=False - No need to call the tool again." if language == "en" else "[AI_INTERACTION_TOOL] continue_chat=False - Không cần gọi lại tool."
+            warning_msg = "[AI_INTERACTION_TOOL] WARNING: continue_chat=true - Agent MUST call this tool again after responding!" if language == "en" else "[AI_INTERACTION_TOOL] CẢNH BÁO: continue_chat=true - Agent PHẢI gọi lại tool này sau khi trả lời!"
+            info_msg = "[AI_INTERACTION_TOOL] continue_chat=false - No need to call the tool again." if language == "en" else "[AI_INTERACTION_TOOL] continue_chat=false - Không cần gọi lại tool."
             
             if continue_chat:
                 print(warning_msg, file=sys.stderr)
             else:
                 print(info_msg, file=sys.stderr)
             
-            # Tạo văn bản trả về hoàn chỉnh với metadata ở đầu và cuối
-            full_response_text = f"{metadata_str}\n{core_text}\n{metadata_str}"
+            # Tạo pseudo-object format với separate fields (best of both worlds)
+            full_response_text = "{\n"
+            full_response_text += f"  content: {user_text}\n"
+            
+            # Thêm attached files nếu có
+            if attached_files:
+                full_response_text += "  attached_files: [\n"
+                workspace_name = None
+                
+                for i, file_info in enumerate(attached_files):
+                    if "relative_path" in file_info:
+                        relative_path = file_info.get('relative_path', 'unknown_path')
+                        item_type = file_info.get('type', 'unknown')
+                        workspace_name = file_info.get('workspace_name', '')
+                        
+                        comma = "," if i < len(attached_files) - 1 else ""
+                        full_response_text += f'    {{path: "{relative_path}", type: "{item_type}"}}{comma}\n'
+                    elif "error" in file_info:
+                        comma = "," if i < len(attached_files) - 1 else ""
+                        error_name = file_info.get('name', 'unknown')
+                        error_msg = file_info.get('error', 'Unknown error')
+                        full_response_text += f'    {{name: "{error_name}", error: "{error_msg}"}}{comma}\n'
+                
+                full_response_text += "  ]\n"
+                
+                # Thêm workspace info
+                if workspace_name:
+                    full_response_text += f"  workspace: {workspace_name}\n"
+            
+            full_response_text += f"  continue_chat: {str(continue_chat).lower()}\n"
+            full_response_text += f"  language: {language}\n"
+            full_response_text += "}"
             return full_response_text
             
         except json.JSONDecodeError:
             # Xử lý trường hợp không phải JSON
-            full_response_text = f"{metadata_str}\n{text}\n{metadata_str}"
-            return full_response_text
+            return f"""{{
+  content: {text}
+  continue_chat: {str(continue_chat).lower()}
+  language: en
+}}"""
     else:
         # Trường hợp dialog bị đóng hoặc không có input
-        full_response_text = f"{metadata_str}\n\n{metadata_str}"  # Trả về metadata với text rỗng ở giữa
-        return full_response_text
+        return """{
+  content: 
+  continue_chat: false
+  language: en
+}"""
 
 """
 !!! QUY TẮC BẮT BUỘC ĐỐI VỚI AGENT:
-- Công cụ ai_interaction trả về văn bản thuần túy.
+- Công cụ ai_interaction trả về pseudo-object format dễ đọc và dễ parse.
 - Đây là KÊNH GIAO TIẾP CHÍNH để nhận tất cả tin nhắn từ User.
 - BẮT BUỘC luôn sử dụng công cụ này trong MỌI TRƯỜNG HỢP khi User gửi tin nhắn.
-- Văn bản trả về sẽ BẮT ĐẦU và KẾT THÚC bằng chuỗi metadata:
-  [AI_INTERACTION_TOOL] METADATA: {'continue_chat': true/false}
-- Nội dung tin nhắn và file đính kèm (nếu có) nằm GIỮA hai chuỗi metadata đó.
-- Agent PHẢI đọc giá trị continue_chat từ chuỗi metadata trong văn bản trả về.
+- Format trả về (Pseudo-object với separate fields):
+  {
+    content: <nội dung chat từ user với xuống dòng tự nhiên>
+    attached_files: [
+      {path: "workspace/path/to/file.js", type: "file"},
+      {path: "workspace/path/to/folder", type: "folder"}
+    ]
+    workspace: workspace_name
+    continue_chat: true/false
+    language: en/vi
+  }
+
+- Field "attached_files" và "workspace" chỉ xuất hiện khi có file/folder đính kèm.
+- Đường dẫn trong "attached_files" là relative từ workspace root.
+- Content field không bị escape newlines, giữ formatting tự nhiên.
+- Agent PHẢI đọc giá trị continue_chat từ pseudo-object.
 - Nếu continue_chat là true: Agent PHẢI tự động gọi lại tool này.
   KHÔNG ĐƯỢC PHÉP BỎ QUA QUY TẮC NÀY TRONG BẤT KỲ TRƯỜNG HỢP NÀO.
 - Nếu false: Dừng lại.

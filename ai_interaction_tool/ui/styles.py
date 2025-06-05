@@ -31,6 +31,10 @@ def get_main_stylesheet():
         QPushButton:hover {
             background-color: #b4befe;
         }
+        QPushButton:disabled {
+            background-color: #45475a;
+            color: #6c7086;
+        }
         QPushButton#closeBtn {
             background-color: #f38ba8;
         }
@@ -45,6 +49,32 @@ def get_main_stylesheet():
         }
         QPushButton#attachBtn:hover {
             background-color: #94e2d5;
+        }
+        QPushButton#clearSelectedBtn {
+            background-color: #f9e2af;
+            color: #1e1e2e;
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        QPushButton#clearSelectedBtn:hover {
+            background-color: #f4d03f;
+        }
+        QPushButton#clearSelectedBtn:disabled {
+            background-color: #45475a;
+            color: #6c7086;
+        }
+        QPushButton#clearAllBtn {
+            background-color: #f38ba8;
+            color: #1e1e2e;
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+        QPushButton#clearAllBtn:hover {
+            background-color: #f5c2e7;
+        }
+        QPushButton#clearAllBtn:disabled {
+            background-color: #45475a;
+            color: #6c7086;
         }
         QCheckBox {
             font-size: 13px;
@@ -178,6 +208,10 @@ def get_file_dialog_stylesheet():
         }
         QPushButton:hover {
             background-color: #b4befe;
+        }
+        QPushButton:disabled {
+            background-color: #45475a;
+            color: #6c7086;
         }
         QTreeView, QListWidget {
             background-color: #282a36;

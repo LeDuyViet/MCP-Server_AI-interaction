@@ -1,12 +1,30 @@
 {
   "language": "vi",
   "window_size": {
-    "width": 700,
-    "height": 500
+    "width": 968,
+    "height": 700
   },
   "ui_preferences": {
     "continue_chat_default": true,
     "remember_last_path": true,
     "auto_expand_folders": true
+  },
+  "last_workspace": {
+    "path": "E:/MCP-servers-github/AI-interaction",
+    "name": "AI-interaction",
+    "attached_files": [
+      {
+        "relative_path": "AI-interaction/text.txt",
+        "workspace_name": "AI-interaction",
+        "name": "text.txt",
+        "type": "file"
+      },
+      {
+        "relative_path": "AI-interaction/requirements.txt",
+        "workspace_name": "AI-interaction",
+        "name": "requirements.txt",
+        "type": "file"
+      }
+    ]
   }
 }

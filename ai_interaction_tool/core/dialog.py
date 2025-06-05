@@ -16,13 +16,34 @@ from ..constants import (
 class InputDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-        
         # Khởi tạo config manager
         self.config_manager = ConfigManager()
         
+        # Set responsive sizing instead of fixed
+        self.setMinimumSize(800, 700)  # Much larger minimum size for comfortable UX
+        
+        # Load saved window size or use default
+        saved_width, saved_height = self.config_manager.get_window_size()
+        self.resize(saved_width, saved_height)
+        
         # Khởi tạo danh sách lưu đường dẫn file đính kèm
         self.attached_files = []
+        
+        # Lưu workspace state để reuse - load từ config
+        last_workspace = self.config_manager.get_last_workspace()
+        if last_workspace and os.path.exists(last_workspace):
+            self.current_workspace_path = last_workspace
+            self.current_workspace_name = self.config_manager.get_last_workspace_name()
+            # Load attached files từ config
+            saved_files = self.config_manager.get_last_attached_files()
+            if saved_files:
+                self.attached_files = saved_files
+        else:
+            # Clear invalid workspace từ config
+            self.current_workspace_path = None
+            self.current_workspace_name = None
+            if last_workspace:  # Có workspace path nhưng không tồn tại
+                self.config_manager.set_last_workspace(None)
         
         # Thiết lập ngôn ngữ từ cấu hình
         self.current_language = self.config_manager.get_language()
@@ -66,9 +87,18 @@ class InputDialog(QtWidgets.QDialog):
         # Thiết lập drop shadow
         self._setup_shadow_effect()
         
+        # Restore attached files UI nếu có
+        self._restore_attached_files_ui()
+        
         self.result_text = None
         self.result_continue = False
         self.result_ready = False
+        
+        # Setup resize timer for saving window size
+        self.resize_timer = QtCore.QTimer()
+        self.resize_timer.setSingleShot(True)
+        self.resize_timer.timeout.connect(self.save_window_size)
+        self.resize_timer.setInterval(500)  # Save 500ms after last resize
     
     def _setup_language_selection(self):
         """Thiết lập phần chọn ngôn ngữ"""
@@ -116,12 +146,13 @@ class InputDialog(QtWidgets.QDialog):
         # Thay thế QLineEdit bằng QTextEdit
         self.input = QtWidgets.QTextEdit(self)
         self.input.setPlaceholderText(self.get_translation("input_placeholder"))
-        self.input.setMinimumHeight(MIN_INPUT_HEIGHT)
+        self.input.setMinimumHeight(200)  # Larger minimum for big window
+        self.input.setMaximumHeight(400)  # Allow more text editing space
         self.layout.addWidget(self.input)
     
     def _setup_file_attachment(self):
         """Thiết lập khu vực đính kèm file"""
-        # Thêm nút đính kèm file và danh sách file đính kèm
+        # Row 1: Attach button và label
         attach_layout = QtWidgets.QHBoxLayout()
         
         self.attach_btn = QtWidgets.QPushButton(self.get_translation("attach_btn"), self)
@@ -138,12 +169,37 @@ class InputDialog(QtWidgets.QDialog):
         
         self.layout.addLayout(attach_layout)
         
-        # Danh sách file đính kèm
+        # Row 2: Clear buttons (chỉ hiện khi có files)
+        clear_layout = QtWidgets.QHBoxLayout()
+        
+        self.clear_selected_btn = QtWidgets.QPushButton("Clear Selected", self)
+        self.clear_selected_btn.setObjectName("clearSelectedBtn")
+        self.clear_selected_btn.clicked.connect(self.clear_selected_files)
+        self.clear_selected_btn.setEnabled(False)  # Always visible, but disabled by default
+        self.clear_selected_btn.setToolTip("Xóa các items đã chọn (cần chọn items trước)")
+        
+        self.clear_all_btn = QtWidgets.QPushButton("Clear All", self)
+        self.clear_all_btn.setObjectName("clearAllBtn")
+        self.clear_all_btn.clicked.connect(self.clear_all_files)
+        self.clear_all_btn.setEnabled(False)  # Always visible, but disabled by default
+        self.clear_all_btn.setToolTip("Xóa tất cả items đã đính kèm (cần có items trước)")
+        
+        clear_layout.addWidget(self.clear_selected_btn)
+        clear_layout.addWidget(self.clear_all_btn)
+        clear_layout.addStretch()
+        
+        self.layout.addLayout(clear_layout)
+        
+        # Danh sách file đính kèm - enable multi-select
         self.file_list = QtWidgets.QListWidget(self)
-        self.file_list.setMaximumHeight(MAX_FILE_LIST_HEIGHT)
+        self.file_list.setMaximumHeight(150)  # More space for files in large window
+        self.file_list.setMinimumHeight(80)   # Larger minimum when visible
         self.file_list.setVisible(False)
+        self.file_list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)  # Multi-select
+        self.file_list.setToolTip("Tip: Hold Ctrl+Click to select multiple items, Shift+Click for range selection")
         self.file_list.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.file_list.customContextMenuRequested.connect(self.show_context_menu)
+        self.file_list.itemSelectionChanged.connect(self.update_clear_buttons_state)
         self.layout.addWidget(self.file_list)
     
     def _setup_continue_options(self):
@@ -194,6 +250,32 @@ class InputDialog(QtWidgets.QDialog):
         shadow.setOffset(*SHADOW_OFFSET)
         self.setGraphicsEffect(shadow)
     
+    def _restore_attached_files_ui(self):
+        """Restore UI cho attached files từ config"""
+        if not self.attached_files:
+            return
+        
+        # Clear list trước
+        self.file_list.clear()
+        
+        # Rebuild UI từ attached files
+        for item_info in self.attached_files:
+            relative_path = item_info.get("relative_path", "")
+            item_type = item_info.get("type", "unknown").upper()
+            
+            display_name = f"[{item_type}] {relative_path}"
+            list_item = QtWidgets.QListWidgetItem(display_name)
+            list_item.setToolTip(f"Full relative path: {relative_path}\nTip: Hold Ctrl+Click to select multiple items")
+            self.file_list.addItem(list_item)
+        
+        # Hiển thị UI elements
+        if self.attached_files:
+            self.attached_files_label.setVisible(True)
+            self.file_list.setVisible(True)
+        
+        # Update button states regardless
+        self.update_clear_buttons_state()
+    
     def get_translation(self, key):
         """
         Lấy bản dịch cho khóa ngôn ngữ dựa trên ngôn ngữ hiện tại
@@ -230,47 +312,218 @@ class InputDialog(QtWidgets.QDialog):
     
     def attach_file(self):
         """
-        Mở hộp thoại chọn file và thêm file được chọn vào danh sách đính kèm
+        Mở hộp thoại chọn file/folder và thêm file được chọn vào danh sách đính kèm
         """
-        # Sử dụng hộp thoại chọn file nâng cao với chế độ cây thư mục
+        # Sử dụng hộp thoại chọn file nâng cao với workspace support
         dialog = FileAttachDialog(self, self.current_language, self.translations)
         
+        # Khôi phục workspace state nếu có
+        if self.current_workspace_path:
+            dialog.restore_workspace_state(self.current_workspace_path, self.attached_files)
+        
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
-            selected_files = dialog.get_selected_files()
+            selected_items = dialog.get_selected_files()
+            workspace_name = dialog.get_workspace_path()
             
-            for file_path in selected_files:
-                # Validate file path
-                validation = validate_file_path(file_path)
-                
-                if validation["valid"]:
-                    # Kiểm tra xem file đã được đính kèm chưa
-                    if file_path not in [file_info["path"] for file_info in self.attached_files]:
-                        # Thêm vào danh sách đính kèm
-                        file_info = {
-                            "path": file_path,
-                            "name": os.path.basename(file_path)
-                        }
-                        self.attached_files.append(file_info)
-                        
-                        # Hiển thị trong UI
-                        self.file_list.addItem(file_info["name"])
-                        
-                        # Hiển thị danh sách file nếu chưa hiển thị
-                        if not self.file_list.isVisible():
-                            self.attached_files_label.setVisible(True)
-                            self.file_list.setVisible(True)
-                    else:
-                        QtWidgets.QMessageBox.warning(
-                            self, 
-                            self.get_translation("error_file_exists"), 
-                            self.get_translation("error_file_exists_message")
-                        )
-                else:
-                    QtWidgets.QMessageBox.warning(
-                        self, 
-                        self.get_translation("error_file_not_exists"), 
-                        validation["error"]
-                    )
+            # Lưu workspace state để lần sau sử dụng
+            self.current_workspace_path = dialog.get_full_workspace_path()
+            self.current_workspace_name = workspace_name
+            
+            # Persist workspace state vào config
+            self.config_manager.set_last_workspace(self.current_workspace_path)
+            self.config_manager.set_last_attached_files(self.attached_files)
+            
+            if not workspace_name:
+                QtWidgets.QMessageBox.warning(
+                    self, 
+                    "No Workspace Selected", 
+                    "Please select a workspace directory!"
+                )
+                return
+
+            # Sync lại toàn bộ attached_files từ dialog
+            self._sync_attached_files_from_dialog(selected_items, workspace_name)
+            
+            # Save attached files state ngay sau khi sync từ dialog
+            self.config_manager.set_last_attached_files(self.attached_files)
+    
+    def _sync_attached_files_from_dialog(self, selected_items, workspace_name):
+        """Sync toàn bộ attached_files từ dialog về main UI"""
+        # Clear UI hiện tại
+        self.file_list.clear()
+        self.attached_files.clear()
+        
+        # Rebuild từ selected_items trong dialog
+        for relative_path in selected_items:
+            item_name = os.path.basename(relative_path)
+            item_type = self._determine_item_type(item_name, relative_path)
+            
+            item_info = {
+                "relative_path": relative_path,
+                "workspace_name": workspace_name,
+                "name": item_name,
+                "type": item_type
+            }
+            self.attached_files.append(item_info)
+            
+            display_name = f"[{item_type.upper()}] {relative_path}"
+            list_item = QtWidgets.QListWidgetItem(display_name)
+            list_item.setToolTip(f"Full relative path: {relative_path}\nTip: Hold Ctrl+Click to select multiple items")
+            self.file_list.addItem(list_item)
+        
+        # Hiển thị/ẩn danh sách file theo số lượng items
+        if self.attached_files:
+            self.attached_files_label.setVisible(True)
+            self.file_list.setVisible(True)
+        else:
+            self.attached_files_label.setVisible(False)
+            self.file_list.setVisible(False)
+        
+        # Always update button states (they're always visible now)
+        self.update_clear_buttons_state()
+    
+    def update_clear_buttons_state(self):
+        """Cập nhật trạng thái các nút clear dựa trên selection"""
+        selected_items = self.file_list.selectedItems()
+        has_selection = len(selected_items) > 0
+        has_files = len(self.attached_files) > 0
+        
+        # Update Clear Selected button
+        self.clear_selected_btn.setEnabled(has_selection)
+        if has_selection:
+            self.clear_selected_btn.setText(f"Clear Selected ({len(selected_items)})")
+            self.clear_selected_btn.setToolTip("Xóa các items đã chọn")
+        else:
+            self.clear_selected_btn.setText("Clear Selected")
+            self.clear_selected_btn.setToolTip("Chọn items để xóa")
+        
+        # Update Clear All button
+        self.clear_all_btn.setEnabled(has_files)
+        if has_files:
+            self.clear_all_btn.setText(f"Clear All ({len(self.attached_files)})")
+            self.clear_all_btn.setToolTip("Xóa tất cả items đã đính kèm")
+        else:
+            self.clear_all_btn.setText("Clear All")
+            self.clear_all_btn.setToolTip("Không có items để xóa")
+    
+    def clear_selected_files(self):
+        """Xóa các files đã chọn"""
+        selected_items = self.file_list.selectedItems()
+        if not selected_items:
+            QtWidgets.QMessageBox.information(
+                self,
+                "No Selection",
+                "Please select items to remove first.\nTip: Hold Ctrl+Click to select multiple items."
+            )
+            return
+        
+        # Xóa từ cuối để tránh thay đổi index
+        rows_to_remove = []
+        for item in selected_items:
+            row = self.file_list.row(item)
+            rows_to_remove.append(row)
+        
+        # Sort descending để xóa từ cuối
+        rows_to_remove.sort(reverse=True)
+        
+        for row in rows_to_remove:
+            self.file_list.takeItem(row)
+            if row < len(self.attached_files):
+                self.attached_files.pop(row)
+        
+        # Cập nhật trạng thái UI sau khi xóa
+        self.update_clear_buttons_state()
+        
+        # Save state sau khi thay đổi
+        self.config_manager.set_last_attached_files(self.attached_files)
+        
+        # Ẩn danh sách nếu không còn items
+        if not self.attached_files:
+            self.attached_files_label.setVisible(False)
+            self.file_list.setVisible(False)
+        
+        # Update button states
+        self.update_clear_buttons_state()
+    
+    def clear_all_files(self):
+        """Xóa tất cả files đã đính kèm"""
+        if not self.attached_files:
+            return
+            
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Clear All Files",
+            f"Are you sure you want to remove all {len(self.attached_files)} attached items?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+        
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.file_list.clear()
+            self.attached_files.clear()
+            
+            # Save state
+            self.config_manager.set_last_attached_files(self.attached_files)
+            
+            # Hide UI elements that should be hidden
+            self.attached_files_label.setVisible(False)
+            self.file_list.setVisible(False)
+            
+            # Update button states
+            self.update_clear_buttons_state()
+    
+    def _determine_item_type(self, item_name, relative_path):
+        """
+        Xác định loại item (file hoặc folder) dựa trên tên và đường dẫn
+        """
+        # Danh sách các file đặc biệt không có extension nhưng vẫn là file
+        known_files_without_ext = {
+            'dockerfile', 'makefile', 'readme', 'license', 'changelog',
+            'authors', 'contributors', 'copying', 'install', 'news',
+            'procfile', 'rakefile', 'gemfile', 'vagrantfile'
+        }
+        
+        # Tên file thường (lowercase để so sánh)
+        lower_name = item_name.lower()
+        
+        # 1. Kiểm tra hidden files/folders (bắt đầu bằng dấu chấm)
+        if item_name.startswith('.'):
+            # Hidden files thường có extension (như .gitignore, .env)
+            # Hidden folders thường không có (như .git, .vscode)
+            if '.' in item_name[1:]:  # Có dấu chấm sau dấu chấm đầu
+                return "file"
+            else:
+                return "folder"
+        
+        # 2. Kiểm tra các file đặc biệt không có extension
+        if lower_name in known_files_without_ext:
+            return "file"
+        
+        # 3. Kiểm tra có extension không
+        if '.' in item_name and not item_name.endswith('.'):
+            # Có extension -> likely file
+            return "file"
+        
+        # 4. Kiểm tra pattern của folder common
+        folder_patterns = [
+            'src', 'lib', 'bin', 'test', 'tests', 'docs', 'doc',
+            'build', 'dist', 'node_modules', 'vendor', 'assets',
+            'static', 'public', 'components', 'utils', 'helpers',
+            'config', 'configs', 'scripts', 'tools'
+        ]
+        
+        if lower_name in folder_patterns:
+            return "folder"
+        
+        # 5. Kiểm tra path depth - thường folder có nhiều level hơn
+        path_parts = relative_path.split('/')
+        if len(path_parts) > 2:  # workspace/folder/...
+            # Nếu là item cuối cùng và không có extension -> có thể là folder
+            if not ('.' in item_name and not item_name.endswith('.')):
+                return "folder"
+        
+        # 6. Default: nếu không có extension thì coi là folder
+        return "folder" if '.' not in item_name or item_name.endswith('.') else "file"
     
     def show_context_menu(self, position):
         """
@@ -287,10 +540,16 @@ class InputDialog(QtWidgets.QDialog):
                 self.file_list.takeItem(row)
                 self.attached_files.pop(row)
                 
+                # Save state sau khi remove
+                self.config_manager.set_last_attached_files(self.attached_files)
+                
                 # Ẩn danh sách nếu không còn file đính kèm
                 if self.file_list.count() == 0:
                     self.attached_files_label.setVisible(False)
                     self.file_list.setVisible(False)
+                
+                # Update button states
+                self.update_clear_buttons_state()
 
     def submit_text(self):
         """
@@ -303,35 +562,29 @@ class InputDialog(QtWidgets.QDialog):
                 "language": self.current_language
             }
             
-            # Thêm thông tin về file đính kèm nếu có
+            # Thêm thông tin về file/folder đính kèm nếu có (chỉ metadata, không đọc content)
             if self.attached_files:
                 result_dict["attached_files"] = []
-                for file_info in self.attached_files:
+                for item_info in self.attached_files:
                     try:
-                        file_path = file_info["path"]
-                        file_name = file_info["name"]
+                        relative_path = item_info["relative_path"]
+                        workspace_name = item_info["workspace_name"]
+                        name = item_info["name"]
+                        item_type = item_info["type"]
                         
-                        # Đọc nội dung file sử dụng utility function
-                        file_result = read_file_content(file_path)
-                        
-                        if file_result["success"]:
-                            # Thêm thông tin file vào kết quả
-                            result_dict["attached_files"].append({
-                                "path": file_path,
-                                "name": file_name,
-                                "content": file_result["content"],
-                                "encoding": file_result["encoding"]
-                            })
-                        else:
-                            result_dict["attached_files"].append({
-                                "path": file_path,
-                                "name": file_name,
-                                "error": file_result["error"]
-                            })
+                        # Chỉ thêm metadata, không đọc file content
+                        result_dict["attached_files"].append({
+                            "relative_path": relative_path,
+                            "workspace_name": workspace_name,
+                            "name": name,
+                            "type": item_type
+                        })
                     except Exception as e:
                         result_dict["attached_files"].append({
-                            "path": file_path,
-                            "name": file_name,
+                            "relative_path": item_info.get("relative_path", "unknown"),
+                            "workspace_name": item_info.get("workspace_name", ""),
+                            "name": item_info.get("name", "unknown"),
+                            "type": item_info.get("type", "unknown"),
                             "error": str(e)
                         })
             
@@ -342,6 +595,21 @@ class InputDialog(QtWidgets.QDialog):
             self.accept()
     
     # Cho phép gửi bằng phím Enter
+    def resizeEvent(self, event):
+        """Handle window resize events và save size với debounce"""
+        super().resizeEvent(event)
+        # Restart timer mỗi lần resize (debounce effect)
+        self.resize_timer.start()
+    
+    def save_window_size(self):
+        """Save current window size to config"""
+        self.config_manager.set_window_size(self.width(), self.height())
+    
+    def closeEvent(self, event):
+        """Save window size khi đóng dialog"""
+        self.save_window_size()
+        super().closeEvent(event)
+    
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return and event.modifiers() == QtCore.Qt.ControlModifier:
             self.submit_text()

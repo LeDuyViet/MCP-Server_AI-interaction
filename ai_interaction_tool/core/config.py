@@ -30,8 +30,8 @@ class ConfigManager:
         return {
             'language': DEFAULT_LANGUAGE,
             'window_size': {
-                'width': 700,
-                'height': 500
+                'width': 900,
+                'height': 750
             },
             'ui_preferences': {
                 'continue_chat_default': True,
@@ -152,8 +152,8 @@ class ConfigManager:
         Returns:
             tuple: (width, height)
         """
-        size = self.get('window_size', {'width': 700, 'height': 500})
-        return size.get('width', 700), size.get('height', 500)
+        size = self.get('window_size', {'width': 900, 'height': 750})
+        return size.get('width', 900), size.get('height', 750)
     
     def set_window_size(self, width, height):
         """
@@ -164,4 +164,61 @@ class ConfigManager:
             height (int): Chiều cao
         """
         self.set('window_size', {'width': width, 'height': height})
+        self.save_config()
+    
+    def get_last_workspace(self):
+        """
+        Lấy workspace được sử dụng lần cuối
+        
+        Returns:
+            str: Đường dẫn workspace hoặc None
+        """
+        return self.get('last_workspace.path')
+    
+    def set_last_workspace(self, workspace_path):
+        """
+        Lưu workspace được sử dụng lần cuối
+        
+        Args:
+            workspace_path (str): Đường dẫn workspace hoặc None để clear
+        """
+        if workspace_path:
+            workspace_name = os.path.basename(workspace_path)
+            self.set('last_workspace', {
+                'path': workspace_path,
+                'name': workspace_name
+            })
+        else:
+            # Clear workspace
+            self.set('last_workspace', None)
+        self.save_config()
+    
+    def get_last_workspace_name(self):
+        """
+        Lấy tên workspace được sử dụng lần cuối
+        
+        Returns:
+            str: Tên workspace hoặc None
+        """
+        return self.get('last_workspace.name')
+    
+    def get_last_attached_files(self):
+        """
+        Lấy danh sách files đã attach lần cuối
+        
+        Returns:
+            list: Danh sách attached files hoặc []
+        """
+        return self.get('last_workspace.attached_files', [])
+    
+    def set_last_attached_files(self, attached_files):
+        """
+        Lưu danh sách files đã attach
+        
+        Args:
+            attached_files (list): Danh sách attached files
+        """
+        if attached_files is None:
+            attached_files = []
+        self.set('last_workspace.attached_files', attached_files)
         self.save_config() 
