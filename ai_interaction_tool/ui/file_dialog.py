@@ -54,14 +54,31 @@ class FileAttachDialog(QtWidgets.QDialog):
         self.workspace_label = QtWidgets.QLabel("No workspace selected")
         self.workspace_label.setStyleSheet("QLabel { color: #f38ba8; font-weight: bold; }")
         
-        self.select_workspace_btn = QtWidgets.QPushButton("Select Workspace", self)
+        self.select_workspace_btn = QtWidgets.QPushButton("Browse", self)
         self.select_workspace_btn.clicked.connect(self.select_workspace)
         
         workspace_path_layout.addWidget(QtWidgets.QLabel("Workspace:"))
         workspace_path_layout.addWidget(self.workspace_label, 1)
         workspace_path_layout.addWidget(self.select_workspace_btn)
         
+        # Workspace path input (for pasting/typing path directly)
+        workspace_input_layout = QtWidgets.QHBoxLayout()
+        
+        self.workspace_input = QtWidgets.QLineEdit(self)
+        self.workspace_input.setPlaceholderText("Paste or type workspace path here...")
+        self.workspace_input.setToolTip("Bạn có thể paste đường dẫn workspace vào đây thay vì browse\nTip: Nhấn Enter để set workspace")
+        self.workspace_input.returnPressed.connect(self.set_workspace_from_input)
+        
+        self.set_workspace_btn = QtWidgets.QPushButton("Set Workspace", self)
+        self.set_workspace_btn.clicked.connect(self.set_workspace_from_input)
+        self.set_workspace_btn.setToolTip("Sử dụng đường dẫn đã nhập làm workspace")
+        
+        workspace_input_layout.addWidget(QtWidgets.QLabel("Or paste path:"))
+        workspace_input_layout.addWidget(self.workspace_input, 1)
+        workspace_input_layout.addWidget(self.set_workspace_btn)
+        
         workspace_layout.addLayout(workspace_path_layout)
+        workspace_layout.addLayout(workspace_input_layout)
         workspace_group.setLayout(workspace_layout)
         layout.addWidget(workspace_group)
         
@@ -184,7 +201,68 @@ class FileAttachDialog(QtWidgets.QDialog):
             
             self.file_tree.setRootPath(self.workspace_path)
             self.path_input.setText(self.workspace_path)
+            
+            # Update workspace input field với current workspace
+            self.workspace_input.setText(self.workspace_path)
     
+    def set_workspace_from_input(self):
+        """Set workspace từ đường dẫn đã nhập/paste"""
+        input_path = self.workspace_input.text().strip()
+        
+        if not input_path:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Empty Path",
+                "Please enter or paste a workspace path first!"
+            )
+            return
+        
+        # Normalize path
+        try:
+            normalized_path = normalize_path_unicode(input_path)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Invalid Path",
+                f"Invalid path format:\n{str(e)}"
+            )
+            return
+        
+        # Validate workspace
+        validation_result = validate_workspace_path(normalized_path)
+        
+        if not validation_result["valid"]:
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Invalid Workspace",
+                f"Cannot use this path as workspace:\n{validation_result['error']}\n\nPath: {normalized_path}"
+            )
+            return
+        
+        # Clear existing selections
+        self.clear_selection()
+        
+        # Set workspace
+        self.workspace_path = validation_result["normalized_path"]
+        workspace_name = os.path.basename(self.workspace_path)
+        
+        self.workspace_label.setText(workspace_name)
+        self.workspace_label.setStyleSheet("QLabel { color: #a6e3a1; font-weight: bold; }")
+        self.workspace_label.setToolTip(f"Full path: {self.workspace_path}")
+        self.attach_btn.setEnabled(True)
+        
+        self.file_tree.setRootPath(self.workspace_path)
+        self.path_input.setText(self.workspace_path)
+        
+        # Update workspace input với final normalized path
+        self.workspace_input.setText(self.workspace_path)
+        
+        # Success feedback
+        QtWidgets.QMessageBox.information(
+            self,
+            "Workspace Set",
+            f"Workspace successfully set to:\n{workspace_name}\n\nFull path: {self.workspace_path}"
+        )
 
     def browse_folder(self):
         """Mở hộp thoại chọn thư mục"""
