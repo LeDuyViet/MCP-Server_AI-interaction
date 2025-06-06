@@ -9,3 +9,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Local configuration files (user-specific settings)
+config.json

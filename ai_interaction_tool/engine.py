@@ -29,11 +29,11 @@ def run_ui(*args, **kwargs):
             result_dict = json.loads(text)
             user_text = result_dict.get("text", "")
             attached_files = result_dict.get("attached_files", [])
-            language = result_dict.get("language", "en")  # Lấy thông tin ngôn ngữ
+            language = result_dict.get("language", "vi")  # Mặc định tiếng Việt
             
             # Log về trạng thái continue_chat
-            warning_msg = "[AI_INTERACTION_TOOL] WARNING: continue_chat=true - Agent MUST call this tool again after responding!" if language == "en" else "[AI_INTERACTION_TOOL] CẢNH BÁO: continue_chat=true - Agent PHẢI gọi lại tool này sau khi trả lời!"
-            info_msg = "[AI_INTERACTION_TOOL] continue_chat=false - No need to call the tool again." if language == "en" else "[AI_INTERACTION_TOOL] continue_chat=false - Không cần gọi lại tool."
+            warning_msg = "[AI_INTERACTION_TOOL] CẢNH BÁO: continue_chat=true - Agent PHẢI gọi lại tool này sau khi trả lời!"
+            info_msg = "[AI_INTERACTION_TOOL] continue_chat=false - Không cần gọi lại tool."
             
             if continue_chat:
                 print(warning_msg, file=sys.stderr)
@@ -70,7 +70,6 @@ def run_ui(*args, **kwargs):
                     full_response_text += f"  workspace: {workspace_name}\n"
             
             full_response_text += f"  continue_chat: {str(continue_chat).lower()}\n"
-            full_response_text += f"  language: {language}\n"
             full_response_text += "}"
             return full_response_text
             
@@ -79,14 +78,12 @@ def run_ui(*args, **kwargs):
             return f"""{{
   content: {text}
   continue_chat: {str(continue_chat).lower()}
-  language: en
 }}"""
     else:
         # Trường hợp dialog bị đóng hoặc không có input
         return """{
   content: 
   continue_chat: false
-  language: en
 }"""
 
 """
@@ -98,16 +95,21 @@ def run_ui(*args, **kwargs):
   {
     content: <nội dung chat từ user với xuống dòng tự nhiên>
     attached_files: [
-      {path: "workspace/path/to/file.js", type: "file"},
-      {path: "workspace/path/to/folder", type: "folder"}
+      {path: "workspace_name/relative/path/to/file.js", type: "file"},
+      {path: "workspace_name/relative/path/to/folder", type: "folder"}
     ]
     workspace: workspace_name
     continue_chat: true/false
-    language: en/vi
   }
 
 - Field "attached_files" và "workspace" chỉ xuất hiện khi có file/folder đính kèm.
-- Đường dẫn trong "attached_files" là relative từ workspace root.
+- Đường dẫn trong "attached_files" có format: "workspace_name/relative_path_from_workspace_root"
+- QUAN TRỌNG: Agent cần kiểm tra workspace hiện tại:
+  * Nếu Agent ở CÙNG workspace với file → BỎ TIỀN TỐ workspace_name, dùng relative_path
+  * Nếu Agent ở KHÁC workspace với file → SỬ DỤNG NGUYÊN đường dẫn từ ai_interaction
+- Ví dụ:
+  * Cùng workspace: "ALT-WebClientV3/src/components/login/index.js" → dùng "src/components/login/index.js"
+  * Khác workspace: "AI-interaction/ai_interaction_tool/description.py" → dùng "AI-interaction/ai_interaction_tool/description.py"
 - Content field không bị escape newlines, giữ formatting tự nhiên.
 - Agent PHẢI đọc giá trị continue_chat từ pseudo-object.
 - Nếu continue_chat là true: Agent PHẢI tự động gọi lại tool này.

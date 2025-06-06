@@ -12,6 +12,19 @@
   "last_workspace": {
     "path": "E:\\MCP-servers-github\\AI-interaction",
     "name": "AI-interaction",
-    "attached_files": []
+    "attached_files": [
+      {
+        "relative_path": "AI-interaction/ai_interaction_tool",
+        "workspace_name": "AI-interaction",
+        "name": "ai_interaction_tool",
+        "type": "folder"
+      },
+      {
+        "relative_path": "AI-interaction/text.txt",
+        "workspace_name": "AI-interaction",
+        "name": "text.txt",
+        "type": "file"
+      }
+    ]
   }
 }
