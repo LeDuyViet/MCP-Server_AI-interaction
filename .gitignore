@@ -11,4 +11,4 @@ wheels/
 .venv
 
 # Local configuration files (user-specific settings)
-config.json
+ai_interaction_tool/config.json
