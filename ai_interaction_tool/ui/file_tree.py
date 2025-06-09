@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import os
 from ..constants import TREE_DEPTH_EXPANSION
 from ..utils.file_utils import normalize_path_unicode, validate_file_path_in_workspace
+from .styles import ModernTheme, FileTypeIcons
 
 class FileSystemModel(QtWidgets.QFileSystemModel):
     """Mô hình hệ thống tệp tùy chỉnh cho cây thư mục"""
@@ -11,7 +12,9 @@ class FileSystemModel(QtWidgets.QFileSystemModel):
         self._selected_items = set()
         self._workspace_path = ""
         self.setReadOnly(True)
-        self.setFilter(QtCore.QDir.AllDirs | QtCore.QDir.AllEntries | QtCore.QDir.NoDotAndDotDot)
+        self.setFilter(QtCore.QDir.AllDirs | QtCore.QDir.Files | QtCore.QDir.NoDotAndDotDot)
+        # Ensure model shows directory hierarchy
+        self.setRootPath("")  # Allow full filesystem access initially
     
     def setWorkspacePath(self, workspace_path):
         """Thiết lập workspace path"""
@@ -81,22 +84,113 @@ class FileTreeView(QtWidgets.QTreeView):
         self.model = FileSystemModel(self)
         self.setModel(self.model)
         
-        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.setAnimated(True)
-        self.setSortingEnabled(True)
-        self.setAlternatingRowColors(False)  # Tắt để tránh conflict với custom highlight
+        # Debug: Force show branches
+        self.setRootIsDecorated(True)
+        self.setExpandsOnDoubleClick(True)  # Allow double-click expansion
         
-        self.hideColumn(1)
-        self.hideColumn(2)
-        self.hideColumn(3)
+        # Apply minimal modern styling that preserves arrows
+        modern_style = f"""
+        QTreeView {{
+            background-color: {ModernTheme.COLORS['surface0'].name()};
+            color: {ModernTheme.COLORS['text'].name()};
+            font-family: {ModernTheme.FONTS['family']};
+            font-size: {ModernTheme.FONTS['default_size']}px;
+            border: 1px solid {ModernTheme.COLORS['surface1'].name()};
+            border-radius: 6px;
+            padding: 4px;
+        }}
+        
+        QTreeView::item {{
+            height: 24px;
+            border: none;
+            padding: 2px;
+        }}
+        
+        QTreeView::item:hover {{
+            background-color: {ModernTheme.COLORS['hover'].name()};
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }}
+        
+        QTreeView::item:selected {{
+            background-color: {ModernTheme.COLORS['selected'].name()};
+            border: 1px solid {ModernTheme.COLORS['selected_border'].name()};
+            border-radius: 4px;
+        }}
+        
+        QTreeView::item:selected:hover {{
+            background-color: {ModernTheme.COLORS['selected'].name()};
+            border: 1px solid {ModernTheme.COLORS['selected_border'].name()};
+            border-radius: 4px;
+        }}
+        """
+        self.setStyleSheet(modern_style)
+        
+        # Force application style to make arrows bright
+        app = QtWidgets.QApplication.instance()
+        if app:
+            # Set fusion style which gives more control over colors
+            app.setStyle('Fusion')
+            
+            # Set application palette for bright arrows
+            app_palette = QtGui.QPalette()
+            bright_color = QtGui.QColor(ModernTheme.COLORS['accent_blue'])
+            
+            # Set all arrow-related colors
+            app_palette.setColor(QtGui.QPalette.WindowText, bright_color)
+            app_palette.setColor(QtGui.QPalette.Text, bright_color) 
+            app_palette.setColor(QtGui.QPalette.ButtonText, bright_color)
+            app_palette.setColor(QtGui.QPalette.Mid, bright_color)
+            app_palette.setColor(QtGui.QPalette.Dark, bright_color)
+            
+            # Background colors
+            app_palette.setColor(QtGui.QPalette.Window, QtGui.QColor(ModernTheme.COLORS['background']))
+            app_palette.setColor(QtGui.QPalette.Base, QtGui.QColor(ModernTheme.COLORS['surface0']))
+            
+            # Hover colors - arrows will change to this color on hover
+            app_palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(ModernTheme.COLORS['accent_green']))
+            app_palette.setColor(QtGui.QPalette.HighlightedText, QtGui.QColor(ModernTheme.COLORS['accent_yellow']))
+            
+            app.setPalette(app_palette)
+        
+        # Basic tree view settings to preserve expansion arrows
+        self.setRootIsDecorated(True)
+        self.setItemsExpandable(True)
+        self.setExpandsOnDoubleClick(True)
+        self.setIndentation(20)
+        
+        # Performance optimizations
+        self.setAutoScroll(True)
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        self.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
+        
+        # Hide unnecessary columns (keep only filename)
+        self.hideColumn(1)  # Size
+        self.hideColumn(2)  # Type
+        self.hideColumn(3)  # Date Modified
         
         self._workspace_path = ""
         
+        # Re-enable custom delegate now that arrows work
+        delegate = FileTreeDelegate(self)
+        self.setItemDelegate(delegate)
+        
+        # Connect signals
         self.clicked.connect(self.onItemClicked)
         
+        # Enable custom drawing
+        self.setMouseTracking(True)
+        
+        # Setup header
         header = self.header()
         header.setStretchLastSection(True)
         header.setDefaultSectionSize(200)
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        header.setMinimumSectionSize(150)
+        header.hide()  # Hide header but keep tree decoration
+        
+        # Enable smooth scrolling
+        self.verticalScrollBar().setSingleStep(10)
     
     def setRootPath(self, path):
         """Thiết lập đường dẫn gốc cho cây thư mục"""
@@ -239,6 +333,8 @@ class FileTreeView(QtWidgets.QTreeView):
         except Exception:
             return False
     
+
+
     def keyPressEvent(self, event):
         """Override key press để xử lý an toàn"""
         try:
@@ -251,12 +347,14 @@ class FileTreeView(QtWidgets.QTreeView):
             pass
 
 class FileTreeDelegate(QtWidgets.QStyledItemDelegate):
-    """Delegate tùy chỉnh để vẽ mục trong cây thư mục"""
+    """Modern delegate cho file tree với icon và styling đẹp"""
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.theme = ModernTheme()
+        self.file_icons = FileTypeIcons()
     
     def paint(self, painter, option, index):
-        """Tùy chỉnh cách vẽ mục trong cây thư mục"""
+        """Modern paint với rounded corners và icons"""
         try:
             if not index.isValid():
                 super().paint(painter, option, index)
@@ -264,23 +362,78 @@ class FileTreeDelegate(QtWidgets.QStyledItemDelegate):
             
             model = index.model()
             is_selected = hasattr(model, 'isSelected') and model.isSelected(index)
+            is_directory = model.isDir(index)
+            file_name = model.data(index, QtCore.Qt.DisplayRole)
             
-            # Vẽ alternating background trước (chỉ khi không selected)
-            if not is_selected and index.row() % 2 == 1:
-                alt_color = QtGui.QColor(240, 240, 245, 30)  # Rất nhạt
-                painter.fillRect(option.rect, alt_color)
+            # Setup painter
+            painter.save()
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
             
-            # Vẽ highlight background nếu selected (ưu tiên cao hơn)
+            # Create rounded rect với modern spacing
+            rect = QtCore.QRectF(option.rect)
+            rect.adjust(self.theme.SPACING['small'], 2, -self.theme.SPACING['small'], -2)
+            
+            # Draw background với rounded corners
             if is_selected:
-                highlight_color = QtGui.QColor(45, 45, 60, 200)  # Tăng opacity để rõ hơn
-                painter.fillRect(option.rect, highlight_color)
+                # Selected state với gradient
+                gradient = QtGui.QLinearGradient(rect.topLeft(), rect.bottomLeft())
+                selected_color = self.theme.COLORS['selected']
+                gradient.setColorAt(0, QtGui.QColor(selected_color.red(), selected_color.green(), selected_color.blue(), 50))
+                gradient.setColorAt(1, QtGui.QColor(selected_color.red(), selected_color.green(), selected_color.blue(), 30))
+                
+                painter.setBrush(QtGui.QBrush(gradient))
+                painter.setPen(QtGui.QPen(self.theme.COLORS['selected_border'], 1.5))
+                painter.drawRoundedRect(rect, self.theme.SPACING['border_radius'], self.theme.SPACING['border_radius'])
+            elif option.state & QtWidgets.QStyle.State_MouseOver:
+                # Hover state
+                painter.setBrush(QtGui.QBrush(self.theme.COLORS['hover']))
+                painter.setPen(QtGui.QPen(self.theme.COLORS['surface1'], 1))
+                painter.drawRoundedRect(rect, self.theme.SPACING['border_radius'], self.theme.SPACING['border_radius'])
             
-            # Vẽ nội dung item
-            super().paint(painter, option, index)
+            # Setup text rect và icon rect với proper spacing
+            icon_size = self.theme.SPACING['icon_size']
+            checkmark_size = self.theme.SPACING['checkmark_size']
             
-            # Vẽ checkmark sau cùng để đảm bảo nó hiển thị trên top
+            text_rect = option.rect.adjusted(40, 0, -35, 0)  # Space for icon and checkmark
+            icon_rect = QtCore.QRect(option.rect.left() + 12, 
+                                   option.rect.top() + (option.rect.height() - icon_size) // 2, 
+                                   icon_size, icon_size)
+            
+
+            
+            # Draw icon using FileTypeIcons
+            icon_text = self.file_icons.get_icon(file_name, is_directory)
+            icon_color = self.theme.COLORS['accent_yellow'] if is_directory else self.theme.COLORS['accent_green']
+            
+            # Draw icon with proper font
+            icon_font = QtGui.QFont()
+            icon_font.setPixelSize(self.theme.FONTS['icon_size'])
+            painter.setFont(icon_font)
+            painter.setPen(icon_color)
+            painter.drawText(icon_rect, QtCore.Qt.AlignCenter, icon_text)
+            
+            # Draw text với modern typography
+            text_color = self.theme.COLORS['text'] if not is_selected else self.theme.COLORS['text']
+            font = QtGui.QFont(self.theme.FONTS['family'])
+            font.setPixelSize(self.theme.FONTS['default_size'])
             if is_selected:
-                self._drawCheckMark(painter, option.rect)
+                font.setWeight(QtGui.QFont.Medium)
+            
+            painter.setFont(font)
+            painter.setPen(text_color)
+            
+            # Truncate text if too long
+            metrics = painter.fontMetrics()
+            available_width = text_rect.width()
+            elided_text = metrics.elidedText(str(file_name), QtCore.Qt.ElideRight, available_width)
+            
+            painter.drawText(text_rect, QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft, elided_text)
+            
+            # Draw modern checkmark for selected items
+            if is_selected:
+                self._draw_modern_checkmark(painter, option.rect)
+            
+            painter.restore()
                 
         except Exception as e:
             try:
@@ -288,22 +441,43 @@ class FileTreeDelegate(QtWidgets.QStyledItemDelegate):
             except Exception:
                 pass
     
-    def _drawCheckMark(self, painter, rect):
-        """Vẽ dấu tick"""
+
+    
+    def _draw_modern_checkmark(self, painter, rect):
+        """Vẽ modern checkmark với style đẹp"""
         try:
-            check_rect = QtCore.QRect(rect)
-            check_rect.setLeft(rect.right() - 20)
+            # Create circular background for checkmark
+            check_size = self.theme.SPACING['checkmark_size']
+            check_rect = QtCore.QRect(
+                rect.right() - check_size - 8, 
+                rect.center().y() - check_size // 2, 
+                check_size, check_size
+            )
             
             painter.save()
-            painter.setPen(QtGui.QPen(QtGui.QColor(137, 180, 250), 2))
             
+            # Draw circular background
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            painter.setBrush(QtGui.QBrush(self.theme.COLORS['accent_blue']))
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.drawEllipse(check_rect)
+            
+            # Draw checkmark inside circle
+            painter.setPen(QtGui.QPen(self.theme.COLORS['background'], 2.5, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+            
+            # Checkmark coordinates within the circle
+            center_x = check_rect.center().x()
+            center_y = check_rect.center().y()
+            
+            # First stroke of checkmark (shorter)
             painter.drawLine(
-                check_rect.left() + 4, check_rect.center().y(), 
-                check_rect.center().x(), check_rect.bottom() - 4
+                center_x - 4, center_y,
+                center_x - 1, center_y + 3
             )
+            # Second stroke of checkmark (longer)
             painter.drawLine(
-                check_rect.center().x(), check_rect.bottom() - 4, 
-                check_rect.right() - 4, check_rect.top() + 4
+                center_x - 1, center_y + 3,
+                center_x + 4, center_y - 2
             )
             
             painter.restore()
@@ -312,10 +486,10 @@ class FileTreeDelegate(QtWidgets.QStyledItemDelegate):
             pass
     
     def sizeHint(self, option, index):
-        """Override size hint"""
+        """Override size hint với modern spacing"""
         try:
             size = super().sizeHint(option, index)
-            size.setHeight(max(size.height(), 20))
+            size.setHeight(max(size.height(), self.theme.SPACING['item_height']))
             return size
         except Exception:
-            return QtCore.QSize(200, 20) 
+            return QtCore.QSize(200, self.theme.SPACING['item_height']) 

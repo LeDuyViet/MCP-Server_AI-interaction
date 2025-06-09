@@ -30,6 +30,8 @@ def run_ui(*args, **kwargs):
             user_text = result_dict.get("text", "")
             attached_files = result_dict.get("attached_files", [])
             language = result_dict.get("language", "vi")  # Mặc định tiếng Việt
+            enable_thinking = result_dict.get("enable_thinking", "false")  # Có thể là "false", "normal", hoặc "high"
+            max_reasoning = result_dict.get("max_reasoning", False)  # Maximum reasoning protocol
             
             # Log về trạng thái continue_chat
             warning_msg = "[AI_INTERACTION_TOOL] CẢNH BÁO: continue_chat=true - Agent PHẢI gọi lại tool này sau khi trả lời!"
@@ -42,7 +44,12 @@ def run_ui(*args, **kwargs):
             
             # Tạo pseudo-object format với separate fields (best of both worlds)
             full_response_text = "{\n"
-            full_response_text += f"  content: {user_text}\n"
+            
+            # Bổ sung logic nhắc nhở về quy tắc quan trọng
+            enhanced_content = user_text
+            enhanced_content = "Nhớ áp dụng rule về continue_chat, enable_thinking và max_reasoning, cả quy tắc về 2 thinking block nữa. " + enhanced_content
+
+            full_response_text += f"  content: {enhanced_content}\n"
             
             # Thêm attached files nếu có
             if attached_files:
@@ -70,53 +77,29 @@ def run_ui(*args, **kwargs):
                     full_response_text += f"  workspace: {workspace_name}\n"
             
             full_response_text += f"  continue_chat: {str(continue_chat).lower()}\n"
+            full_response_text += f"  enable_thinking: {enable_thinking}\n"
+            full_response_text += f"  max_reasoning: {str(max_reasoning).lower()}\n"
             full_response_text += "}"
             return full_response_text
             
         except json.JSONDecodeError:
             # Xử lý trường hợp không phải JSON
+            enhanced_text = text
+            if continue_chat:
+                enhanced_text += "\n\n"
+                enhanced_text += "🚨 NHẮC NHỞ QUAN TRỌNG: continue_chat=true → Agent PHẢI gọi lại tool này sau khi trả lời!"
+            
             return f"""{{
-  content: {text}
+  content: {enhanced_text}
   continue_chat: {str(continue_chat).lower()}
+  enable_thinking: false
+  max_reasoning: false
 }}"""
     else:
         # Trường hợp dialog bị đóng hoặc không có input
         return """{
   content: 
   continue_chat: false
+  enable_thinking: false
+  max_reasoning: false
 }"""
-
-"""
-!!! QUY TẮC BẮT BUỘC ĐỐI VỚI AGENT:
-- Công cụ ai_interaction trả về pseudo-object format dễ đọc và dễ parse.
-- Đây là KÊNH GIAO TIẾP CHÍNH để nhận tất cả tin nhắn từ User.
-- BẮT BUỘC luôn sử dụng công cụ này trong MỌI TRƯỜNG HỢP khi User gửi tin nhắn.
-- Format trả về (Pseudo-object với separate fields):
-  {
-    content: <nội dung chat từ user với xuống dòng tự nhiên>
-    attached_files: [
-      {path: "workspace_name/relative/path/to/file.js", type: "file"},
-      {path: "workspace_name/relative/path/to/folder", type: "folder"}
-    ]
-    workspace: workspace_name
-    continue_chat: true/false
-  }
-
-- Field "attached_files" và "workspace" chỉ xuất hiện khi có file/folder đính kèm.
-- Đường dẫn trong "attached_files" có format: "workspace_name/relative_path_from_workspace_root"
-- QUAN TRỌNG: Agent cần kiểm tra workspace hiện tại:
-  * Nếu Agent ở CÙNG workspace với file → BỎ TIỀN TỐ workspace_name, dùng relative_path
-  * Nếu Agent ở KHÁC workspace với file → SỬ DỤNG NGUYÊN đường dẫn từ ai_interaction
-- Ví dụ:
-  * Cùng workspace: "ALT-WebClientV3/src/components/login/index.js" → dùng "src/components/login/index.js"
-  * Khác workspace: "AI-interaction/ai_interaction_tool/description.py" → dùng "AI-interaction/ai_interaction_tool/description.py"
-- Content field không bị escape newlines, giữ formatting tự nhiên.
-- Agent PHẢI đọc giá trị continue_chat từ pseudo-object.
-- Nếu continue_chat là true: Agent PHẢI tự động gọi lại tool này.
-  KHÔNG ĐƯỢC PHÉP BỎ QUA QUY TẮC NÀY TRONG BẤT KỲ TRƯỜNG HỢP NÀO.
-- Nếu false: Dừng lại.
-- Luôn trả lời User tại chat chính, không nhắc lại nội dung User vừa nhập.
-- Phải hiểu rằng tất cả nội dung từ User sẽ đến từ công cụ này, đây là kênh chat chính của User.
-- Bất kỳ khi nào nhận được tin nhắn từ User, PHẢI sử dụng công cụ ai_interaction để tiếp tục cuộc trò chuyện.
-"""
-

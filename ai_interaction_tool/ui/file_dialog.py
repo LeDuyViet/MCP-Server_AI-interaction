@@ -2,7 +2,7 @@
 from PyQt5 import QtWidgets, QtCore
 import os
 from .file_tree import FileTreeView, FileTreeDelegate
-from .styles import get_file_dialog_stylesheet
+from .styles import get_file_dialog_stylesheet, get_context_menu_stylesheet, ModernTheme
 from ..utils.translations import get_translation
 from ..constants import DEFAULT_PATH
 from ..utils.file_utils import (
@@ -46,18 +46,20 @@ class FileAttachDialog(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout(self)
         
         # Workspace selection section
-        workspace_group = QtWidgets.QGroupBox("Workspace Configuration")
+        workspace_group = QtWidgets.QGroupBox(self._get_translation("workspace_config"))
         workspace_layout = QtWidgets.QVBoxLayout()
         
         # Workspace path display and selection
         workspace_path_layout = QtWidgets.QHBoxLayout()
-        self.workspace_label = QtWidgets.QLabel("No workspace selected")
+        self.workspace_label = QtWidgets.QLabel(self._get_translation("no_workspace_selected"))
         self.workspace_label.setStyleSheet("QLabel { color: #f38ba8; font-weight: bold; }")
         
-        self.select_workspace_btn = QtWidgets.QPushButton("Browse", self)
+        self.select_workspace_btn = QtWidgets.QPushButton(self._get_translation("workspace_browse"), self)
         self.select_workspace_btn.clicked.connect(self.select_workspace)
         
-        workspace_path_layout.addWidget(QtWidgets.QLabel("Workspace:"))
+        workspace_label_widget = QtWidgets.QLabel(self._get_translation("workspace_label"))
+        workspace_label_widget.setStyleSheet(f"QLabel {{ color: {ModernTheme.COLORS['text'].name()}; }}")
+        workspace_path_layout.addWidget(workspace_label_widget)
         workspace_path_layout.addWidget(self.workspace_label, 1)
         workspace_path_layout.addWidget(self.select_workspace_btn)
         
@@ -65,15 +67,17 @@ class FileAttachDialog(QtWidgets.QDialog):
         workspace_input_layout = QtWidgets.QHBoxLayout()
         
         self.workspace_input = QtWidgets.QLineEdit(self)
-        self.workspace_input.setPlaceholderText("Paste or type workspace path here...")
-        self.workspace_input.setToolTip("Bạn có thể paste đường dẫn workspace vào đây thay vì browse\nTip: Nhấn Enter để set workspace")
+        self.workspace_input.setPlaceholderText(self._get_translation("paste_path_placeholder"))
+        self.workspace_input.setToolTip(self._get_translation("paste_path_tooltip"))
         self.workspace_input.returnPressed.connect(self.set_workspace_from_input)
         
-        self.set_workspace_btn = QtWidgets.QPushButton("Set Workspace", self)
+        self.set_workspace_btn = QtWidgets.QPushButton(self._get_translation("set_workspace"), self)
         self.set_workspace_btn.clicked.connect(self.set_workspace_from_input)
-        self.set_workspace_btn.setToolTip("Sử dụng đường dẫn đã nhập làm workspace")
+        self.set_workspace_btn.setToolTip(self._get_translation("set_workspace_tooltip"))
         
-        workspace_input_layout.addWidget(QtWidgets.QLabel("Or paste path:"))
+        paste_label_widget = QtWidgets.QLabel(self._get_translation("or_paste_path"))
+        paste_label_widget.setStyleSheet(f"QLabel {{ color: {ModernTheme.COLORS['text'].name()}; }}")
+        workspace_input_layout.addWidget(paste_label_widget)
         workspace_input_layout.addWidget(self.workspace_input, 1)
         workspace_input_layout.addWidget(self.set_workspace_btn)
         
@@ -94,12 +98,12 @@ class FileAttachDialog(QtWidgets.QDialog):
         path_layout = QtWidgets.QHBoxLayout()
         
         self.path_input = QtWidgets.QLineEdit(self)
-        self.path_input.setPlaceholderText("Enter path to folder")
+        self.path_input.setPlaceholderText(self._get_translation("path_placeholder"))
         
-        self.browse_btn = QtWidgets.QPushButton("Browse", self)
+        self.browse_btn = QtWidgets.QPushButton(self._get_translation("browse_btn"), self)
         self.browse_btn.clicked.connect(self.browse_folder)
         
-        self.go_btn = QtWidgets.QPushButton("Go", self)
+        self.go_btn = QtWidgets.QPushButton(self._get_translation("go_btn"), self)
         self.go_btn.clicked.connect(self.navigate_to_path)
         
         path_layout.addWidget(self.path_input)
@@ -121,12 +125,12 @@ class FileAttachDialog(QtWidgets.QDialog):
         layout.addWidget(self.file_tree)
         
         # Danh sách items đã chọn
-        selected_group = QtWidgets.QGroupBox("Selected Items (Relative to Workspace)")
+        selected_group = QtWidgets.QGroupBox(self._get_translation("selected_items"))
         selected_layout = QtWidgets.QVBoxLayout()
         
         # Clear Selected button
         clear_selected_layout = QtWidgets.QHBoxLayout()
-        self.clear_selected_btn = QtWidgets.QPushButton("Clear Selected", self)
+        self.clear_selected_btn = QtWidgets.QPushButton(self._get_translation("clear_selected"), self)
         self.clear_selected_btn.clicked.connect(self.clear_selected_items)
         self.clear_selected_btn.setEnabled(False)  # Always visible, disabled by default  # Ẩn ban đầu
         
@@ -135,9 +139,9 @@ class FileAttachDialog(QtWidgets.QDialog):
         selected_layout.addLayout(clear_selected_layout)
         
         self.selected_list = QtWidgets.QListWidget(self)
-        self.selected_list.setAlternatingRowColors(True)
+        self.selected_list.setAlternatingRowColors(False)  # Disable to maintain dark theme consistency
         self.selected_list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)  # Multi-select
-        self.selected_list.setToolTip("Tip: Hold Ctrl+Click to select multiple items, Shift+Click for range selection")
+        self.selected_list.setToolTip(self._get_translation("selected_list_tooltip"))
         self.selected_list.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.selected_list.customContextMenuRequested.connect(self.show_selected_context_menu)
         self.selected_list.itemSelectionChanged.connect(self.update_selected_button_state)
@@ -150,14 +154,14 @@ class FileAttachDialog(QtWidgets.QDialog):
         # Nút ở dưới cùng
         buttons_layout = QtWidgets.QHBoxLayout()
         
-        self.clear_btn = QtWidgets.QPushButton("Clear All", self)
+        self.clear_btn = QtWidgets.QPushButton(self._get_translation("clear_all_btn"), self)
         self.clear_btn.clicked.connect(self.clear_selection)
         
-        self.attach_btn = QtWidgets.QPushButton("Attach Selected", self)
+        self.attach_btn = QtWidgets.QPushButton(self._get_translation("attach_selected"), self)
         self.attach_btn.clicked.connect(self.accept)
         self.attach_btn.setEnabled(False)  # Disabled until workspace is selected
         
-        self.cancel_btn = QtWidgets.QPushButton("Cancel", self)
+        self.cancel_btn = QtWidgets.QPushButton(self._get_translation("cancel_btn"), self)
         self.cancel_btn.clicked.connect(self.reject)
         
         buttons_layout.addWidget(self.clear_btn)
@@ -174,7 +178,7 @@ class FileAttachDialog(QtWidgets.QDialog):
         """Chọn workspace root directory"""
         folder = QtWidgets.QFileDialog.getExistingDirectory(
             self, 
-            "Select Workspace Root Directory",
+            self._get_translation("select_workspace_dir"),
             self.workspace_path or DEFAULT_PATH
         )
         
@@ -184,8 +188,8 @@ class FileAttachDialog(QtWidgets.QDialog):
             if not validation_result["valid"]:
                 QtWidgets.QMessageBox.critical(
                     self,
-                    "Invalid Workspace",
-                    f"Cannot use selected workspace:\n{validation_result['error']}"
+                    self._get_translation("invalid_workspace"),
+                    self._get_translation("workspace_error").format(error=validation_result['error'])
                 )
                 return
             
@@ -212,8 +216,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not input_path:
             QtWidgets.QMessageBox.warning(
                 self,
-                "Empty Path",
-                "Please enter or paste a workspace path first!"
+                self._get_translation("empty_path"),
+                self._get_translation("enter_path_first")
             )
             return
         
@@ -223,8 +227,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         except Exception as e:
             QtWidgets.QMessageBox.critical(
                 self,
-                "Invalid Path",
-                f"Invalid path format:\n{str(e)}"
+                self._get_translation("invalid_path"),
+                self._get_translation("invalid_path_format").format(error=str(e))
             )
             return
         
@@ -234,8 +238,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not validation_result["valid"]:
             QtWidgets.QMessageBox.critical(
                 self,
-                "Invalid Workspace",
-                f"Cannot use this path as workspace:\n{validation_result['error']}\n\nPath: {normalized_path}"
+                self._get_translation("invalid_workspace"),
+                self._get_translation("workspace_error").format(error=validation_result['error'])
             )
             return
         
@@ -260,8 +264,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         # Success feedback
         QtWidgets.QMessageBox.information(
             self,
-            "Workspace Set",
-            f"Workspace successfully set to:\n{workspace_name}\n\nFull path: {self.workspace_path}"
+            self._get_translation("workspace_set"),
+            self._get_translation("workspace_success").format(name=workspace_name, path=self.workspace_path)
         )
 
     def browse_folder(self):
@@ -286,8 +290,8 @@ class FileAttachDialog(QtWidgets.QDialog):
             else:
                 QtWidgets.QMessageBox.warning(
                     self,
-                    "Invalid Folder",
-                    f"Selected folder is not accessible: {folder}"
+                    self._get_translation("invalid_folder"),
+                    self._get_translation("invalid_folder_msg").format(folder=folder)
                 )
     
     def navigate_to_path(self):
@@ -297,8 +301,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not path:
             QtWidgets.QMessageBox.warning(
                 self,
-                "Empty Path",
-                "Please enter a path first!"
+                self._get_translation("empty_path"),
+                self._get_translation("enter_path_first")
             )
             return
         
@@ -307,24 +311,24 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not os.path.exists(normalized_path):
             QtWidgets.QMessageBox.warning(
                 self,
-                "Path Not Found",
-                f"The specified path does not exist:\n{normalized_path}"
+                self._get_translation("invalid_path"),
+                self._get_translation("path_not_exist")
             )
             return
         
         if not os.path.isdir(normalized_path):
             QtWidgets.QMessageBox.warning(
                 self,
-                "Not a Directory",
-                f"The specified path is not a directory:\n{normalized_path}"
+                self._get_translation("not_directory"),
+                self._get_translation("not_directory_msg").format(path=normalized_path)
             )
             return
         
         if not os.access(normalized_path, os.R_OK):
             QtWidgets.QMessageBox.warning(
                 self,
-                "Access Denied",
-                f"Cannot access the specified directory:\n{normalized_path}"
+                self._get_translation("access_denied"),
+                self._get_translation("access_denied_msg").format(path=normalized_path)
             )
             return
         
@@ -334,8 +338,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         except Exception as e:
             QtWidgets.QMessageBox.critical(
                 self,
-                "Navigation Error",
-                f"Error navigating to path:\n{str(e)}"
+                self._get_translation("navigation_error"),
+                self._get_translation("navigation_error_msg").format(error=str(e))
             )
     
     def update_selected_items(self, item_path, selected):
@@ -343,8 +347,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not self.workspace_path:
             QtWidgets.QMessageBox.warning(
                 self,
-                "No Workspace Selected",
-                "Please select a workspace directory first!"
+                self._get_translation("no_workspace"),
+                self._get_translation("no_workspace_msg")
             )
             return
         
@@ -354,8 +358,8 @@ class FileAttachDialog(QtWidgets.QDialog):
             if not validation_result["valid"]:
                 QtWidgets.QMessageBox.warning(
                     self,
-                    "Invalid Selection",
-                    f"Cannot select this item:\n{validation_result['error']}"
+                    self._get_translation("invalid_selection"),
+                    self._get_translation("invalid_selection_msg").format(error=validation_result['error'])
                 )
                 return
             
@@ -366,8 +370,8 @@ class FileAttachDialog(QtWidgets.QDialog):
             if error:
                 QtWidgets.QMessageBox.warning(
                     self,
-                    "Path Error",
-                    f"Error creating relative path:\n{error}"
+                    self._get_translation("path_error"),
+                    self._get_translation("path_error_msg").format(error=error)
                 )
                 return
             
@@ -390,7 +394,7 @@ class FileAttachDialog(QtWidgets.QDialog):
                         display_name += f" ({full_relative_path})"
                     
                     list_item = QtWidgets.QListWidgetItem(display_name)
-                    list_item.setToolTip(f"Full relative path: {full_relative_path}\nTip: Hold Ctrl+Click to select multiple items")
+                    list_item.setToolTip(self._get_translation("file_item_tooltip").format(path=full_relative_path))
                     self.selected_list.addItem(list_item)
             else:
                 if full_relative_path in self.selected_items:
@@ -403,8 +407,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         except Exception as e:
             QtWidgets.QMessageBox.critical(
                 self,
-                "Unexpected Error",
-                f"An unexpected error occurred:\n{str(e)}\n\nPlease try again or select a different item."
+                self._get_translation("unexpected_error"),
+                self._get_translation("unexpected_error_msg").format(error=str(e))
             )
     
     def _is_safe_path(self, path):
@@ -418,9 +422,13 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not self.selected_list.count():
             return
             
-        menu = QtWidgets.QMenu(self)
-        remove_action = menu.addAction("Remove Item")
-        remove_all_action = menu.addAction("Remove All Items")
+        menu = QtWidgets.QMenu()
+        
+        # Apply modern context menu styling
+        menu.setStyleSheet(get_context_menu_stylesheet())
+        
+        remove_action = menu.addAction(self._get_translation("remove_item"))
+        remove_all_action = menu.addAction(self._get_translation("remove_all_items"))
         
         action = menu.exec_(self.selected_list.mapToGlobal(position))
         
@@ -444,8 +452,8 @@ class FileAttachDialog(QtWidgets.QDialog):
                 except Exception as e:
                     QtWidgets.QMessageBox.warning(
                         self,
-                        "Remove Error", 
-                        f"Error removing item: {str(e)}"
+                        self._get_translation("path_error"), 
+                        self._get_translation("path_error_msg").format(error=str(e))
                     )
         
         elif action == remove_all_action:
@@ -458,11 +466,11 @@ class FileAttachDialog(QtWidgets.QDialog):
         
         self.clear_selected_btn.setEnabled(has_selection)
         if has_selection:
-            self.clear_selected_btn.setText(f"Clear Selected ({len(selected_items)})")
-            self.clear_selected_btn.setToolTip("Xóa các items đã chọn trong list")
+            self.clear_selected_btn.setText(f"{self._get_translation('clear_selected')} ({len(selected_items)})")
+            self.clear_selected_btn.setToolTip(self._get_translation("clear_selected_enabled_tooltip"))
         else:
-            self.clear_selected_btn.setText("Clear Selected")
-            self.clear_selected_btn.setToolTip("Chọn items trong list để xóa")
+            self.clear_selected_btn.setText(self._get_translation("clear_selected"))
+            self.clear_selected_btn.setToolTip(self._get_translation("clear_selected_disabled_tooltip"))
     
     def clear_selected_items(self):
         """Xóa các items đã chọn trong list"""
@@ -470,8 +478,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         if not selected_items:
             QtWidgets.QMessageBox.information(
                 self,
-                "No Selection", 
-                "Please select items to remove first.\nTip: Hold Ctrl+Click to select multiple items."
+                self._get_translation("no_selection"), 
+                self._get_translation("no_selection_message")
             )
             return
         
@@ -524,8 +532,8 @@ class FileAttachDialog(QtWidgets.QDialog):
         except Exception as e:
             QtWidgets.QMessageBox.warning(
                 self,
-                "Clear Error",
-                f"Error clearing selections: {str(e)}"
+                self._get_translation("clear_error"),
+                self._get_translation("clear_error_msg").format(error=str(e))
             )
     
     def get_selected_files(self):
@@ -599,7 +607,7 @@ class FileAttachDialog(QtWidgets.QDialog):
                             display_name += f" ({relative_path})"
                         
                         list_item = QtWidgets.QListWidgetItem(display_name)
-                        list_item.setToolTip(f"Full relative path: {relative_path}\nTip: Hold Ctrl+Click to select multiple items")
+                        list_item.setToolTip(self._get_translation("file_item_tooltip").format(path=relative_path))
                         self.selected_list.addItem(list_item)
                         
                         # Highlight trong tree nếu tìm thấy

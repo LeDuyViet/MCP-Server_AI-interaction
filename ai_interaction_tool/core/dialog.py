@@ -5,7 +5,7 @@ import json
 import os
 from .config import ConfigManager
 from ..ui.file_dialog import FileAttachDialog
-from ..ui.styles import get_main_stylesheet
+from ..ui.styles import get_main_stylesheet, get_context_menu_stylesheet
 from ..utils.translations import get_translations, get_translation
 from ..utils.file_utils import read_file_content, validate_file_path
 from ..constants import (
@@ -172,17 +172,17 @@ class InputDialog(QtWidgets.QDialog):
         # Row 2: Clear buttons (chỉ hiện khi có files)
         clear_layout = QtWidgets.QHBoxLayout()
         
-        self.clear_selected_btn = QtWidgets.QPushButton("Clear Selected", self)
+        self.clear_selected_btn = QtWidgets.QPushButton(self.get_translation("clear_selected"), self)
         self.clear_selected_btn.setObjectName("clearSelectedBtn")
         self.clear_selected_btn.clicked.connect(self.clear_selected_files)
         self.clear_selected_btn.setEnabled(False)  # Always visible, but disabled by default
-        self.clear_selected_btn.setToolTip("Xóa các items đã chọn (cần chọn items trước)")
+        self.clear_selected_btn.setToolTip(self.get_translation("clear_selected_tooltip"))
         
-        self.clear_all_btn = QtWidgets.QPushButton("Clear All", self)
+        self.clear_all_btn = QtWidgets.QPushButton(self.get_translation("clear_all"), self)
         self.clear_all_btn.setObjectName("clearAllBtn")
         self.clear_all_btn.clicked.connect(self.clear_all_files)
         self.clear_all_btn.setEnabled(False)  # Always visible, but disabled by default
-        self.clear_all_btn.setToolTip("Xóa tất cả items đã đính kèm (cần có items trước)")
+        self.clear_all_btn.setToolTip(self.get_translation("clear_all_tooltip"))
         
         clear_layout.addWidget(self.clear_selected_btn)
         clear_layout.addWidget(self.clear_all_btn)
@@ -192,11 +192,11 @@ class InputDialog(QtWidgets.QDialog):
         
         # Danh sách file đính kèm - enable multi-select
         self.file_list = QtWidgets.QListWidget(self)
-        self.file_list.setMaximumHeight(150)  # More space for files in large window
-        self.file_list.setMinimumHeight(80)   # Larger minimum when visible
+        self.file_list.setMaximumHeight(300)  # Much more space for files in large window
+        self.file_list.setMinimumHeight(120)  # Larger minimum when visible
         self.file_list.setVisible(False)
         self.file_list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)  # Multi-select
-        self.file_list.setToolTip("Tip: Hold Ctrl+Click to select multiple items, Shift+Click for range selection")
+        self.file_list.setToolTip(self.get_translation("file_list_tooltip"))
         self.file_list.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.file_list.customContextMenuRequested.connect(self.show_context_menu)
         self.file_list.itemSelectionChanged.connect(self.update_clear_buttons_state)
@@ -210,6 +210,40 @@ class InputDialog(QtWidgets.QDialog):
         self.continue_checkbox.setChecked(continue_default)
         self.continue_checkbox.setToolTip("Khi chọn, Agent sẽ tự động hiển thị lại hộp thoại này sau khi trả lời")
         self.layout.addWidget(self.continue_checkbox)
+        
+        # Thêm ComboBox cho thinking mode (thay thế checkbox)
+        thinking_layout = QtWidgets.QHBoxLayout()
+        self.thinking_label = QtWidgets.QLabel(self.get_translation("thinking_label"), self)
+        self.thinking_combo = QtWidgets.QComboBox(self)
+        
+        # Thêm các tùy chọn thinking
+        self.thinking_combo.addItem(self.get_translation("thinking_false"), "false")
+        self.thinking_combo.addItem(self.get_translation("thinking_normal"), "normal") 
+        self.thinking_combo.addItem(self.get_translation("thinking_high"), "high")
+        
+        # Thiết lập giá trị mặc định từ config
+        thinking_default = self.config_manager.get('ui_preferences.enable_thinking_default', "false")
+        if thinking_default == "normal":
+            self.thinking_combo.setCurrentIndex(1)
+        elif thinking_default == "high":
+            self.thinking_combo.setCurrentIndex(2)
+        else:
+            self.thinking_combo.setCurrentIndex(0)  # false
+        
+        self.thinking_combo.setToolTip(self.get_translation("thinking_combo_tooltip"))
+        
+        thinking_layout.addWidget(self.thinking_label)
+        thinking_layout.addWidget(self.thinking_combo)
+        thinking_layout.addStretch()
+        
+        self.layout.addLayout(thinking_layout)
+        
+        # Thêm checkbox Maximum Reasoning
+        max_reasoning_default = self.config_manager.get('ui_preferences.max_reasoning_default', False)
+        self.max_reasoning_checkbox = QtWidgets.QCheckBox(self.get_translation("max_reasoning_checkbox"), self)
+        self.max_reasoning_checkbox.setChecked(max_reasoning_default)
+        self.max_reasoning_checkbox.setToolTip(self.get_translation("max_reasoning_tooltip"))
+        self.layout.addWidget(self.max_reasoning_checkbox)
         
         # Thêm nhãn cảnh báo về quy tắc gọi lại
         self.warning_label = QtWidgets.QLabel(
@@ -300,12 +334,46 @@ class InputDialog(QtWidgets.QDialog):
         self.language_label.setText(self.get_translation("language_label"))
         self.attached_files_label.setText(self.get_translation("attached_files_label"))
         self.continue_checkbox.setText(self.get_translation("continue_checkbox"))
+        self.thinking_label.setText(self.get_translation("thinking_label"))
+        self.max_reasoning_checkbox.setText(self.get_translation("max_reasoning_checkbox"))
+        self.max_reasoning_checkbox.setToolTip(self.get_translation("max_reasoning_tooltip"))
+        
+        # Cập nhật thinking combo items
+        current_thinking_value = self.thinking_combo.currentData()
+        self.thinking_combo.clear()
+        self.thinking_combo.addItem(self.get_translation("thinking_false"), "false")
+        self.thinking_combo.addItem(self.get_translation("thinking_normal"), "normal") 
+        self.thinking_combo.addItem(self.get_translation("thinking_high"), "high")
+        
+        # Restore selection after language change
+        if current_thinking_value == "normal":
+            self.thinking_combo.setCurrentIndex(1)
+        elif current_thinking_value == "high":
+            self.thinking_combo.setCurrentIndex(2)
+        else:
+            self.thinking_combo.setCurrentIndex(0)
+        
+        self.thinking_combo.setToolTip(self.get_translation("thinking_combo_tooltip"))
         self.warning_label.setText(self.get_translation("warning_label"))
         
         # Cập nhật các nút
         self.attach_btn.setText(self.get_translation("attach_btn"))
         self.submit_btn.setText(self.get_translation("submit_btn"))
         self.close_btn.setText(self.get_translation("close_btn"))
+        self.clear_selected_btn.setText(self.get_translation("clear_selected"))
+        self.clear_all_btn.setText(self.get_translation("clear_all"))
+        
+        # Cập nhật tooltips
+        self.clear_selected_btn.setToolTip(self.get_translation("clear_selected_tooltip"))
+        self.clear_all_btn.setToolTip(self.get_translation("clear_all_tooltip"))
+        self.file_list.setToolTip(self.get_translation("file_list_tooltip"))
+        
+        # Refresh tooltips cho tất cả items trong file list
+        for i in range(self.file_list.count()):
+            item = self.file_list.item(i)
+            if item and len(self.attached_files) > i:
+                relative_path = self.attached_files[i]["relative_path"]
+                item.setToolTip(self.get_translation("file_item_tooltip").format(path=relative_path))
         
         # Cập nhật placeholder
         self.input.setPlaceholderText(self.get_translation("input_placeholder"))
@@ -368,7 +436,7 @@ class InputDialog(QtWidgets.QDialog):
             
             display_name = f"[{item_type.upper()}] {relative_path}"
             list_item = QtWidgets.QListWidgetItem(display_name)
-            list_item.setToolTip(f"Full relative path: {relative_path}\nTip: Hold Ctrl+Click to select multiple items")
+            list_item.setToolTip(self.get_translation("file_item_tooltip").format(path=relative_path))
             self.file_list.addItem(list_item)
         
         # Hiển thị/ẩn danh sách file theo số lượng items
@@ -391,19 +459,19 @@ class InputDialog(QtWidgets.QDialog):
         # Update Clear Selected button
         self.clear_selected_btn.setEnabled(has_selection)
         if has_selection:
-            self.clear_selected_btn.setText(f"Clear Selected ({len(selected_items)})")
+            self.clear_selected_btn.setText(f"{self.get_translation('clear_selected')} ({len(selected_items)})")
             self.clear_selected_btn.setToolTip("Xóa các items đã chọn")
         else:
-            self.clear_selected_btn.setText("Clear Selected")
+            self.clear_selected_btn.setText(self.get_translation("clear_selected"))
             self.clear_selected_btn.setToolTip("Chọn items để xóa")
         
         # Update Clear All button
         self.clear_all_btn.setEnabled(has_files)
         if has_files:
-            self.clear_all_btn.setText(f"Clear All ({len(self.attached_files)})")
+            self.clear_all_btn.setText(f"{self.get_translation('clear_all')} ({len(self.attached_files)})")
             self.clear_all_btn.setToolTip("Xóa tất cả items đã đính kèm")
         else:
-            self.clear_all_btn.setText("Clear All")
+            self.clear_all_btn.setText(self.get_translation("clear_all"))
             self.clear_all_btn.setToolTip("Không có items để xóa")
     
     def clear_selected_files(self):
@@ -412,8 +480,8 @@ class InputDialog(QtWidgets.QDialog):
         if not selected_items:
             QtWidgets.QMessageBox.information(
                 self,
-                "No Selection",
-                "Please select items to remove first.\nTip: Hold Ctrl+Click to select multiple items."
+                self.get_translation("no_selection"), 
+                self.get_translation("no_selection_message")
             )
             return
         
@@ -452,8 +520,8 @@ class InputDialog(QtWidgets.QDialog):
             
         reply = QtWidgets.QMessageBox.question(
             self,
-            "Clear All Files",
-            f"Are you sure you want to remove all {len(self.attached_files)} attached items?",
+            self.get_translation("clear_all_files"),
+            self.get_translation("clear_all_confirm").format(count=len(self.attached_files)),
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             QtWidgets.QMessageBox.No
         )
@@ -530,7 +598,12 @@ class InputDialog(QtWidgets.QDialog):
         Hiển thị menu ngữ cảnh cho danh sách file đính kèm
         """
         menu = QtWidgets.QMenu()
+        
+        # Apply modern context menu styling
+        menu.setStyleSheet(get_context_menu_stylesheet())
+        
         remove_action = menu.addAction(self.get_translation("remove_file"))
+        remove_all_action = menu.addAction(self.get_translation("clear_all"))
         
         current_item = self.file_list.itemAt(position)
         if current_item:
@@ -550,6 +623,9 @@ class InputDialog(QtWidgets.QDialog):
                 
                 # Update button states
                 self.update_clear_buttons_state()
+            
+            elif action == remove_all_action:
+                self.clear_all_files()
 
     def submit_text(self):
         """
@@ -559,7 +635,9 @@ class InputDialog(QtWidgets.QDialog):
         if text.strip() or self.attached_files:
             result_dict = {
                 "text": text,
-                "language": self.current_language
+                "language": self.current_language,
+                "enable_thinking": self.thinking_combo.currentData(),
+                "max_reasoning": self.max_reasoning_checkbox.isChecked()
             }
             
             # Thêm thông tin về file/folder đính kèm nếu có (chỉ metadata, không đọc content)
@@ -591,6 +669,13 @@ class InputDialog(QtWidgets.QDialog):
             self.result_text = json.dumps(result_dict, ensure_ascii=False)
             self.result_continue = self.continue_checkbox.isChecked()
             self.result_ready = True
+            
+            # Lưu trạng thái checkbox vào config để lần sau sử dụng
+            self.config_manager.set('ui_preferences.continue_chat_default', self.continue_checkbox.isChecked())
+            self.config_manager.set('ui_preferences.enable_thinking_default', self.thinking_combo.currentData())
+            self.config_manager.set('ui_preferences.max_reasoning_default', self.max_reasoning_checkbox.isChecked())
+            self.config_manager.save_config()
+            
             self.input.clear()
             self.accept()
     
