@@ -129,12 +129,7 @@ class InputDialog(QtWidgets.QDialog):
         self.layout.addLayout(language_layout)
     
     def _setup_title_and_info(self):
-        """Thiết lập tiêu đề và thông tin hướng dẫn"""
-        # Thêm tiêu đề
-        self.title_label = QtWidgets.QLabel(self.get_translation("title_label"), self)
-        self.title_label.setObjectName("titleLabel")
-        self.layout.addWidget(self.title_label)
-        
+        """Thiết lập thông tin hướng dẫn"""
         # Thêm hướng dẫn
         self.info_label = QtWidgets.QLabel(self.get_translation("info_label"), self)
         self.info_label.setObjectName("infoLabel")
@@ -329,7 +324,6 @@ class InputDialog(QtWidgets.QDialog):
         self.setWindowTitle(self.get_translation("window_title"))
         
         # Cập nhật các nhãn
-        self.title_label.setText(self.get_translation("title_label"))
         self.info_label.setText(self.get_translation("info_label"))
         self.language_label.setText(self.get_translation("language_label"))
         self.attached_files_label.setText(self.get_translation("attached_files_label"))

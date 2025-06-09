@@ -47,7 +47,58 @@ def run_ui(*args, **kwargs):
             
             # Bổ sung logic nhắc nhở về quy tắc quan trọng
             enhanced_content = user_text
-            enhanced_content = "Nhớ áp dụng rule về continue_chat, enable_thinking và max_reasoning, cả quy tắc về 2 thinking block nữa. " + enhanced_content
+            
+            # Dynamic reminder system để tránh banner blindness
+            import random
+            import time
+            
+            # Calculate timestamp seed first (needed for variations)
+            timestamp_seed = int(time.time() * 1000) % 1000  # Millisecond-based seed
+            
+            # Varied reminder templates
+            reminder_templates = [
+                "⚡VALIDATE: {params} → EXECUTE RULES NOW!",
+                "🚨CRITICAL: {params} → MANDATORY COMPLIANCE!",
+                "⚠️ALERT: {params} → IMMEDIATE ACTION REQUIRED!",
+                "🔥URGENT: {params} → APPLY PROTOCOLS INSTANTLY!",
+                "💥PRIORITY: {params} → RULES ENFORCEMENT ACTIVE!",
+                "⭐FOCUS: {params} → SYSTEMATIC VALIDATION NEEDED!",
+                "🎯TARGET: {params} → ZERO TOLERANCE MODE!",
+                "🚀ENGAGE: {params} → MAXIMUM COMPLIANCE PROTOCOL!"
+            ]
+            
+            # Clear parameters (intuitive variations for universal understanding)
+            thinking_variants = {
+                "normal": ["thinking=normal", "enable_thinking=normal", "thinking_active", "thinking_mode_normal"],
+                "high": ["thinking=high", "enable_thinking=high", "thinking_active_high", "deep_thinking_on", "thinking_mode_high"]
+            }
+            
+            reasoning_variants = ["max_reasoning=ON", "max_reasoning=true", "reasoning_active", "reasoning_mode_max", "max_cognitive_power"]
+            continue_variants = ["continue_chat=true", "continue_chat=YES", "chat_continues", "continue_active", "chat_loop_on"]
+            
+            params = []
+            if enable_thinking != "false":
+                variants = thinking_variants.get(enable_thinking, [f"thinking={enable_thinking}"])
+                selected = variants[timestamp_seed % len(variants)]
+                params.append(selected)
+                
+            if max_reasoning:
+                selected = reasoning_variants[timestamp_seed % len(reasoning_variants)]
+                params.append(selected)
+                
+            if continue_chat:
+                selected = continue_variants[timestamp_seed % len(continue_variants)]
+                params.append(selected)
+            
+            params_str = " ".join(params) if params else "standard_mode"
+            
+            # Select random template to avoid habituation + add timestamp uniqueness
+            template_index = (timestamp_seed + hash(params_str)) % len(reminder_templates)
+            
+            reminder = reminder_templates[template_index].format(params=params_str)
+            reminder += f" [#{timestamp_seed}] "
+            
+            enhanced_content = reminder + enhanced_content
 
             full_response_text += f"  content: {enhanced_content}\n"
             
