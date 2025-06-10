@@ -17,7 +17,7 @@ def get_translations():
             "thinking_false": "Disabled",
             "thinking_normal": "Normal (Once at start)",
             "thinking_high": "High (Before each task)",
-            "thinking_combo_tooltip": "Control Agent's thinking transparency level:\n• Disabled: No thinking shown\n• Normal: Show thinking once at response start\n• High: Show thinking before each individual task",
+            "thinking_always_high_info": "🎯 High Thinking Mode Always Enabled - Ensuring optimal cognitive performance with detailed thinking process for every response",
             "max_reasoning_checkbox": "🚀 ACTIVATE MAXIMUM COGNITIVE POWER",
             "max_reasoning_tooltip": "🔥 ULTIMATE PERFORMANCE MODE 🔥\n\nTriggers Agent's absolute maximum capacity through:\n• Psychological priming for peak performance\n• Maximum cognitive resource allocation\n• Multi-framework reasoning (analytical + creative + intuitive)\n• Expert-level problem solving simulation\n• Obsessive quality standards\n• Adversarial self-testing\n\nThis is the 'MASTER SWITCH' - turns ON all cognitive functions to MAXIMUM!",
             "warning_label": "NOTE: If continue conversation is checked, Agent MUST call this tool again!",
@@ -91,7 +91,32 @@ def get_translations():
             "clear_selected_enabled_tooltip": "Remove selected items from list",
             "clear_selected_disabled_tooltip": "Select items in list to remove",
             "no_workspace": "No Workspace Selected",
-            "no_workspace_msg": "Please select a workspace directory first!"
+            "no_workspace_msg": "Please select a workspace directory first!",
+            
+            # Scroll to location translations
+            "scroll_to_location": "Scroll to Location",
+            "scroll_success": "Location Found",
+            "scroll_success_msg": "Successfully scrolled to: {path}",
+            "scroll_error": "Scroll Error",
+            "scroll_error_msg": "Error scrolling to location:\n{error}",
+            "scroll_invalid_path": "Invalid path format for scrolling",
+            "file_not_found": "File Not Found",
+            "file_not_found_msg": "The file/folder no longer exists:\n{path}",
+            
+            # Paste to auto-select translations
+            "paste_to_select": "Paste Path to Auto-Select",
+            "paste_path_to_select_placeholder": "Paste file/folder path here (absolute or relative)...",
+            "paste_path_to_select_tooltip": "Paste any file/folder path to automatically select it\nSupports both absolute and relative paths\nPress Enter or click Auto-Select",
+            "auto_select": "Auto-Select",
+            "auto_select_tooltip": "Automatically select and scroll to the pasted path",
+            "paste_path_empty_msg": "Please paste a path first!",
+            "paste_path_not_found_msg": "Path not found: {path}",
+            "path_outside_workspace": "Path Outside Workspace",
+            "path_outside_workspace_msg": "The pasted path is outside the current workspace",
+            "already_selected": "Already Selected",
+            "already_selected_msg": "This path is already selected:\n{path}",
+            "auto_select_error": "Auto-Select Error",
+            "auto_select_error_msg": "Error processing path:\n{error}"
         },
         "vi": {
             "window_title": "Công Cụ Tương Tác AI",
@@ -105,7 +130,7 @@ def get_translations():
             "thinking_false": "Tắt",
             "thinking_normal": "Bình thường (Một lần ở đầu)",
             "thinking_high": "Cao (Trước mỗi nhiệm vụ)",
-            "thinking_combo_tooltip": "Điều khiển mức độ minh bạch suy nghĩ của Agent:\n• Tắt: Không hiển thị suy nghĩ\n• Bình thường: Hiển thị suy nghĩ một lần ở đầu phản hồi\n• Cao: Hiển thị suy nghĩ trước mỗi nhiệm vụ riêng lẻ",
+            "thinking_always_high_info": "🎯 Chế Độ Suy Nghĩ Cao Luôn Được Bật - Đảm bảo hiệu suất nhận thức tối ưu với quá trình suy nghĩ chi tiết cho mỗi phản hồi",
             "max_reasoning_checkbox": "🚀 KÍCH HOẠT SỨC MẠNH NHẬN THỨC TỐI ĐA",
             "max_reasoning_tooltip": "🔥 CHẾ ĐỘ HIỆU SUẤT TUYỆT ĐỐI 🔥\n\nKích hoạt khả năng tối đa tuyệt đối của Agent qua:\n• Kích thích tâm lý cho hiệu suất đỉnh cao\n• Phân bổ tài nguyên nhận thức tối đa\n• Suy luận đa framework (phân tích + sáng tạo + trực giác)\n• Mô phỏng giải quyết vấn đề cấp chuyên gia\n• Tiêu chuẩn chất lượng khắt khe tuyệt đối\n• Tự kiểm tra đối kháng\n\nĐây là 'CÔNG TẮC TỔNG' - bật TẤT CẢ chức năng nhận thức lên MỨC TỐI ĐA!",
             "warning_label": "CHÚ Ý: Nếu tiếp tục trò chuyện được chọn, Agent PHẢI gọi lại công cụ này!",
@@ -179,7 +204,32 @@ def get_translations():
             "clear_selected_enabled_tooltip": "Xóa các items đã chọn trong list",
             "clear_selected_disabled_tooltip": "Chọn items trong list để xóa",
             "no_workspace": "Chưa Chọn Workspace",
-            "no_workspace_msg": "Vui lòng chọn thư mục workspace trước!"
+            "no_workspace_msg": "Vui lòng chọn thư mục workspace trước!",
+            
+            # Scroll to location translations
+            "scroll_to_location": "Cuộn Đến Vị Trí",
+            "scroll_success": "Đã Tìm Thấy Vị Trí",
+            "scroll_success_msg": "Đã cuộn thành công đến: {path}",
+            "scroll_error": "Lỗi Cuộn",
+            "scroll_error_msg": "Lỗi khi cuộn đến vị trí:\n{error}",
+            "scroll_invalid_path": "Định dạng đường dẫn không hợp lệ để cuộn",
+            "file_not_found": "Không Tìm Thấy File",
+            "file_not_found_msg": "File/folder không còn tồn tại:\n{path}",
+            
+            # Paste to auto-select translations
+            "paste_to_select": "Dán Đường Dẫn Để Tự Động Chọn",
+            "paste_path_to_select_placeholder": "Dán đường dẫn file/folder vào đây (tuyệt đối hoặc tương đối)...",
+            "paste_path_to_select_tooltip": "Dán bất kỳ đường dẫn file/folder nào để tự động chọn nó\nHỗ trợ cả đường dẫn tuyệt đối và tương đối\nNhấn Enter hoặc click Tự Động Chọn",
+            "auto_select": "Tự Động Chọn",
+            "auto_select_tooltip": "Tự động chọn và cuộn đến đường dẫn đã dán",
+            "paste_path_empty_msg": "Vui lòng dán đường dẫn trước!",
+            "paste_path_not_found_msg": "Không tìm thấy đường dẫn: {path}",
+            "path_outside_workspace": "Đường Dẫn Ngoài Workspace",
+            "path_outside_workspace_msg": "Đường dẫn đã dán nằm ngoài workspace hiện tại",
+            "already_selected": "Đã Được Chọn",
+            "already_selected_msg": "Đường dẫn này đã được chọn:\n{path}",
+            "auto_select_error": "Lỗi Tự Động Chọn",
+            "auto_select_error_msg": "Lỗi khi xử lý đường dẫn:\n{error}"
         }
     }
 

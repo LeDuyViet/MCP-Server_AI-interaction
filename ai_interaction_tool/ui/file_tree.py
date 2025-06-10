@@ -322,11 +322,10 @@ class FileTreeView(QtWidgets.QTreeView):
                     return True
                 
                 if self.model.isDir(index) and self.model.hasChildren(index):
-                    if not self.isExpanded(index):
-                        self.expand(index)
-                    
-                    if self._deselectItemRecursive(index, item_path, max_depth - 1):
-                        return True
+                    # ONLY expand if already expanded, don't auto-expand during deselect
+                    if self.isExpanded(index):
+                        if self._deselectItemRecursive(index, item_path, max_depth - 1):
+                            return True
             
             return False
             

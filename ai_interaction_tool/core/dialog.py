@@ -90,6 +90,9 @@ class InputDialog(QtWidgets.QDialog):
         # Restore attached files UI nếu có
         self._restore_attached_files_ui()
         
+        # Force refresh button styles để apply semantic colors
+        self._refresh_button_styles()
+        
         self.result_text = None
         self.result_continue = False
         self.result_ready = False
@@ -154,6 +157,7 @@ class InputDialog(QtWidgets.QDialog):
         self.attach_btn.setObjectName("attachBtn")
         self.attach_btn.clicked.connect(self.attach_file)
         self.attach_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.attach_btn.setProperty("button-type", "info")
         
         self.attached_files_label = QtWidgets.QLabel(self.get_translation("attached_files_label"), self)
         self.attached_files_label.setVisible(False)
@@ -172,12 +176,14 @@ class InputDialog(QtWidgets.QDialog):
         self.clear_selected_btn.clicked.connect(self.clear_selected_files)
         self.clear_selected_btn.setEnabled(False)  # Always visible, but disabled by default
         self.clear_selected_btn.setToolTip(self.get_translation("clear_selected_tooltip"))
+        self.clear_selected_btn.setProperty("button-type", "warning")
         
         self.clear_all_btn = QtWidgets.QPushButton(self.get_translation("clear_all"), self)
         self.clear_all_btn.setObjectName("clearAllBtn")
         self.clear_all_btn.clicked.connect(self.clear_all_files)
         self.clear_all_btn.setEnabled(False)  # Always visible, but disabled by default
         self.clear_all_btn.setToolTip(self.get_translation("clear_all_tooltip"))
+        self.clear_all_btn.setProperty("button-type", "danger")
         
         clear_layout.addWidget(self.clear_selected_btn)
         clear_layout.addWidget(self.clear_all_btn)
@@ -206,32 +212,9 @@ class InputDialog(QtWidgets.QDialog):
         self.continue_checkbox.setToolTip("Khi chọn, Agent sẽ tự động hiển thị lại hộp thoại này sau khi trả lời")
         self.layout.addWidget(self.continue_checkbox)
         
-        # Thêm ComboBox cho thinking mode (thay thế checkbox)
-        thinking_layout = QtWidgets.QHBoxLayout()
-        self.thinking_label = QtWidgets.QLabel(self.get_translation("thinking_label"), self)
-        self.thinking_combo = QtWidgets.QComboBox(self)
-        
-        # Thêm các tùy chọn thinking
-        self.thinking_combo.addItem(self.get_translation("thinking_false"), "false")
-        self.thinking_combo.addItem(self.get_translation("thinking_normal"), "normal") 
-        self.thinking_combo.addItem(self.get_translation("thinking_high"), "high")
-        
-        # Thiết lập giá trị mặc định từ config
-        thinking_default = self.config_manager.get('ui_preferences.enable_thinking_default', "false")
-        if thinking_default == "normal":
-            self.thinking_combo.setCurrentIndex(1)
-        elif thinking_default == "high":
-            self.thinking_combo.setCurrentIndex(2)
-        else:
-            self.thinking_combo.setCurrentIndex(0)  # false
-        
-        self.thinking_combo.setToolTip(self.get_translation("thinking_combo_tooltip"))
-        
-        thinking_layout.addWidget(self.thinking_label)
-        thinking_layout.addWidget(self.thinking_combo)
-        thinking_layout.addStretch()
-        
-        self.layout.addLayout(thinking_layout)
+        # ============= THINKING LOGIC COMPLETELY REMOVED =============
+        # Agent uses thinking blocks naturally - no UI controls needed
+        # Simplified interface for maximum usability
         
         # Thêm checkbox Maximum Reasoning
         max_reasoning_default = self.config_manager.get('ui_preferences.max_reasoning_default', False)
@@ -259,6 +242,7 @@ class InputDialog(QtWidgets.QDialog):
         self.submit_btn.clicked.connect(self.submit_text)
         self.submit_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.submit_btn.setToolTip("Gửi tin nhắn (Ctrl+Enter)")
+        self.submit_btn.setProperty("button-type", "success")
         
         self.close_btn = QtWidgets.QPushButton(self.get_translation("close_btn"), self)
         self.close_btn.setObjectName("closeBtn")
@@ -328,26 +312,9 @@ class InputDialog(QtWidgets.QDialog):
         self.language_label.setText(self.get_translation("language_label"))
         self.attached_files_label.setText(self.get_translation("attached_files_label"))
         self.continue_checkbox.setText(self.get_translation("continue_checkbox"))
-        self.thinking_label.setText(self.get_translation("thinking_label"))
+        # No thinking UI to update
         self.max_reasoning_checkbox.setText(self.get_translation("max_reasoning_checkbox"))
         self.max_reasoning_checkbox.setToolTip(self.get_translation("max_reasoning_tooltip"))
-        
-        # Cập nhật thinking combo items
-        current_thinking_value = self.thinking_combo.currentData()
-        self.thinking_combo.clear()
-        self.thinking_combo.addItem(self.get_translation("thinking_false"), "false")
-        self.thinking_combo.addItem(self.get_translation("thinking_normal"), "normal") 
-        self.thinking_combo.addItem(self.get_translation("thinking_high"), "high")
-        
-        # Restore selection after language change
-        if current_thinking_value == "normal":
-            self.thinking_combo.setCurrentIndex(1)
-        elif current_thinking_value == "high":
-            self.thinking_combo.setCurrentIndex(2)
-        else:
-            self.thinking_combo.setCurrentIndex(0)
-        
-        self.thinking_combo.setToolTip(self.get_translation("thinking_combo_tooltip"))
         self.warning_label.setText(self.get_translation("warning_label"))
         
         # Cập nhật các nút
@@ -630,7 +597,7 @@ class InputDialog(QtWidgets.QDialog):
             result_dict = {
                 "text": text,
                 "language": self.current_language,
-                "enable_thinking": self.thinking_combo.currentData(),
+                # ====== THINKING LOGIC REMOVED - Natural Behavior ======
                 "max_reasoning": self.max_reasoning_checkbox.isChecked()
             }
             
@@ -666,7 +633,7 @@ class InputDialog(QtWidgets.QDialog):
             
             # Lưu trạng thái checkbox vào config để lần sau sử dụng
             self.config_manager.set('ui_preferences.continue_chat_default', self.continue_checkbox.isChecked())
-            self.config_manager.set('ui_preferences.enable_thinking_default', self.thinking_combo.currentData())
+            # No thinking level to save - always "high" mode
             self.config_manager.set('ui_preferences.max_reasoning_default', self.max_reasoning_checkbox.isChecked())
             self.config_manager.save_config()
             
@@ -694,6 +661,22 @@ class InputDialog(QtWidgets.QDialog):
             self.submit_text()
         else:
             super().keyPressEvent(event)
+
+    def _refresh_button_styles(self):
+        """Force refresh button styles để apply semantic colors"""
+        buttons_to_refresh = [
+            self.submit_btn,
+            self.attach_btn,
+            self.clear_selected_btn,
+            self.clear_all_btn,
+            # Note: close_btn uses ID-based styling, không cần property refresh
+        ]
+        
+        for button in buttons_to_refresh:
+            # Force style refresh by unpolish then polish
+            button.style().unpolish(button)
+            button.style().polish(button)
+            button.update()
 
     @staticmethod
     def getText():

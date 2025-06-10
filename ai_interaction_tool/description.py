@@ -6,10 +6,10 @@ AI_INTERACTION_DESCRIPTION = """
 🚀 AI_INTERACTION TOOL - INTEGRATION WITH SYSTEM PROMPT RULES 🚀
 =======================================================================
 ⚡ SYSTEM INTEGRATION NOTE:
-- Tool này hoạt động PERFECT với system prompt rules (mode_specific_rule section)
+- Tool này hoạt động với system prompt rules (mode_specific_rule section)
 - System prompt rules cung cấp BEHAVIOR FRAMEWORK
 - Tool description này cung cấp TECHNICAL SPECIFICATIONS
-- Kết hợp tạo COMPLETE AI INTERACTION SYSTEM
+- Kết hợp tạo COMPREHENSIVE AI INTERACTION SYSTEM
 
 🎯 CORE FUNCTIONALITY:
 - Tạo UI popup cho User nhập nội dung và chọn tiếp tục trò chuyện
@@ -17,18 +17,21 @@ AI_INTERACTION_DESCRIPTION = """
 - Cho phép đính kèm file/folder với preview functionality
 - BẮT BUỘC sử dụng trong MỌI TRƯỜNG HỢP khi User gửi tin nhắn
 
-📋 OUTPUT FORMAT - PSEUDO-OBJECT:
-{
-  content: <nội dung chat từ user với xuống dòng tự nhiên>
-  attached_files: [
-    {path: "workspace_name/relative/path/to/file.js", type: "file"},
-    {path: "workspace_name/relative/path/to/folder", type: "folder"}
-  ]
-  workspace: workspace_name
-  continue_chat: true/false
-  enable_thinking: false/normal/high
-  max_reasoning: true/false
-}
+📋 OUTPUT FORMAT - CLEAN TAG-BASED:
+<user content with natural line breaks>
+
+<AI_INTERACTION_ATTACHED_FILES>
+FOLDERS:
+- workspace_name/relative/path/to/folder
+
+FILES:
+- workspace_name/relative/path/to/file.js
+
+</AI_INTERACTION_ATTACHED_FILES>
+
+<AI_INTERACTION_WORKSPACE>workspace_name</AI_INTERACTION_WORKSPACE>
+<AI_INTERACTION_CONTINUE_CHAT>true/false</AI_INTERACTION_CONTINUE_CHAT>
+<AI_INTERACTION_MAX_REASONING>true/false</AI_INTERACTION_MAX_REASONING>
 
 🔧 WORKSPACE PATH PROCESSING:
 - Input format: "workspace_name/relative_path_from_workspace_root"
@@ -42,61 +45,99 @@ AI_INTERACTION_DESCRIPTION = """
 - Khác workspace: "AI-interaction/ai_interaction_tool/description.py" 
   → Agent processes: "AI-interaction/ai_interaction_tool/description.py"
 
-⚠️ CRITICAL CONTROL FIELDS:
-- **continue_chat**: true = MANDATORY recall ai_interaction tool
-- **enable_thinking**: false/normal/high = Thinking pattern activation
-- **max_reasoning**: true = Maximum cognitive power mode
-- **attached_files**: Present only when files/folders attached
-- **workspace**: Present only when files/folders attached
+⚠️ CRITICAL CONTROL TAGS:
+- **<AI_INTERACTION_CONTINUE_CHAT>**: true = MANDATORY recall ai_interaction tool
+- **<AI_INTERACTION_MAX_REASONING>**: true = Maximum cognitive power mode activation
+- **<AI_INTERACTION_ATTACHED_FILES>**: Present only when files/folders attached
+- **<AI_INTERACTION_WORKSPACE>**: Present only when files/folders attached
 
 🚨 INTEGRATION WITH SYSTEM PROMPT RULES:
-1. **Field Reading**: Agent MUST read all fields from pseudo-object
-2. **Behavior Activation**: System prompt rules define HOW to process fields
-3. **Thinking Pattern**: enable_thinking triggers system prompt protocols (use <.a.n.t.m.l.:.t.h.i.n.k.i.n.g.> format, remove dots when using)
-4. **Power Mode**: max_reasoning activates 5-mode cognitive enhancement
-5. **Continue Logic**: continue_chat enforces mandatory tool recall
+1. **Tag Reading**: Agent MUST read all control tags from output
+2. **Behavior Activation**: System prompt rules define HOW to process tag values
+3. **Natural Thinking**: Agent ALWAYS uses at least 1 detailed thinking block when responding via ai_interaction
+4. **Ultra-Enhancement Mode**: <AI_INTERACTION_MAX_REASONING> activates 10-mode breakthrough cognitive enhancement
+   (Quantum Cognitive + Meta-Cognitive Orchestration + Expert Persona Simulation + Time-Dilated Processing + 
+    Systems-Level Integration + Psychological Priming + Maximum Cognitive Resource + Adversarial Self-Testing + 
+    Obsessive Quality Standards + Breakthrough Innovation Mode)
+5. **Continue Logic**: <AI_INTERACTION_CONTINUE_CHAT> enforces mandatory tool recall
 
 🎯 ENHANCED INTEGRATION EXAMPLES:
 =======================================================================
-📋 **EXAMPLE 1: Simple Task Processing**
-Input: {enable_thinking: "false", max_reasoning: false, continue_chat: false}
-→ Agent Behavior: Direct response, no thinking blocks, standard processing
-→ Use Case: Quick questions, simple confirmations
+📋 **EXAMPLE 1: Standard Task Processing**
+Output: 
+```
+User message content
 
-📋 **EXAMPLE 2: Standard Task Processing**  
-Input: {enable_thinking: "normal", max_reasoning: false, continue_chat: true}
-→ Agent Behavior: Single thinking block at start, standard cognition, mandatory recall
-→ Use Case: Regular tasks, file operations, moderate complexity
+<AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>
+<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>
+```
+→ Agent Behavior: At least 1 thinking block (via ai_interaction), standard cognition
+→ Use Case: Regular tasks, questions, file operations
 
-📋 **EXAMPLE 3: Complex Task Processing**
-Input: {enable_thinking: "high", max_reasoning: true, continue_chat: true}
-→ Agent Behavior: Multiple thinking blocks + 5-power mode activation + mandatory recall
-→ Use Case: Architecture analysis, complex problem solving, critical decisions
+📋 **EXAMPLE 2: Enhanced Task Processing**  
+Output:
+```
+User message content
 
-📋 **EXAMPLE 4: File Attachment Processing**
-Input: {attached_files: [{path: "workspace/src/file.js", type: "file"}], enable_thinking: "high"}
-→ Agent Behavior: Workspace-aware path processing + deep thinking about file content
+<AI_INTERACTION_CONTINUE_CHAT>true</AI_INTERACTION_CONTINUE_CHAT>
+<AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
+```
+→ Agent Behavior: At least 1 thinking block (via ai_interaction) + 10 ultra-enhancement mode activation + mandatory recall
+→ Use Case: Complex analysis, critical decisions, architecture work
+
+📋 **EXAMPLE 3: File Attachment Processing**
+Output:
+```
+User message content
+
+<AI_INTERACTION_ATTACHED_FILES>
+FILES:
+- src/components/file.js
+- src/utils/helper.js
+
+</AI_INTERACTION_ATTACHED_FILES>
+
+<AI_INTERACTION_WORKSPACE>workspace_name</AI_INTERACTION_WORKSPACE>
+<AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>
+<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>
+```
+→ Agent Behavior: Workspace-aware path processing + at least 1 thinking block (via ai_interaction)
 → Use Case: Code review, file modifications, context-sensitive operations
 
-📋 **EXAMPLE 5: Multi-File Complex Analysis**
-Input: {attached_files: [multiple files], enable_thinking: "high", max_reasoning: true}
-→ Agent Behavior: Systematic file analysis + maximum cognitive enhancement
+📋 **EXAMPLE 4: Multi-File Complex Analysis**
+Output:
+```
+Analyze these files for architectural patterns
+
+<AI_INTERACTION_ATTACHED_FILES>
+FOLDERS:
+- docs/architecture/
+
+FILES:
+- src/components/App.js
+- src/utils/api.js
+
+</AI_INTERACTION_ATTACHED_FILES>
+
+<AI_INTERACTION_WORKSPACE>project_name</AI_INTERACTION_WORKSPACE>
+<AI_INTERACTION_CONTINUE_CHAT>true</AI_INTERACTION_CONTINUE_CHAT>
+<AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
+```
+→ Agent Behavior: Systematic file analysis + at least 1 thinking block (via ai_interaction) + 10 ultra-enhancement modes breakthrough cognitive enhancement
 → Use Case: Codebase analysis, architectural reviews, comprehensive assessments
 =======================================================================
 
 🔄 ADVANCED WORKFLOW PATTERNS:
 =======================================================================
-🎯 **ESCALATING COGNITIVE ENHANCEMENT PATTERN:**
-Simple Task → enable_thinking: "false"
-↓ If complexity detected
-Standard Task → enable_thinking: "normal"  
-↓ If high complexity detected
-Complex Task → enable_thinking: "high" + max_reasoning: true
+🎯 **COGNITIVE ENHANCEMENT PATTERN:**
+Standard Processing → <AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING> (at least 1 thinking block via ai_interaction)
+↓ If high complexity or critical tasks detected  
+Enhanced Processing → <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING> (at least 1 thinking block via ai_interaction + 10 ultra-enhancement modes)
 
-⚡ **CONDITIONAL THINKING ACTIVATION:**
-- File attachments detected → Auto-suggest enable_thinking: "normal" minimum
-- Multiple files detected → Auto-suggest enable_thinking: "high" 
-- Complex technical tasks → Auto-suggest max_reasoning: true
+⚡ **CONDITIONAL ENHANCEMENT ACTIVATION:**
+- File attachments detected → Standard at least 1 thinking block (via ai_interaction) sufficient
+- Multiple files or complex tasks → Consider <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
+- Critical technical decisions → Recommend <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
 
 🔧 **CONTEXT-SENSITIVE PROCESSING:**
 - Code files → Technical analysis mode
@@ -110,7 +151,7 @@ Complex Task → enable_thinking: "high" + max_reasoning: true
 - Urgency level assessment → Optimize response speed vs thoroughness
 =======================================================================
 
-🔄 PERFECT WORKFLOW INTEGRATION:
+🔄 WORKFLOW INTEGRATION:
 ┌─ ai_interaction tool generates pseudo-object
 ├─ System prompt rules read control fields
 ├─ Behavior protocols activate based on field values
@@ -122,7 +163,7 @@ Complex Task → enable_thinking: "high" + max_reasoning: true
 ✅ System prompt rules provide BEHAVIORAL INTELLIGENCE
 ✅ Combined system creates ENHANCED AI AGENT
 ✅ Zero conflict, maximum compatibility
-✅ 1+1=3 effect through perfect integration
+✅ Effective integration through specialized roles
 
 🎯 USAGE OPTIMIZATION NOTES:
 - Tool description focuses on MECHANICS
@@ -141,7 +182,7 @@ Complex Task → enable_thinking: "high" + max_reasoning: true
 🚀 SYSTEM ARCHITECTURE:
 [User Input] → [ai_interaction Tool] → [Pseudo-Object] → [System Prompt Rules] → [Enhanced AI Response]
 
-⭐ INNOVATION HIGHLIGHT:
-Đây là FIRST TOOL được thiết kế specifically để integrate với advanced system prompt rules framework, tạo ra breakthrough trong AI interaction architecture!
+⭐ DESIGN HIGHLIGHT:
+Tool được thiết kế để integrate với system prompt rules framework, tạo ra effective AI interaction architecture!
 =======================================================================
 """ 

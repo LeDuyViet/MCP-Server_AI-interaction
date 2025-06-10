@@ -355,6 +355,7 @@ def get_main_stylesheet():
     
 
     
+    /* Default button styling */
     QPushButton {{
         background-color: {ModernTheme.COLORS['accent_blue'].name()};
         color: {ModernTheme.COLORS['background'].name()};
@@ -376,6 +377,110 @@ def get_main_stylesheet():
     QPushButton:disabled {{
         background-color: {ModernTheme.COLORS['surface1'].name()};
         color: {ModernTheme.COLORS['text_disabled'].name()};
+    }}
+    
+    /* Semantic button variants - HIGH PRIORITY */
+    QPushButton[button-type="success"] {{
+        background-color: {ModernTheme.COLORS['success'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="success"]:hover {{
+        background-color: {ModernTheme.COLORS['success'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="success"]:pressed {{
+        background-color: {ModernTheme.COLORS['success'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="warning"] {{
+        background-color: {ModernTheme.COLORS['warning'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="warning"]:hover {{
+        background-color: {ModernTheme.COLORS['warning'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="warning"]:pressed {{
+        background-color: {ModernTheme.COLORS['warning'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="danger"] {{
+        background-color: {ModernTheme.COLORS['error'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="danger"]:hover {{
+        background-color: {ModernTheme.COLORS['error'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="danger"]:pressed {{
+        background-color: {ModernTheme.COLORS['error'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="info"] {{
+        background-color: {ModernTheme.COLORS['info'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="info"]:hover {{
+        background-color: {ModernTheme.COLORS['info'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="info"]:pressed {{
+        background-color: {ModernTheme.COLORS['info'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="special"] {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="special"]:hover {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="special"]:pressed {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].darker(110).name()} !important;
+    }}
+    
+    /* Secondary button variant */
+    QPushButton[button-type="secondary"] {{
+        background-color: {ModernTheme.COLORS['surface1'].name()} !important;
+        color: {ModernTheme.COLORS['text'].name()} !important;
+        border: 1px solid {ModernTheme.COLORS['surface2'].name()} !important;
+    }}
+    
+    QPushButton[button-type="secondary"]:hover {{
+        background-color: {ModernTheme.COLORS['surface2'].name()} !important;
+        border: 1px solid {ModernTheme.COLORS['accent_blue'].name()} !important;
+    }}
+    
+    QPushButton[button-type="secondary"]:pressed {{
+        background-color: {ModernTheme.COLORS['surface0'].name()} !important;
+    }}
+    
+    /* Close button - specific styling */
+    QPushButton#closeBtn {{
+        background-color: {ModernTheme.COLORS['surface1'].name()};
+        color: {ModernTheme.COLORS['text'].name()};
+        border: 1px solid {ModernTheme.COLORS['surface2'].name()};
+    }}
+    
+    QPushButton#closeBtn:hover {{
+        background-color: {ModernTheme.COLORS['error'].name()};
+        color: {ModernTheme.COLORS['background'].name()};
+        border: 1px solid {ModernTheme.COLORS['error'].darker(110).name()};
+    }}
+    
+    QPushButton#closeBtn:pressed {{
+        background-color: {ModernTheme.COLORS['error'].darker(110).name()};
     }}
     
     QCheckBox {{
@@ -644,6 +749,93 @@ def get_file_dialog_stylesheet():
         color: {ModernTheme.COLORS['text_disabled'].name()};
     }}
     
+    /* Semantic button variants for file dialog - HIGH PRIORITY */
+    QPushButton[button-type="success"] {{
+        background-color: {ModernTheme.COLORS['success'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="success"]:hover {{
+        background-color: {ModernTheme.COLORS['success'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="success"]:pressed {{
+        background-color: {ModernTheme.COLORS['success'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="warning"] {{
+        background-color: {ModernTheme.COLORS['warning'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="warning"]:hover {{
+        background-color: {ModernTheme.COLORS['warning'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="warning"]:pressed {{
+        background-color: {ModernTheme.COLORS['warning'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="danger"] {{
+        background-color: {ModernTheme.COLORS['error'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="danger"]:hover {{
+        background-color: {ModernTheme.COLORS['error'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="danger"]:pressed {{
+        background-color: {ModernTheme.COLORS['error'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="info"] {{
+        background-color: {ModernTheme.COLORS['info'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="info"]:hover {{
+        background-color: {ModernTheme.COLORS['info'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="info"]:pressed {{
+        background-color: {ModernTheme.COLORS['info'].darker(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="special"] {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].name()} !important;
+        color: {ModernTheme.COLORS['background'].name()} !important;
+        border: none !important;
+    }}
+    
+    QPushButton[button-type="special"]:hover {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].lighter(110).name()} !important;
+    }}
+    
+    QPushButton[button-type="special"]:pressed {{
+        background-color: {ModernTheme.COLORS['accent_mauve'].darker(110).name()} !important;
+    }}
+    
+    /* Secondary button variant */
+    QPushButton[button-type="secondary"] {{
+        background-color: {ModernTheme.COLORS['surface1'].name()} !important;
+        color: {ModernTheme.COLORS['text'].name()} !important;
+        border: 1px solid {ModernTheme.COLORS['surface2'].name()} !important;
+    }}
+    
+    QPushButton[button-type="secondary"]:hover {{
+        background-color: {ModernTheme.COLORS['surface2'].name()} !important;
+        border: 1px solid {ModernTheme.COLORS['accent_blue'].name()} !important;
+    }}
+    
+    QPushButton[button-type="secondary"]:pressed {{
+        background-color: {ModernTheme.COLORS['surface0'].name()} !important;
+    }}
+    
     QListWidget {{
         background-color: {ModernTheme.COLORS['surface0'].name()};
         border: 1px solid {ModernTheme.COLORS['surface1'].name()};
@@ -789,3 +981,22 @@ def get_file_dialog_stylesheet():
     
 
     """ 
+
+def apply_semantic_button_color(button, button_type):
+    """
+    Apply semantic color to a QPushButton
+    
+    Args:
+        button: QPushButton instance
+        button_type: str - One of 'success', 'warning', 'danger', 'info', 'special', 'secondary'
+    """
+    valid_types = ['success', 'warning', 'danger', 'info', 'special', 'secondary']
+    if button_type not in valid_types:
+        print(f"Warning: Unknown button type '{button_type}'. Valid types: {valid_types}")
+        return
+    
+    button.setProperty("button-type", button_type)
+    # Force style refresh
+    button.style().unpolish(button)
+    button.style().polish(button)
+    button.update() 
