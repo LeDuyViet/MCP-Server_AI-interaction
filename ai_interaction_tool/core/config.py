@@ -19,6 +19,11 @@ class ConfigManager:
         )
         self.config = self._load_default_config()
         self.load_config()
+        
+        # Ensure config file exists - create it if this is first run
+        if not os.path.exists(self.config_path):
+            print(f"[ConfigManager] First run detected, creating config file at {self.config_path}", file=sys.stderr)
+            self.save_config()
     
     def _load_default_config(self):
         """
@@ -49,14 +54,34 @@ class ConfigManager:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     loaded_config = json.load(f)
                     # Merge với config mặc định để đảm bảo có đủ các key
-                    self.config.update(loaded_config)
+                    # Use recursive merge để preserve nested structure
+                    self._deep_merge(self.config, loaded_config)
                     print(f"[ConfigManager] Đã tải cấu hình từ {self.config_path}", file=sys.stderr)
             else:
                 print(f"[ConfigManager] File cấu hình không tồn tại, sử dụng cấu hình mặc định", file=sys.stderr)
-        except Exception as e:
+        except (json.JSONDecodeError, FileNotFoundError, PermissionError) as e:
             print(f"[ConfigManager] Lỗi khi tải cấu hình: {str(e)}", file=sys.stderr)
+            print(f"[ConfigManager] Sử dụng cấu hình mặc định", file=sys.stderr)
+            # Reset to default config on any error
+            self.config = self._load_default_config()
+        except Exception as e:
+            print(f"[ConfigManager] Lỗi không mong đợi khi tải cấu hình: {str(e)}", file=sys.stderr)
             # Sử dụng cấu hình mặc định nếu có lỗi
             self.config = self._load_default_config()
+    
+    def _deep_merge(self, base_dict, update_dict):
+        """
+        Merge two dictionaries recursively, with update_dict taking precedence
+        
+        Args:
+            base_dict (dict): Base dictionary to merge into
+            update_dict (dict): Dictionary with updates
+        """
+        for key, value in update_dict.items():
+            if key in base_dict and isinstance(base_dict[key], dict) and isinstance(value, dict):
+                self._deep_merge(base_dict[key], value)
+            else:
+                base_dict[key] = value
     
     def save_config(self):
         """
@@ -66,16 +91,52 @@ class ConfigManager:
             bool: True nếu lưu thành công, False nếu có lỗi
         """
         try:
-            # Tạo thư mục nếu chưa tồn tại
-            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+            # Validate config before saving
+            if not isinstance(self.config, dict):
+                print(f"[ConfigManager] Cấu hình không hợp lệ (không phải dict)", file=sys.stderr)
+                return False
             
-            with open(self.config_path, 'w', encoding='utf-8') as f:
+            # Tạo thư mục nếu chưa tồn tại
+            config_dir = os.path.dirname(self.config_path)
+            os.makedirs(config_dir, exist_ok=True)
+            
+            # Write to temporary file first, then rename (atomic operation)
+            temp_path = self.config_path + '.tmp'
+            with open(temp_path, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, ensure_ascii=False, indent=2)
+            
+            # Atomic rename to prevent corruption
+            if os.path.exists(self.config_path):
+                # Backup existing config before replace
+                backup_path = self.config_path + '.bak'
+                if os.path.exists(backup_path):
+                    os.remove(backup_path)
+                os.rename(self.config_path, backup_path)
+            
+            os.rename(temp_path, self.config_path)
             
             print(f"[ConfigManager] Đã lưu cấu hình vào {self.config_path}", file=sys.stderr)
             return True
+            
+        except (PermissionError, OSError) as e:
+            print(f"[ConfigManager] Lỗi quyền truy cập khi lưu cấu hình: {str(e)}", file=sys.stderr)
+            # Clean up temp file if exists
+            temp_path = self.config_path + '.tmp'
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
+            return False
         except Exception as e:
-            print(f"[ConfigManager] Lỗi khi lưu cấu hình: {str(e)}", file=sys.stderr)
+            print(f"[ConfigManager] Lỗi không mong đợi khi lưu cấu hình: {str(e)}", file=sys.stderr)
+            # Clean up temp file if exists
+            temp_path = self.config_path + '.tmp'
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
             return False
     
     def get(self, key, default=None):

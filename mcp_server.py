@@ -10,8 +10,6 @@ mcp = FastMCP("AI Interaction")
 # Đăng ký công cụ đã import với mô tả chi tiết
 mcp.add_tool(ai_interaction, description=AI_INTERACTION_DESCRIPTION)
 
-# Đăng ký tool test connection độc lập
-
 if __name__ == "__main__":
     # Chạy server với transport=stdio
     mcp.run(transport="stdio")
