@@ -43,5 +43,5 @@ __all__ = [
     'AI_INTERACTION_DESCRIPTION'
 ]
 
-def ai_interaction(*args, **kwargs):
-    return run_ui(*args, **kwargs)
+def ai_interaction():
+    return run_ui()
