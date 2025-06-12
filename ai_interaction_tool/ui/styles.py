@@ -918,15 +918,18 @@ def get_file_dialog_stylesheet():
     /* Scrollbars */
     QScrollBar:vertical {{
         background-color: {ModernTheme.COLORS['surface0'].name()};
-        width: 12px;
-        border-radius: 6px;
-        margin: 0;
+        width: 18px;
+        border-radius: 9px;
+        margin: 2px;
+        border: 1px solid {ModernTheme.COLORS['surface1'].name()};
     }}
     
     QScrollBar::handle:vertical {{
         background-color: {ModernTheme.COLORS['surface2'].name()};
-        border-radius: 6px;
+        border-radius: 7px;
         min-height: 30px;
+        margin: 2px;
+        border: 1px solid {ModernTheme.COLORS['surface1'].name()};
     }}
     
     QScrollBar::handle:vertical:hover {{
@@ -946,9 +949,11 @@ def get_file_dialog_stylesheet():
     }}
     
     QScrollBar::handle:horizontal {{
-        background-color: {ModernTheme.COLORS['surface2'].name()};
+        background-color: #a855f7;
         border-radius: 6px;
-        min-width: 30px;
+        min-width: 40px;
+        margin: 2px;
+        border: 1px solid #c084fc;
     }}
     
     QScrollBar::handle:horizontal:hover {{
@@ -981,6 +986,266 @@ def get_file_dialog_stylesheet():
     
 
     """ 
+
+def get_file_container_stylesheet():
+    """Get stylesheet for file list container"""
+    return f"""
+    QFrame {{
+        background-color: {ModernTheme.COLORS['surface0'].name()};
+        border: 1px solid {ModernTheme.COLORS['surface1'].name()};
+        border-radius: {ModernTheme.SPACING['border_radius'] * 2}px;
+        margin: 4px 2px;
+    }}
+    """
+
+def get_file_placeholder_stylesheet():
+    """Get stylesheet for file placeholder label"""
+    return f"""
+    QLabel {{
+        color: {ModernTheme.COLORS['text_secondary'].name()};
+        font-style: italic;
+        font-size: {ModernTheme.FONTS['default_size']}px;
+        font-weight: 500;
+        padding: 2px;
+        border: 2px dashed {ModernTheme.COLORS['text_disabled'].name()};
+        border-radius: 10px;
+        background-color: rgba({ModernTheme.COLORS['surface0'].red()}, {ModernTheme.COLORS['surface0'].green()}, {ModernTheme.COLORS['surface0'].blue()}, 0.3);
+        margin: 2px;
+    }}
+    QLabel:hover {{
+        color: {ModernTheme.COLORS['text'].name()};
+        border-color: {ModernTheme.COLORS['accent_blue'].name()};
+        background-color: rgba({ModernTheme.COLORS['accent_blue'].red()}, {ModernTheme.COLORS['accent_blue'].green()}, {ModernTheme.COLORS['accent_blue'].blue()}, 0.1);
+    }}
+    """
+
+def get_image_container_stylesheet():
+    """Get stylesheet for image container (darker purple theme for better image contrast)"""
+    return f"""
+    QFrame {{
+        background-color: #4c1d95;
+        border: 1px solid #6d28d9;
+        border-radius: {ModernTheme.SPACING['border_radius'] * 2}px;
+        margin: 4px 2px;
+    }}
+    """
+
+def get_image_placeholder_stylesheet():
+    """Get stylesheet for image placeholder label"""
+    return f"""
+    QLabel {{
+        color: #c4b5fd;
+        font-style: italic;
+        font-size: {ModernTheme.FONTS['default_size']}px;
+        font-weight: 500;
+        padding: 2px;
+        border: 2px dashed #8b5cf6;
+        border-radius: 10px;
+        background-color: rgba(76, 29, 149, 0.3);
+        margin: 2px;
+    }}
+    QLabel:hover {{
+        color: #ddd6fe;
+        border-color: #a855f7;
+        background-color: rgba(109, 40, 217, 0.4);
+    }}
+    """
+
+def get_image_scroll_stylesheet():
+    """Get stylesheet for image scroll area and widget"""
+    return f"""
+    QScrollArea {{
+        background-color: transparent;
+        border: none;
+    }}
+    QWidget {{
+        background-color: #4c1d95;
+    }}
+    QScrollBar:horizontal {{
+        background-color: #6d28d9;
+        height: 16px;
+        border-radius: 8px;
+        margin: 2px;
+        border: 1px solid #8b5cf6;
+    }}
+    QScrollBar::handle:horizontal {{
+        background-color: #a855f7;
+        border-radius: 6px;
+        min-width: 40px;
+        margin: 2px;
+        border: 1px solid #c084fc;
+    }}
+    QScrollBar::handle:horizontal:hover {{
+        background-color: #c084fc;
+        border: 1px solid #ddd6fe;
+    }}
+    QScrollBar::handle:horizontal:pressed {{
+        background-color: #e879f9;
+    }}
+    QScrollBar::add-line:horizontal, 
+    QScrollBar::sub-line:horizontal {{
+        width: 0px;
+        height: 0px;
+    }}
+    QScrollBar::add-page:horizontal,
+    QScrollBar::sub-page:horizontal {{
+        background: transparent;
+    }}
+    """
+
+def get_file_list_stylesheet():
+    """Get stylesheet for file list widget"""
+    return f"""
+    QListWidget {{
+        background-color: transparent;
+        border: none;
+        border-radius: 8px;
+        padding: 2px;
+        color: {ModernTheme.COLORS['text'].name()};
+        font-family: {ModernTheme.FONTS['family']};
+        font-size: {ModernTheme.FONTS['default_size']}px;
+        outline: none;
+        selection-background-color: transparent;
+    }}
+    QListWidget::item {{
+        padding: 8px 12px;
+        border-radius: {ModernTheme.SPACING['border_radius']}px;
+        margin: 2px 3px;
+        height: 28px;
+        border: 1px solid transparent;
+        background-color: {ModernTheme.COLORS['surface1'].name()};
+        color: {ModernTheme.COLORS['text'].name()};
+        transition: all 0.2s ease;
+    }}
+    QListWidget::item:hover {{
+        background-color: rgba({ModernTheme.COLORS['accent_blue'].red()}, {ModernTheme.COLORS['accent_blue'].green()}, {ModernTheme.COLORS['accent_blue'].blue()}, 0.08);
+        border: 1px solid rgba({ModernTheme.COLORS['accent_blue'].red()}, {ModernTheme.COLORS['accent_blue'].green()}, {ModernTheme.COLORS['accent_blue'].blue()}, 0.3);
+        color: {ModernTheme.COLORS['text'].name()};
+        transform: translateY(-1px);
+    }}
+    QListWidget::item:selected {{
+        background-color: rgba({ModernTheme.COLORS['accent_blue'].red()}, {ModernTheme.COLORS['accent_blue'].green()}, {ModernTheme.COLORS['accent_blue'].blue()}, 0.15);
+        color: {ModernTheme.COLORS['accent_blue'].name()};
+        border: 1px solid {ModernTheme.COLORS['accent_blue'].name()};
+        font-weight: 500;
+    }}
+    QListWidget::item:selected:hover {{
+        background-color: rgba({ModernTheme.COLORS['accent_blue'].red()}, {ModernTheme.COLORS['accent_blue'].green()}, {ModernTheme.COLORS['accent_blue'].blue()}, 0.25);
+        color: {ModernTheme.COLORS['accent_blue'].lighter(110).name()};
+        border: 1px solid {ModernTheme.COLORS['accent_blue'].lighter(110).name()};
+    }}
+    QListWidget::item:!selected:hover {{
+        color: {ModernTheme.COLORS['text'].name()};
+    }}
+    QScrollBar:vertical {{
+        background-color: {ModernTheme.COLORS['surface0'].name()};
+        width: 18px;
+        border-radius: 9px;
+        margin: 2px;
+        border: 1px solid {ModernTheme.COLORS['surface1'].name()};
+    }}
+    QScrollBar::handle:vertical {{
+        background-color: {ModernTheme.COLORS['surface2'].name()};
+        border-radius: 7px;
+        min-height: 30px;
+        margin: 2px;
+        border: 1px solid {ModernTheme.COLORS['surface1'].name()};
+    }}
+    QScrollBar::handle:vertical:hover {{
+        background-color: {ModernTheme.COLORS['accent_blue'].name()};
+        border: 1px solid {ModernTheme.COLORS['accent_blue'].darker(120).name()};
+    }}
+    QScrollBar::handle:vertical:pressed {{
+        background-color: {ModernTheme.COLORS['accent_blue'].darker(110).name()};
+    }}
+    QScrollBar::add-line:vertical,
+    QScrollBar::sub-line:vertical {{
+        height: 0;
+        width: 0;
+    }}
+    QScrollBar::add-page:vertical,
+    QScrollBar::sub-page:vertical {{
+        background: transparent;
+    }}
+    """
+
+def get_image_preview_card_stylesheet():
+    """Get stylesheet for image preview cards"""
+    return """
+    QFrame {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        margin: 2px;
+    }
+    QFrame:hover {
+        border: 2px solid #2196F3;
+        background-color: #f8f9ff;
+    }
+    """
+
+def get_image_preview_label_stylesheet():
+    """Get stylesheet for image preview labels"""
+    return """
+    QLabel {
+        background-color: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 6px;
+        padding: 2px;
+    }
+    """
+
+def get_image_filename_label_stylesheet():
+    """Get stylesheet for image filename labels"""
+    return """
+    QLabel {
+        color: #2d2d2d;
+        font-size: 12px;
+        font-weight: bold;
+        background: transparent;
+        border: none;
+        letter-spacing: 0.2px;
+    }
+    """
+
+def get_image_size_label_stylesheet():
+    """Get stylesheet for image size labels"""
+    return """
+    QLabel {
+        color: #666666;
+        font-size: 10px;
+        font-weight: normal;
+        background: transparent;
+        border: none;
+    }
+    """
+
+def get_image_remove_button_stylesheet():
+    """Get stylesheet for image remove buttons"""
+    return """
+    QPushButton {
+        background-color: #ff4757;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        padding: 3px;
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        min-height: 18px;
+        max-width: 18px;
+        max-height: 18px;
+    }
+    QPushButton:hover {
+        background-color: #ff3742;
+    }
+    QPushButton:pressed {
+        background-color: #ff2f3a;
+    }
+    """
 
 def apply_semantic_button_color(button, button_type):
     """

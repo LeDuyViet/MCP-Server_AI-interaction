@@ -79,3 +79,4 @@ typing-inspection==0.4.0
 uvicorn==0.34.1
     # via mcp
 PyQt5
+Pillow

@@ -29,9 +29,21 @@ def run_ui(*args, **kwargs):
             result_dict = json.loads(text)
             user_text = result_dict.get("text", "")
             attached_files = result_dict.get("attached_files", [])
+            attached_images = result_dict.get("attached_images", [])
             language = result_dict.get("language", "vi")  # Mặc định tiếng Việt
             # ====== THINKING LOGIC COMPLETELY REMOVED - Natural Behavior ======
             max_reasoning = result_dict.get("max_reasoning", False)  # Maximum reasoning protocol
+            
+            # Check if we have images - return structured data for MCP processing
+            if attached_images:
+                return {
+                    'text_content': user_text,
+                    'attached_files': attached_files,
+                    'attached_images': attached_images,
+                    'continue_chat': continue_chat,
+                    'max_reasoning': max_reasoning,
+                    'language': language
+                }
             
             # ====== TAG-BASED FORMAT - Clean and Simple ======
             # Start with clean user content

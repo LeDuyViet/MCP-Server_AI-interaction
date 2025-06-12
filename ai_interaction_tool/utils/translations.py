@@ -38,6 +38,27 @@ def get_translations():
             "clear_all_files": "Clear All Files",
             "clear_all_confirm": "Are you sure you want to remove all {count} attached items?",
             
+            # Image buttons translations
+            "attach_image_btn": "Attach Image",
+            "clear_images": "Clear Images", 
+            "attached_images_label": "Attached Images:",
+            "image_placeholder": "Drag & drop images here or click here to select images",
+            
+            # Image dialog translations
+            "no_images_title": "No Images",
+            "no_images_message": "No images to clear.",
+            "clear_all_images_title": "Clear All Images",
+            "clear_all_images_message": "Are you sure you want to remove all {count} attached images?",
+            "image_pasted_title": "Image Pasted",
+            "image_pasted_message": "Image successfully pasted and added to attachments!\nFilename: {filename}",
+            "paste_error_title": "Paste Error",
+            "paste_error_message": "Error adding pasted image: {error}",
+            "save_images_checkbox": "Save Images",
+            "save_images_tooltip": "When checked, attached images will be restored when you open AI Interaction next time",
+            
+            # Placeholder translations
+            "file_placeholder": "📁 Drag & drop files/folders here or click 'Attach File' button",
+            
             # File dialog translations
             "file_dialog_title": "Select Files",
             "workspace_config": "Workspace Configuration",
@@ -150,6 +171,27 @@ def get_translations():
             "no_selection_message": "Vui lòng chọn items để xóa trước.\nMẹo: Giữ Ctrl+Click để chọn nhiều items.",
             "clear_all_files": "Xóa Tất Cả File",
             "clear_all_confirm": "Bạn có chắc muốn xóa tất cả {count} items đã đính kèm?",
+            
+            # Image buttons translations
+            "attach_image_btn": "Đính Kèm Hình Ảnh",
+            "clear_images": "Xóa Hình Ảnh",
+            "attached_images_label": "Hình Ảnh Đính Kèm:",
+            "image_placeholder": "Kéo thả hình ảnh vào đây hoặc nhấn vào đây để chọn ảnh",
+            
+            # Image dialog translations
+            "no_images_title": "Không Có Ảnh",
+            "no_images_message": "Không có ảnh nào để xóa.",
+            "clear_all_images_title": "Xóa Tất Cả Ảnh",
+            "clear_all_images_message": "Bạn có chắc muốn xóa tất cả {count} ảnh đã đính kèm?",
+            "image_pasted_title": "Đã Dán Ảnh",
+            "image_pasted_message": "Ảnh đã được dán và thêm vào đính kèm thành công!\nTên file: {filename}",
+            "paste_error_title": "Lỗi Dán",
+            "paste_error_message": "Lỗi khi thêm ảnh đã dán: {error}",
+            "save_images_checkbox": "Lưu ảnh",
+            "save_images_tooltip": "Khi được chọn, ảnh đính kèm sẽ được khôi phục khi bạn mở AI Interaction lần sau",
+            
+            # Placeholder translations
+            "file_placeholder": "📁 Nhấn nút 'Đính kèm file' để chọn file/folder",
             
             # File dialog translations
             "file_dialog_title": "Chọn File",

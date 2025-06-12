@@ -1,17 +1,74 @@
 # Main input dialog for AI Interaction Tool
 from PyQt5 import QtWidgets, QtCore, QtGui
-import sys
 import json
 import os
+import tempfile
+import uuid
+from pathlib import Path
 from .config import ConfigManager
 from ..ui.file_dialog import FileAttachDialog
-from ..ui.styles import get_main_stylesheet, get_context_menu_stylesheet
+from ..ui.image_attachment import ImageAttachmentWidget
+from ..ui.styles import (
+    get_main_stylesheet, 
+    get_context_menu_stylesheet,
+    get_file_container_stylesheet,
+    get_file_placeholder_stylesheet,
+    get_file_list_stylesheet
+)
 from ..utils.translations import get_translations, get_translation
-from ..utils.file_utils import read_file_content, validate_file_path
 from ..constants import (
-    WINDOW_WIDTH, WINDOW_HEIGHT, MIN_INPUT_HEIGHT, MAX_FILE_LIST_HEIGHT,
     SHADOW_BLUR_RADIUS, SHADOW_OFFSET, SHADOW_OPACITY
 )
+
+class PasteImageTextEdit(QtWidgets.QTextEdit):
+    """Custom QTextEdit that handles image paste events"""
+    
+    imagePasted = QtCore.pyqtSignal(str)  # Signal emitted when image is pasted
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+    def insertFromMimeData(self, source):
+        """Override to handle pasted images - save directly to database"""
+        if source.hasImage():
+            # Get image from clipboard
+            image = source.imageData()
+            if image and not image.isNull():
+                # Convert QImage to QPixmap
+                if isinstance(image, QtGui.QImage):
+                    pixmap = QtGui.QPixmap.fromImage(image)
+                elif isinstance(image, QtGui.QPixmap):
+                    pixmap = image
+                else:
+                    super().insertFromMimeData(source)
+                    return
+                
+                # Save directly to database directory
+                try:
+                    # Get project root directory
+                    current_file = os.path.abspath(__file__)
+                    project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+                    
+                    # Create user_images directory
+                    user_images_dir = os.path.join(project_root, "user_images")
+                    os.makedirs(user_images_dir, exist_ok=True)
+                    
+                    # Generate unique filename directly in database
+                    unique_id = str(uuid.uuid4())[:8]
+                    db_filename = f"pasted_{unique_id}.png"
+                    db_path = os.path.join(user_images_dir, db_filename)
+                    
+                    # Save directly to database - NO TEMP FILES
+                    if pixmap.save(db_path, "PNG"):
+                        # Emit signal with database path
+                        self.imagePasted.emit(db_path)
+                        return
+                        
+                except Exception:
+                    pass
+        
+        # For non-image content, use default behavior
+        super().insertFromMimeData(source)
 
 class InputDialog(QtWidgets.QDialog):
     def __init__(self):
@@ -28,6 +85,10 @@ class InputDialog(QtWidgets.QDialog):
         
         # Khởi tạo danh sách lưu đường dẫn file đính kèm
         self.attached_files = []
+        
+        # Initialize labels for compatibility (even though hidden)
+        self.attached_files_label = QtWidgets.QLabel()  # Hidden label for compatibility
+        self.attached_images_label = QtWidgets.QLabel()  # Hidden label for compatibility
         
         # Lưu workspace state để reuse - load từ config
         last_workspace = self.config_manager.get_last_workspace()
@@ -70,8 +131,8 @@ class InputDialog(QtWidgets.QDialog):
         # Thêm input area
         self._setup_input_area()
         
-        # Thêm file attachment area
-        self._setup_file_attachment()
+        # Thêm horizontal attachment areas (files + images)
+        self._setup_horizontal_attachments()
         
         # Thêm continue checkbox và warning
         self._setup_continue_options()
@@ -141,14 +202,163 @@ class InputDialog(QtWidgets.QDialog):
     
     def _setup_input_area(self):
         """Thiết lập khu vực nhập liệu"""
-        # Thay thế QLineEdit bằng QTextEdit
-        self.input = QtWidgets.QTextEdit(self)
+        # Sử dụng custom TextEdit để handle image paste
+        self.input = PasteImageTextEdit(self)
         self.input.setPlaceholderText(self.get_translation("input_placeholder"))
         self.input.setMinimumHeight(200)  # Larger minimum for big window
         self.input.setMaximumHeight(400)  # Allow more text editing space
+        
+        # Connect image paste signal
+        self.input.imagePasted.connect(self.handle_pasted_image)
+        
         self.layout.addWidget(self.input)
     
-    def _setup_file_attachment(self):
+    def _setup_horizontal_attachments(self):
+        """Thiết lập khu vực đính kèm file và hình ảnh theo chiều ngang"""
+        # Main horizontal container
+        attachments_container = QtWidgets.QHBoxLayout()
+        attachments_container.setSpacing(15)  # Space between file and image sections
+        
+        # === LEFT SIDE: File Attachments ===
+        file_section = self._create_file_attachment_section()
+        attachments_container.addWidget(file_section, 1)  # Stretch factor 1
+        
+        # === RIGHT SIDE: Image Attachments ===
+        image_section = self._create_image_attachment_section()
+        attachments_container.addWidget(image_section, 1)  # Stretch factor 1
+        
+        self.layout.addLayout(attachments_container)
+    
+    def _create_file_attachment_section(self):
+        """Tạo section đính kèm file"""
+        file_widget = QtWidgets.QWidget()
+        file_layout = QtWidgets.QVBoxLayout(file_widget)
+        file_layout.setContentsMargins(0, 0, 0, 0)
+        file_layout.setSpacing(6)
+        
+        # All file buttons in one row
+        file_buttons_layout = QtWidgets.QHBoxLayout()
+        file_buttons_layout.setSpacing(8)
+        
+        # Attach button
+        self.attach_btn = QtWidgets.QPushButton(self.get_translation("attach_btn"), self)
+        self.attach_btn.setObjectName("attachBtn")
+        self.attach_btn.clicked.connect(self.attach_file)
+        self.attach_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.attach_btn.setProperty("button-type", "info")
+        
+        # Clear buttons
+        self.clear_selected_btn = QtWidgets.QPushButton(self.get_translation("clear_selected"), self)
+        self.clear_selected_btn.setObjectName("clearSelectedBtn")
+        self.clear_selected_btn.clicked.connect(self.clear_selected_files)
+        self.clear_selected_btn.setEnabled(False)
+        self.clear_selected_btn.setToolTip(self.get_translation("clear_selected_tooltip"))
+        self.clear_selected_btn.setProperty("button-type", "warning")
+        
+        self.clear_all_btn = QtWidgets.QPushButton(self.get_translation("clear_all"), self)
+        self.clear_all_btn.setObjectName("clearAllBtn")
+        self.clear_all_btn.clicked.connect(self.clear_all_files)
+        self.clear_all_btn.setEnabled(False)
+        self.clear_all_btn.setToolTip(self.get_translation("clear_all_tooltip"))
+        self.clear_all_btn.setProperty("button-type", "danger")
+        
+        # Add all buttons to same row
+        file_buttons_layout.addWidget(self.attach_btn)
+        file_buttons_layout.addWidget(self.clear_selected_btn)
+        file_buttons_layout.addWidget(self.clear_all_btn)
+        file_buttons_layout.addStretch()
+        
+        file_layout.addLayout(file_buttons_layout)
+        
+        
+        # File list with styled container to match image section
+        self.file_list_container = QtWidgets.QFrame()
+        self.file_list_container.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        self.file_list_container.setStyleSheet(get_file_container_stylesheet())
+        self.file_list_container.setVisible(True)  # Always show like image container
+        self.file_list_container.setFixedHeight(300)  # Large height for many file items
+        
+        # Container layout
+        file_container_layout = QtWidgets.QVBoxLayout(self.file_list_container)
+        file_container_layout.setContentsMargins(2, 2, 2, 2)  # Match image container padding
+        file_container_layout.setSpacing(0)  # No spacing for full fill
+        
+        # File placeholder (shown when no files)
+        self.file_placeholder = QtWidgets.QLabel(self.get_translation("file_placeholder"))
+        self.file_placeholder.setAlignment(QtCore.Qt.AlignCenter)
+        self.file_placeholder.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.file_placeholder.setStyleSheet(get_file_placeholder_stylesheet())
+        
+        # File list inside container
+        self.file_list = QtWidgets.QListWidget()
+        self.file_list.setVisible(False)  # Hidden by default, show when files added
+        self.file_list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.file_list.setToolTip(self.get_translation("file_list_tooltip"))
+        self.file_list.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.file_list.customContextMenuRequested.connect(self.show_context_menu)
+        self.file_list.itemSelectionChanged.connect(self.update_clear_buttons_state)
+        self.file_list.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        
+        # Apply dark theme styling
+        self.file_list.setStyleSheet(get_file_list_stylesheet())
+        
+        # Add both to container layout directly - they will fill available space
+        file_container_layout.addWidget(self.file_placeholder)
+        file_container_layout.addWidget(self.file_list)
+        
+        file_layout.addWidget(self.file_list_container)
+        
+        return file_widget
+    
+    def _create_image_attachment_section(self):
+        """Tạo section đính kèm hình ảnh - sử dụng component riêng"""
+        # Sử dụng ImageAttachmentWidget component
+        self.image_attachment_widget = ImageAttachmentWidget(self, self.current_language, self.translations, self.config_manager)
+        
+        # Reference các thành phần cần thiết từ component
+        self.attach_image_btn = self.image_attachment_widget.attach_image_btn
+        self.clear_images_btn = self.image_attachment_widget.clear_images_btn
+        self.drag_drop_widget = self.image_attachment_widget.drag_drop_widget
+        self.image_scroll_area = self.image_attachment_widget.image_scroll_area
+        self.image_scroll_widget = self.image_attachment_widget.image_scroll_widget
+        self.image_placeholder = self.image_attachment_widget.image_placeholder
+        
+        return self.image_attachment_widget
+
+    def handle_pasted_image(self, db_image_path):
+        """Handle image pasted into input area - already in database"""
+        try:
+            # Use the image attachment widget to add the pasted image
+            if hasattr(self, 'image_attachment_widget'):
+                # Image is already in database, just add to UI
+                if os.path.exists(db_image_path) and "user_images" in db_image_path:
+                    # Convert to base64 from database
+                    base64_data = self.image_attachment_widget.image_to_base64(db_image_path)
+                    if base64_data:
+                        # Add directly to attached_images
+                        # SECURITY: Only store database-relative information
+                        image_info = {
+                            "path": db_image_path,
+                            "filename": Path(db_image_path).name,
+                            "base64_data": base64_data,
+                            "media_type": "image/png",
+                            "source_type": "pasted",
+                            "db_filename": Path(db_image_path).name,
+                            "relative_db_path": os.path.basename(db_image_path)  # Only filename
+                        }
+                        
+                        self.image_attachment_widget.attached_images.append(image_info)
+                        self.image_attachment_widget.add_image_preview(db_image_path)
+                        self.image_attachment_widget.update_image_ui(auto_scroll=True)
+                    
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self, 
+                self.get_translation("paste_error_title"), 
+                self.get_translation("paste_error_message").format(error=str(e))
+            )
+
+    def _old_setup_file_attachment(self):
         """Thiết lập khu vực đính kèm file"""
         # Row 1: Attach button và label
         attach_layout = QtWidgets.QHBoxLayout()
@@ -159,11 +369,8 @@ class InputDialog(QtWidgets.QDialog):
         self.attach_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.attach_btn.setProperty("button-type", "info")
         
-        self.attached_files_label = QtWidgets.QLabel(self.get_translation("attached_files_label"), self)
-        self.attached_files_label.setVisible(False)
         
         attach_layout.addWidget(self.attach_btn)
-        attach_layout.addWidget(self.attached_files_label)
         attach_layout.addStretch()
         
         self.layout.addLayout(attach_layout)
@@ -202,6 +409,7 @@ class InputDialog(QtWidgets.QDialog):
         self.file_list.customContextMenuRequested.connect(self.show_context_menu)
         self.file_list.itemSelectionChanged.connect(self.update_clear_buttons_state)
         self.layout.addWidget(self.file_list)
+
     
     def _setup_continue_options(self):
         """Thiết lập các tùy chọn tiếp tục cuộc trò chuyện"""
@@ -211,10 +419,6 @@ class InputDialog(QtWidgets.QDialog):
         self.continue_checkbox.setChecked(continue_default)
         self.continue_checkbox.setToolTip("Khi chọn, Agent sẽ tự động hiển thị lại hộp thoại này sau khi trả lời")
         self.layout.addWidget(self.continue_checkbox)
-        
-        # ============= THINKING LOGIC COMPLETELY REMOVED =============
-        # Agent uses thinking blocks naturally - no UI controls needed
-        # Simplified interface for maximum usability
         
         # Thêm checkbox Maximum Reasoning
         max_reasoning_default = self.config_manager.get('ui_preferences.max_reasoning_default', False)
@@ -283,8 +487,8 @@ class InputDialog(QtWidgets.QDialog):
         
         # Hiển thị UI elements
         if self.attached_files:
-            self.attached_files_label.setVisible(True)
             self.file_list.setVisible(True)
+            self.file_placeholder.setVisible(False)
         
         # Update button states regardless
         self.update_clear_buttons_state()
@@ -310,7 +514,7 @@ class InputDialog(QtWidgets.QDialog):
         # Cập nhật các nhãn
         self.info_label.setText(self.get_translation("info_label"))
         self.language_label.setText(self.get_translation("language_label"))
-        self.attached_files_label.setText(self.get_translation("attached_files_label"))
+
         self.continue_checkbox.setText(self.get_translation("continue_checkbox"))
         # No thinking UI to update
         self.max_reasoning_checkbox.setText(self.get_translation("max_reasoning_checkbox"))
@@ -323,6 +527,10 @@ class InputDialog(QtWidgets.QDialog):
         self.close_btn.setText(self.get_translation("close_btn"))
         self.clear_selected_btn.setText(self.get_translation("clear_selected"))
         self.clear_all_btn.setText(self.get_translation("clear_all"))
+        
+        # Cập nhật image component language
+        if hasattr(self, 'image_attachment_widget'):
+            self.image_attachment_widget.set_language(self.current_language)
         
         # Cập nhật tooltips
         self.clear_selected_btn.setToolTip(self.get_translation("clear_selected_tooltip"))
@@ -400,13 +608,13 @@ class InputDialog(QtWidgets.QDialog):
             list_item.setToolTip(self.get_translation("file_item_tooltip").format(path=relative_path))
             self.file_list.addItem(list_item)
         
-        # Hiển thị/ẩn danh sách file theo số lượng items
+        # Show/hide file list and placeholder
         if self.attached_files:
-            self.attached_files_label.setVisible(True)
             self.file_list.setVisible(True)
+            self.file_placeholder.setVisible(False)
         else:
-            self.attached_files_label.setVisible(False)
             self.file_list.setVisible(False)
+            self.file_placeholder.setVisible(True)
         
         # Always update button states (they're always visible now)
         self.update_clear_buttons_state()
@@ -466,10 +674,10 @@ class InputDialog(QtWidgets.QDialog):
         # Save state sau khi thay đổi
         self.config_manager.set_last_attached_files(self.attached_files)
         
-        # Ẩn danh sách nếu không còn items
-        if not self.attached_files:
-            self.attached_files_label.setVisible(False)
+        # Show placeholder if no files left
+        if self.file_list.count() == 0:
             self.file_list.setVisible(False)
+            self.file_placeholder.setVisible(True)
         
         # Update button states
         self.update_clear_buttons_state()
@@ -488,18 +696,16 @@ class InputDialog(QtWidgets.QDialog):
         )
         
         if reply == QtWidgets.QMessageBox.Yes:
+            # Clear all elements
             self.file_list.clear()
             self.attached_files.clear()
             
-            # Save state
+            # Save empty state
             self.config_manager.set_last_attached_files(self.attached_files)
             
             # Hide UI elements that should be hidden
-            self.attached_files_label.setVisible(False)
             self.file_list.setVisible(False)
-            
-            # Update button states
-            self.update_clear_buttons_state()
+            self.file_placeholder.setVisible(True)
     
     def _determine_item_type(self, item_name, relative_path):
         """
@@ -577,10 +783,10 @@ class InputDialog(QtWidgets.QDialog):
                 # Save state sau khi remove
                 self.config_manager.set_last_attached_files(self.attached_files)
                 
-                # Ẩn danh sách nếu không còn file đính kèm
+                # Show placeholder if no files left
                 if self.file_list.count() == 0:
-                    self.attached_files_label.setVisible(False)
                     self.file_list.setVisible(False)
+                    self.file_placeholder.setVisible(True)
                 
                 # Update button states
                 self.update_clear_buttons_state()
@@ -593,11 +799,11 @@ class InputDialog(QtWidgets.QDialog):
         Phương thức xử lý khi người dùng nhấn nút Gửi.
         """
         text = self.input.toPlainText()
-        if text.strip() or self.attached_files:
+        attached_images = self.image_attachment_widget.get_attached_images() if hasattr(self, 'image_attachment_widget') else self.attached_images
+        if text.strip() or self.attached_files or attached_images:
             result_dict = {
                 "text": text,
                 "language": self.current_language,
-                # ====== THINKING LOGIC REMOVED - Natural Behavior ======
                 "max_reasoning": self.max_reasoning_checkbox.isChecked()
             }
             
@@ -627,6 +833,17 @@ class InputDialog(QtWidgets.QDialog):
                             "error": str(e)
                         })
             
+            # Thêm thông tin về hình ảnh đính kèm nếu có
+            attached_images = self.image_attachment_widget.get_attached_images() if hasattr(self, 'image_attachment_widget') else self.attached_images
+            if attached_images:
+                result_dict["attached_images"] = []
+                for img_info in attached_images:
+                    result_dict["attached_images"].append({
+                        "base64_data": img_info["base64_data"],
+                        "media_type": img_info["media_type"],
+                        "filename": img_info["filename"]
+                    })
+            
             self.result_text = json.dumps(result_dict, ensure_ascii=False)
             self.result_continue = self.continue_checkbox.isChecked()
             self.result_ready = True
@@ -636,6 +853,10 @@ class InputDialog(QtWidgets.QDialog):
             # No thinking level to save - always "high" mode
             self.config_manager.set('ui_preferences.max_reasoning_default', self.max_reasoning_checkbox.isChecked())
             self.config_manager.save_config()
+            
+            # Save images to config before closing
+            if hasattr(self, 'image_attachment_widget'):
+                self.image_attachment_widget.save_images_to_config()
             
             self.input.clear()
             self.accept()
@@ -652,8 +873,18 @@ class InputDialog(QtWidgets.QDialog):
         self.config_manager.set_window_size(self.width(), self.height())
     
     def closeEvent(self, event):
-        """Save window size khi đóng dialog"""
+        """Save window size và images khi đóng dialog"""
         self.save_window_size()
+        
+        # Save images to config if widget exists
+        if hasattr(self, 'image_attachment_widget'):
+            self.image_attachment_widget.save_images_to_config()
+            
+        # Save checkbox state for next session
+        if hasattr(self, 'image_attachment_widget') and hasattr(self.image_attachment_widget, 'save_images_checkbox'):
+            checkbox_state = self.image_attachment_widget.save_images_checkbox.isChecked()
+            self.config_manager.set('ui_preferences.save_images_enabled', checkbox_state)
+            
         super().closeEvent(event)
     
     def keyPressEvent(self, event):

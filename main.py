@@ -1,5 +1,5 @@
 def main():
-    print("Hello from reasoner-thinking!")
+    print("Hello from AI Interaction Tool!")
 
 
 if __name__ == "__main__":
