@@ -137,7 +137,31 @@ def get_translations():
             "already_selected": "Already Selected",
             "already_selected_msg": "This path is already selected:\n{path}",
             "auto_select_error": "Auto-Select Error",
-            "auto_select_error_msg": "Error processing path:\n{error}"
+            "auto_select_error_msg": "Error processing path:\n{error}",
+            
+            # Image viewer translations
+            "image_viewer_title": "Image Viewer",
+            "image_viewer_zoom_out": "Zoom Out",
+            "image_viewer_zoom_in": "Zoom In", 
+            "image_viewer_fit": "Fit to Window",
+            "image_viewer_reset": "Reset to 100%",
+            "image_viewer_close": "Close",
+            "image_viewer_shortcuts": "Shortcuts: +/- • Ctrl+Scroll (Zoom) • F (Fit) • 0 (Reset) • Drag (Pan) • Esc (Close)",
+            "image_viewer_zoom_out_tooltip": "🔍 Zoom Out (Ctrl + - or Ctrl + Scroll)",
+            "image_viewer_zoom_in_tooltip": "🔍 Zoom In (Ctrl + + or Ctrl + Scroll)", 
+            "image_viewer_fit_tooltip": "📐 Fit to Window (F)",
+            "image_viewer_reset_tooltip": "🔄 Reset to 100% (0)",
+            "image_viewer_close_tooltip": "🚪 Close Viewer (Esc)",
+            "image_viewer_unable_load": "❌ Unable to load image",
+            
+            # Image attachment result messages
+            "image_success_title": "Image Attached",
+            "image_success_single": "Image successfully attached!",
+            "image_success_multiple": "{count} images successfully attached!",
+            "image_result_title": "Image Attachment Results",
+            "image_result_success": "✅ Successfully attached: {count} images",
+            "image_result_duplicates": "⚠️ Skipped duplicates: {count} images (already attached)",
+            "image_result_invalid": "❌ Failed to attach: {count} images (invalid format or access error)"
         },
         "vi": {
             "window_title": "Công Cụ Tương Tác AI",
@@ -271,7 +295,31 @@ def get_translations():
             "already_selected": "Đã Được Chọn",
             "already_selected_msg": "Đường dẫn này đã được chọn:\n{path}",
             "auto_select_error": "Lỗi Tự Động Chọn",
-            "auto_select_error_msg": "Lỗi khi xử lý đường dẫn:\n{error}"
+            "auto_select_error_msg": "Lỗi khi xử lý đường dẫn:\n{error}",
+            
+            # Image viewer translations
+            "image_viewer_title": "Trình Xem Ảnh",
+            "image_viewer_zoom_out": "Thu Nhỏ",
+            "image_viewer_zoom_in": "Phóng To", 
+            "image_viewer_fit": "Vừa Cửa Sổ",
+            "image_viewer_reset": "Đặt Lại 100%",
+            "image_viewer_close": "Đóng",
+            "image_viewer_shortcuts": "Phím tắt: +/- • Ctrl+Scroll (Zoom) • F (Vừa) • 0 (Reset) • Kéo (Di chuyển) • Esc (Đóng)",
+            "image_viewer_zoom_out_tooltip": "🔍 Thu Nhỏ (Ctrl + - hoặc Ctrl + Scroll)",
+            "image_viewer_zoom_in_tooltip": "🔍 Phóng To (Ctrl + + hoặc Ctrl + Scroll)", 
+            "image_viewer_fit_tooltip": "📐 Vừa Cửa Sổ (F)",
+            "image_viewer_reset_tooltip": "🔄 Đặt Lại 100% (0)",
+            "image_viewer_close_tooltip": "🚪 Đóng Trình Xem (Esc)",
+            "image_viewer_unable_load": "❌ Không thể tải ảnh",
+            
+            # Image attachment result messages
+            "image_success_title": "Đính Kèm Ảnh",
+            "image_success_single": "Ảnh đã được đính kèm thành công!",
+            "image_success_multiple": "Đã đính kèm thành công {count} ảnh!",
+            "image_result_title": "Kết Quả Đính Kèm Ảnh",
+            "image_result_success": "✅ Đính kèm thành công: {count} ảnh",
+            "image_result_duplicates": "⚠️ Bỏ qua trùng lặp: {count} ảnh (đã có sẵn)",
+            "image_result_invalid": "❌ Không thể đính kèm: {count} ảnh (định dạng không hợp lệ hoặc lỗi truy cập)"
         }
     }
 

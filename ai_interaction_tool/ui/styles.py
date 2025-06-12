@@ -1265,3 +1265,312 @@ def apply_semantic_button_color(button, button_type):
     button.style().unpolish(button)
     button.style().polish(button)
     button.update() 
+
+def get_image_viewer_dialog_stylesheet():
+    """Ultra-modern dark gradient background for image viewer dialog"""
+    return """
+        QDialog {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #1a1a2e, stop:0.5 #16213e, stop:1 #0f3460);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        QDialog::title {
+            background: transparent;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    """
+
+def get_image_viewer_header_stylesheet():
+    """Header title styling for image viewer"""
+    return """
+        QLabel {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 8px 0px;
+            background: transparent;
+            letter-spacing: 0.5px;
+        }
+    """
+
+def get_image_viewer_zoom_container_stylesheet():
+    """Glassmorphism container for zoom controls"""
+    return """
+        QFrame {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px;
+            backdrop-filter: blur(20px);
+        }
+    """
+
+def get_image_viewer_zoom_button_stylesheet():
+    """Compact modern button styling for zoom controls"""
+    return """
+        QPushButton {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #667eea, stop:1 #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 32px;
+            min-height: 28px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        QPushButton:hover {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #5a67d8, stop:1 #6b46c1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+        QPushButton:pressed {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #4c51bf, stop:1 #553c9a);
+            transform: translateY(0px);
+        }
+        QPushButton:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            box-shadow: none;
+        }
+    """
+
+def get_image_viewer_zoom_label_stylesheet():
+    """Zoom level display styling"""
+    return """
+        QLabel {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 rgba(255, 255, 255, 0.15), 
+                stop:1 rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            min-height: 10px;
+        }
+    """
+
+def get_image_viewer_zoom_icon_stylesheet():
+    """Zoom icon styling"""
+    return """
+        QLabel {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px;
+            background: transparent;
+        }
+    """
+
+def get_image_viewer_fit_button_stylesheet():
+    """Fit button with pink gradient"""
+    base_style = get_image_viewer_zoom_button_stylesheet()
+    return base_style.replace(
+        "stop:0 #667eea, stop:1 #764ba2",
+        "stop:0 #f093fb, stop:1 #f5576c"
+    ).replace(
+        "rgba(102, 126, 234, 0.3)",
+        "rgba(240, 147, 251, 0.3)"
+    ).replace(
+        "rgba(102, 126, 234, 0.5)",
+        "rgba(240, 147, 251, 0.5)"
+    )
+
+def get_image_viewer_reset_button_stylesheet():
+    """Reset button with cyan gradient"""
+    base_style = get_image_viewer_zoom_button_stylesheet()
+    return base_style.replace(
+        "stop:0 #667eea, stop:1 #764ba2",
+        "stop:0 #4facfe, stop:1 #00f2fe"
+    ).replace(
+        "rgba(102, 126, 234, 0.3)",
+        "rgba(79, 172, 254, 0.3)"
+    ).replace(
+        "rgba(102, 126, 234, 0.5)",
+        "rgba(79, 172, 254, 0.5)"
+    )
+
+def get_image_viewer_scroll_area_stylesheet():
+    """Ultra-modern scroll area with glassmorphism and no white backgrounds"""
+    return """
+        QScrollArea {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 rgba(255, 255, 255, 0.03),
+                stop:1 rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 5px;
+        }
+        QScrollArea > QWidget > QWidget {
+            background: transparent;
+        }
+        QScrollArea::corner {
+            background: transparent;
+            border: none;
+        }
+        QScrollArea QWidget {
+            background: transparent;
+        }
+        QScrollBar:vertical {
+            background: rgba(255, 255, 255, 0.1);
+            width: 10px;
+            border-radius: 5px;
+            margin: 0;
+            border: none;
+        }
+        QScrollBar::handle:vertical {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 #667eea, stop:1 #764ba2);
+            border-radius: 5px;
+            min-height: 15px;
+            border: none;
+        }
+        QScrollBar::handle:vertical:hover {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 #5a67d8, stop:1 #6b46c1);
+        }
+        QScrollBar:horizontal {
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            margin: 0;
+            border: none;
+        }
+        QScrollBar::handle:horizontal {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #667eea, stop:1 #764ba2);
+            border-radius: 5px;
+            min-width: 15px;
+            border: none;
+        }
+        QScrollBar::handle:horizontal:hover {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #5a67d8, stop:1 #6b46c1);
+        }
+        QScrollBar::add-line, QScrollBar::sub-line {
+            background: transparent;
+            border: none;
+            width: 0px;
+            height: 0px;
+        }
+        QScrollBar::add-page, QScrollBar::sub-page {
+            background: transparent;
+            border: none;
+        }
+    """
+
+def get_image_viewer_image_label_stylesheet():
+    """Image label with completely transparent background"""
+    return """
+        QLabel {
+            background: transparent;
+            border: none;
+            padding: 20px;
+            margin: 10px;
+        }
+    """
+
+def get_image_viewer_footer_container_stylesheet():
+    """Footer container with glassmorphism"""
+    return """
+        QFrame {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            padding: 5px;
+            margin-top: 10px;
+        }
+    """
+
+def get_image_viewer_info_label_stylesheet():
+    """Image info label styling"""
+    return """
+        QLabel {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            letter-spacing: 0.3px;
+        }
+    """
+
+def get_image_viewer_shortcuts_label_stylesheet():
+    """Keyboard shortcuts info styling"""
+    return """
+        QLabel {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            font-weight: 400;
+            padding: 4px 8px;
+            background: transparent;
+            letter-spacing: 0.2px;
+        }
+    """
+
+def get_image_viewer_close_button_stylesheet():
+    """Compact modern close button with red gradient"""
+    return """
+        QPushButton {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #ff6b6b, stop:1 #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 32px;
+            min-height: 28px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+        QPushButton:hover {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #ff5252, stop:1 #e53e3e);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+        }
+        QPushButton:pressed {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                stop:0 #e53e3e, stop:1 #c53030);
+            transform: translateY(0px);
+        }
+    """ 
+
+def get_main_input_textedit_stylesheet():
+    """Beautiful input textarea styling without scrollbar modifications"""
+    return """
+    /* BEAUTIFUL TEXT EDIT STYLING */
+    PasteImageTextEdit {
+        border: 2px solid #3d4a5c;
+        border-radius: 12px;
+        padding: 15px;
+        background-color: #2a2f3a;
+        color: #e1e5e9;
+        font-size: 14px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        line-height: 1.4;
+        selection-background-color: #4a9eff;
+        selection-color: white;
+    }
+    
+    PasteImageTextEdit:focus {
+        border: 2px solid #4a9eff;
+        background-color: #2d3440;
+        box-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
+    }
+    """ 

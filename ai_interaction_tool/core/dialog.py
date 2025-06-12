@@ -13,7 +13,8 @@ from ..ui.styles import (
     get_context_menu_stylesheet,
     get_file_container_stylesheet,
     get_file_placeholder_stylesheet,
-    get_file_list_stylesheet
+    get_file_list_stylesheet,
+    get_main_input_textedit_stylesheet
 )
 from ..utils.translations import get_translations, get_translation
 from ..constants import (
@@ -60,7 +61,7 @@ class PasteImageTextEdit(QtWidgets.QTextEdit):
                     
                     # Save directly to database - NO TEMP FILES
                     if pixmap.save(db_path, "PNG"):
-                        # Emit signal with database path
+                        # Emit signal with database path - UI will handle async processing
                         self.imagePasted.emit(db_path)
                         return
                         
@@ -208,6 +209,9 @@ class InputDialog(QtWidgets.QDialog):
         self.input.setMinimumHeight(200)  # Larger minimum for big window
         self.input.setMaximumHeight(400)  # Allow more text editing space
         
+        # Apply beautiful input styling (without problematic scrollbar)
+        self.input.setStyleSheet(get_main_input_textedit_stylesheet())
+        
         # Connect image paste signal
         self.input.imagePasted.connect(self.handle_pasted_image)
         
@@ -326,7 +330,12 @@ class InputDialog(QtWidgets.QDialog):
         return self.image_attachment_widget
 
     def handle_pasted_image(self, db_image_path):
-        """Handle image pasted into input area - already in database"""
+        """Handle image pasted into input area - use async processing like existing system"""
+        # Use async processing pattern like existing image attachment system
+        QtCore.QTimer.singleShot(0, lambda: self._process_pasted_image(db_image_path))
+    
+    def _process_pasted_image(self, db_image_path):
+        """Process pasted image asynchronously"""
         try:
             # Use the image attachment widget to add the pasted image
             if hasattr(self, 'image_attachment_widget'):
@@ -349,7 +358,9 @@ class InputDialog(QtWidgets.QDialog):
                         
                         self.image_attachment_widget.attached_images.append(image_info)
                         self.image_attachment_widget.add_image_preview(db_image_path)
-                        self.image_attachment_widget.update_image_ui(auto_scroll=True)
+                        
+                        # Use async UI update like existing system
+                        QtCore.QTimer.singleShot(0, lambda: self.image_attachment_widget.update_image_ui(auto_scroll=True))
                     
         except Exception as e:
             QtWidgets.QMessageBox.warning(

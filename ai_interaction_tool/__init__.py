@@ -15,7 +15,7 @@ from .engine import run_ui
 # Import description
 from .description import AI_INTERACTION_DESCRIPTION
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __author__ = "DemonVN"
 __all__ = [
     # Core components

@@ -7,16 +7,17 @@ import shutil
 from pathlib import Path
 from PyQt5 import QtWidgets, QtCore, QtGui
 from .styles import (
-    get_image_container_stylesheet, 
-    get_image_placeholder_stylesheet, 
+    get_image_container_stylesheet,
+    get_image_placeholder_stylesheet,
     get_image_scroll_stylesheet,
     get_image_preview_card_stylesheet,
-    get_image_preview_label_stylesheet, 
+    get_image_preview_label_stylesheet,
     get_image_filename_label_stylesheet,
     get_image_size_label_stylesheet,
-    get_image_remove_button_stylesheet
+    get_image_remove_button_stylesheet,
 )
 from ..utils.translations import get_translation
+from .image_viewer import ImageViewerDialog
 
 class DragDropImageWidget(QtWidgets.QWidget):
     """Widget với chức năng drag & drop cho hình ảnh"""
@@ -238,7 +239,7 @@ class ImageAttachmentWidget(QtWidgets.QWidget):
         layout.addWidget(self.image_slider_container)
     
     def attach_image(self):
-        """Mở dialog để chọn hình ảnh"""
+        """Mở dialog để chọn hình ảnh với detailed feedback"""
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setWindowTitle("Select Images")
         file_dialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
@@ -246,10 +247,38 @@ class ImageAttachmentWidget(QtWidgets.QWidget):
         
         if file_dialog.exec_():
             selected_files = file_dialog.selectedFiles()
-            for file_path in selected_files:
-                self._add_image_to_database(file_path, "attached")
-            
-            self.update_image_ui()
+            # Use attached-specific processing
+            self.handle_attached_images(selected_files)
+    
+    def handle_attached_images(self, image_paths):
+        """Xử lý khi có hình ảnh được attach từ file dialog với detailed feedback"""
+        successful_adds = 0
+        duplicate_count = 0
+        invalid_count = 0
+        
+        for image_path in image_paths:
+            try:
+                # Check if already exists (duplicate)
+                source_filename = Path(image_path).name
+                if any(img.get('filename') == source_filename for img in self.attached_images):
+                    duplicate_count += 1
+                    continue
+                
+                # Try to add to database
+                if self._add_image_to_database(image_path, "attached"):
+                    successful_adds += 1
+                else:
+                    invalid_count += 1
+                
+            except Exception as e:
+                invalid_count += 1
+        
+        # Update UI if any successful adds
+        if successful_adds > 0:
+            self.update_image_ui(auto_scroll=True)
+        
+        # Show detailed feedback message
+        self._show_attachment_result_message(successful_adds, duplicate_count, invalid_count)
     
     def image_to_base64(self, image_path):
         """Convert image file to base64 string"""
@@ -462,87 +491,84 @@ class ImageAttachmentWidget(QtWidgets.QWidget):
                 self.save_images_to_config()
     
     def handle_dropped_images(self, image_paths):
-        """Xử lý khi có hình ảnh được drop vào widget"""
+        """Xử lý khi có hình ảnh được drop vào widget với detailed feedback"""
         successful_adds = 0
         failed_adds = 0
+        duplicate_count = 0
+        invalid_count = 0
         
         for image_path in image_paths:
             try:
+                # Check if already exists (duplicate)
+                source_filename = Path(image_path).name
+                if any(img.get('filename') == source_filename for img in self.attached_images):
+                    duplicate_count += 1
+                    continue
+                
+                # Try to add to database
                 if self._add_image_to_database(image_path, "dropped"):
                     successful_adds += 1
                 else:
-                    failed_adds += 1
+                    invalid_count += 1
                 
             except Exception as e:
-                failed_adds += 1
+                invalid_count += 1
         
-        # Hiển thị thông báo kết quả
+        # Update UI if any successful adds
         if successful_adds > 0:
             self.update_image_ui(auto_scroll=True)
-            
-        if failed_adds > 0:
+        
+        # Show detailed feedback message
+        self._show_attachment_result_message(successful_adds, duplicate_count, invalid_count)
+    
+    def _show_attachment_result_message(self, successful, duplicates, invalid):
+        """Show detailed result message only when there are problems"""
+        # Only show message if there are duplicates or errors
+        if duplicates == 0 and invalid == 0:
+            # Pure success - no message needed
+            return
+        
+        message_parts = []
+        
+        if successful > 0:
+            message_parts.append(
+                self._get_translation("image_result_success").format(count=successful)
+            )
+        
+        if duplicates > 0:
+            message_parts.append(
+                self._get_translation("image_result_duplicates").format(count=duplicates)
+            )
+        
+        if invalid > 0:
+            message_parts.append(
+                self._get_translation("image_result_invalid").format(count=invalid)
+            )
+        
+        final_message = "\n".join(message_parts)
+        
+        # Use warning if any failures, info if just duplicates
+        if invalid > 0:
             QtWidgets.QMessageBox.warning(
                 self,
-                "Drop Images Warning",
-                f"Successfully added: {successful_adds} images\nFailed to add: {failed_adds} images"
+                self._get_translation("image_result_title"),
+                final_message
+            )
+        else:
+            QtWidgets.QMessageBox.information(
+                self,
+                self._get_translation("image_result_title"),
+                final_message
             )
     
     def show_image_large(self, image_path):
-        """Show image in large viewer dialog"""
-        dialog = QtWidgets.QDialog(self)
-        dialog.setWindowTitle(f"Image Viewer - {Path(image_path).name}")
-        dialog.setMinimumSize(600, 500)
-        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        
-        layout = QtWidgets.QVBoxLayout(dialog)
-        layout.setContentsMargins(10, 10, 10, 10)
-        
-        # Image display
-        image_label = QtWidgets.QLabel()
-        image_label.setAlignment(QtCore.Qt.AlignCenter)
-        image_label.setStyleSheet("""
-            QLabel {
-                background-color: #ffffff;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                padding: 10px;
-            }
-        """)
-        
-        # Load and scale image
-        pixmap = QtGui.QPixmap(image_path)
-        if not pixmap.isNull():
-            # Scale to fit dialog
-            scaled_pixmap = pixmap.scaled(550, 400, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            image_label.setPixmap(scaled_pixmap)
-        else:
-            image_label.setText("Unable to load image")
-        
-        layout.addWidget(image_label)
-        
-        # Close button
-        close_btn = QtWidgets.QPushButton("Close")
-        close_btn.clicked.connect(dialog.close)
-        close_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #2196F3;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 8px 16px;
-                font-size: 12px;
-            }
-            QPushButton:hover {
-                background-color: #1976D2;
-            }
-        """)
-        
-        button_layout = QtWidgets.QHBoxLayout()
-        button_layout.addStretch()
-        button_layout.addWidget(close_btn)
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
-        
+        """Show image in ultra-modern viewer dialog with advanced zoom controls"""
+        dialog = ImageViewerDialog(
+            image_path=image_path,
+            parent=self, 
+            translations=self.translations, 
+            language=self.language
+        )
         dialog.exec_()
 
     def handle_scroll_wheel(self, event):
