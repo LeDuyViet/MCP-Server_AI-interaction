@@ -18,8 +18,7 @@ def get_translations():
             "thinking_normal": "Normal (Once at start)",
             "thinking_high": "High (Before each task)",
             "thinking_always_high_info": "🎯 High Thinking Mode Always Enabled - Ensuring optimal cognitive performance with detailed thinking process for every response",
-            "max_reasoning_checkbox": "🚀 ACTIVATE MAXIMUM COGNITIVE POWER",
-            "max_reasoning_tooltip": "🔥 ULTIMATE PERFORMANCE MODE 🔥\n\nTriggers Agent's absolute maximum capacity through:\n• Psychological priming for peak performance\n• Maximum cognitive resource allocation\n• Multi-framework reasoning (analytical + creative + intuitive)\n• Expert-level problem solving simulation\n• Obsessive quality standards\n• Adversarial self-testing\n\nThis is the 'MASTER SWITCH' - turns ON all cognitive functions to MAXIMUM!",
+
             "warning_label": "NOTE: If continue conversation is checked, Agent MUST call this tool again!",
             "submit_btn": "Send",
             "close_btn": "Close",
@@ -176,8 +175,7 @@ def get_translations():
             "thinking_normal": "Bình thường (Một lần ở đầu)",
             "thinking_high": "Cao (Trước mỗi nhiệm vụ)",
             "thinking_always_high_info": "🎯 Chế Độ Suy Nghĩ Cao Luôn Được Bật - Đảm bảo hiệu suất nhận thức tối ưu với quá trình suy nghĩ chi tiết cho mỗi phản hồi",
-            "max_reasoning_checkbox": "🚀 KÍCH HOẠT SỨC MẠNH NHẬN THỨC TỐI ĐA",
-            "max_reasoning_tooltip": "🔥 CHẾ ĐỘ HIỆU SUẤT TUYỆT ĐỐI 🔥\n\nKích hoạt khả năng tối đa tuyệt đối của Agent qua:\n• Kích thích tâm lý cho hiệu suất đỉnh cao\n• Phân bổ tài nguyên nhận thức tối đa\n• Suy luận đa framework (phân tích + sáng tạo + trực giác)\n• Mô phỏng giải quyết vấn đề cấp chuyên gia\n• Tiêu chuẩn chất lượng khắt khe tuyệt đối\n• Tự kiểm tra đối kháng\n\nĐây là 'CÔNG TẮC TỔNG' - bật TẤT CẢ chức năng nhận thức lên MỨC TỐI ĐA!",
+
             "warning_label": "CHÚ Ý: Nếu tiếp tục trò chuyện được chọn, Agent PHẢI gọi lại công cụ này!",
             "submit_btn": "Gửi",
             "close_btn": "Đóng",

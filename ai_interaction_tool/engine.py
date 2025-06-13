@@ -32,7 +32,6 @@ def run_ui(*args, **kwargs):
             attached_images = result_dict.get("attached_images", [])
             language = result_dict.get("language", "vi")  # Mặc định tiếng Việt
             # ====== THINKING LOGIC COMPLETELY REMOVED - Natural Behavior ======
-            max_reasoning = result_dict.get("max_reasoning", False)  # Maximum reasoning protocol
             
             # Check if we have images - return structured data for MCP processing
             if attached_images:
@@ -41,7 +40,6 @@ def run_ui(*args, **kwargs):
                     'attached_files': attached_files,
                     'attached_images': attached_images,
                     'continue_chat': continue_chat,
-                    'max_reasoning': max_reasoning,
                     'language': language
                 }
             
@@ -101,17 +99,14 @@ def run_ui(*args, **kwargs):
             
             # Add control tags at the end
             full_response_text += f"\n\n<AI_INTERACTION_CONTINUE_CHAT>{str(continue_chat).lower()}</AI_INTERACTION_CONTINUE_CHAT>"
-            full_response_text += f"\n<AI_INTERACTION_MAX_REASONING>{str(max_reasoning).lower()}</AI_INTERACTION_MAX_REASONING>"
             return full_response_text
             
         except json.JSONDecodeError:
             # Handle non-JSON case with clean tag format
             result_text = text
             result_text += f"\n\n<AI_INTERACTION_CONTINUE_CHAT>{str(continue_chat).lower()}</AI_INTERACTION_CONTINUE_CHAT>"
-            result_text += f"\n<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>"
             return result_text
     else:
         # Empty case with clean tag format
         return """
-<AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>"""
+<AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>"""

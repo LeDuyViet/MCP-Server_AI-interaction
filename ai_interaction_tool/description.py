@@ -31,7 +31,6 @@ FILES:
 
 <AI_INTERACTION_WORKSPACE>workspace_name</AI_INTERACTION_WORKSPACE>
 <AI_INTERACTION_CONTINUE_CHAT>true/false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>true/false</AI_INTERACTION_MAX_REASONING>
 
 🔧 WORKSPACE PATH PROCESSING:
 - Input format: "workspace_name/relative_path_from_workspace_root"
@@ -47,7 +46,6 @@ FILES:
 
 ⚠️ CRITICAL CONTROL TAGS:
 - **<AI_INTERACTION_CONTINUE_CHAT>**: true = MANDATORY recall ai_interaction tool
-- **<AI_INTERACTION_MAX_REASONING>**: true = Maximum cognitive power mode activation
 - **<AI_INTERACTION_ATTACHED_FILES>**: Present only when files/folders attached
 - **<AI_INTERACTION_WORKSPACE>**: Present only when files/folders attached
 
@@ -55,10 +53,7 @@ FILES:
 1. **Tag Reading**: Agent MUST read all control tags from output
 2. **Behavior Activation**: System prompt rules define HOW to process tag values
 3. **Natural Thinking**: Agent ALWAYS uses at least 1 detailed thinking block when responding via ai_interaction
-4. **Ultra-Enhancement Mode**: <AI_INTERACTION_MAX_REASONING> activates 10-mode breakthrough cognitive enhancement
-   (Quantum Cognitive + Meta-Cognitive Orchestration + Expert Persona Simulation + Time-Dilated Processing + 
-    Systems-Level Integration + Psychological Priming + Maximum Cognitive Resource + Adversarial Self-Testing + 
-    Obsessive Quality Standards + Breakthrough Innovation Mode)
+4. **High-Level Reasoning**: Always active for all responses
 5. **Continue Logic**: <AI_INTERACTION_CONTINUE_CHAT> enforces mandatory tool recall
 
 🎯 ENHANCED INTEGRATION EXAMPLES:
@@ -69,21 +64,19 @@ Output:
 User message content
 
 <AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>
 ```
-→ Agent Behavior: At least 1 thinking block (via ai_interaction), standard cognition
+→ Agent Behavior: At least 1 thinking block (via ai_interaction), high-level reasoning always active
 → Use Case: Regular tasks, questions, file operations
 
-📋 **EXAMPLE 2: Enhanced Task Processing**  
+📋 **EXAMPLE 2: Continue Chat Processing**  
 Output:
 ```
 User message content
 
 <AI_INTERACTION_CONTINUE_CHAT>true</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
 ```
-→ Agent Behavior: At least 1 thinking block (via ai_interaction) + 10 ultra-enhancement mode activation + mandatory recall
-→ Use Case: Complex analysis, critical decisions, architecture work
+→ Agent Behavior: At least 1 thinking block (via ai_interaction) + high-level reasoning + mandatory recall
+→ Use Case: Multi-step tasks, complex analysis, ongoing conversations
 
 📋 **EXAMPLE 3: File Attachment Processing**
 Output:
@@ -99,7 +92,6 @@ FILES:
 
 <AI_INTERACTION_WORKSPACE>workspace_name</AI_INTERACTION_WORKSPACE>
 <AI_INTERACTION_CONTINUE_CHAT>false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING>
 ```
 → Agent Behavior: Workspace-aware path processing + at least 1 thinking block (via ai_interaction)
 → Use Case: Code review, file modifications, context-sensitive operations
@@ -121,23 +113,20 @@ FILES:
 
 <AI_INTERACTION_WORKSPACE>project_name</AI_INTERACTION_WORKSPACE>
 <AI_INTERACTION_CONTINUE_CHAT>true</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
 ```
-→ Agent Behavior: Systematic file analysis + at least 1 thinking block (via ai_interaction) + 10 ultra-enhancement modes breakthrough cognitive enhancement
+→ Agent Behavior: Systematic file analysis + at least 1 thinking block (via ai_interaction) + high-level reasoning + mandatory recall
 → Use Case: Codebase analysis, architectural reviews, comprehensive assessments
 =======================================================================
 
 🔄 ADVANCED WORKFLOW PATTERNS:
 =======================================================================
-🎯 **COGNITIVE ENHANCEMENT PATTERN:**
-Standard Processing → <AI_INTERACTION_MAX_REASONING>false</AI_INTERACTION_MAX_REASONING> (at least 1 thinking block via ai_interaction)
-↓ If high complexity or critical tasks detected  
-Enhanced Processing → <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING> (at least 1 thinking block via ai_interaction + 10 ultra-enhancement modes)
+🎯 **SIMPLIFIED PROCESSING PATTERN:**
+All Processing → High-level reasoning always active (at least 1 thinking block via ai_interaction)
 
-⚡ **CONDITIONAL ENHANCEMENT ACTIVATION:**
-- File attachments detected → Standard at least 1 thinking block (via ai_interaction) sufficient
-- Multiple files or complex tasks → Consider <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
-- Critical technical decisions → Recommend <AI_INTERACTION_MAX_REASONING>true</AI_INTERACTION_MAX_REASONING>
+⚡ **CONSISTENT HIGH-LEVEL PROCESSING:**
+- All tasks → High-level reasoning always active
+- File attachments → Standard high-level reasoning with workspace awareness
+- Complex decisions → Same high-level reasoning (no additional enhancement needed)
 
 🔧 **CONTEXT-SENSITIVE PROCESSING:**
 - Code files → Technical analysis mode

@@ -102,7 +102,7 @@ Add the following configuration to Claude Desktop config file:
 - ✅ **Behavioral Framework**: Rules define how AI agent processes ai_interaction output
 - ✅ **Thinking Protocols**: Activates high-level thinking patterns for quality responses
 - ✅ **Ultra-Enhancement Modes**: 10 cognitive modes for maximum performance
-- ✅ **Tag Processing**: Reads and processes control tags like `<AI_INTERACTION_MAX_REASONING>`
+- ✅ **Tag Processing**: Reads and processes control tags like `<AI_INTERACTION_CONTINUE_CHAT>`
 - ✅ **Continue Logic**: Auto-recall ai_interaction when `continue_chat=true`
 
 #### 📁 **Rule Files Location:**
@@ -260,7 +260,6 @@ FILES:
 
 <AI_INTERACTION_WORKSPACE>workspace_name</AI_INTERACTION_WORKSPACE>
 <AI_INTERACTION_CONTINUE_CHAT>true/false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>true/false</AI_INTERACTION_MAX_REASONING>
 ```
 
 **Note**: When images are attached, they are automatically converted to base64 format and included in the response for AI processing.
@@ -351,7 +350,6 @@ For Cursor debugging:
 ### 📊 **Output Tag System:**
 ```xml
 <AI_INTERACTION_CONTINUE_CHAT>true/false</AI_INTERACTION_CONTINUE_CHAT>
-<AI_INTERACTION_MAX_REASONING>true/false</AI_INTERACTION_MAX_REASONING>
 <AI_INTERACTION_ATTACHED_FILES>
 FOLDERS:
 - workspace_name/relative/path/folder

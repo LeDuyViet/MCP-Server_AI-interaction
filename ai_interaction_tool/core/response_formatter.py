@@ -25,11 +25,11 @@ def format_mixed_response(result: Dict[str, Any]) -> List:
     attached_files = result.get('attached_files', [])
     attached_images = result.get('attached_images', [])
     continue_chat = result.get('continue_chat', False)
-    max_reasoning = result.get('max_reasoning', False)
+
     
     # Build complete text content with all tags
     full_text_content = _build_text_content_with_tags(
-        user_text, attached_files, continue_chat, max_reasoning
+        user_text, attached_files, continue_chat
     )
     
     # Add text content with ALL tags
@@ -59,8 +59,7 @@ def format_text_only_response(result: Union[str, Dict[str, Any]]) -> List[TextCo
 def _build_text_content_with_tags(
     user_text: str, 
     attached_files: List[Dict], 
-    continue_chat: bool, 
-    max_reasoning: bool
+    continue_chat: bool
 ) -> str:
     """
     Build complete text content with attached files and control tags
@@ -69,7 +68,6 @@ def _build_text_content_with_tags(
         user_text: Main user message text
         attached_files: List of attached file information
         continue_chat: Whether to continue chat
-        max_reasoning: Whether to use maximum reasoning
         
     Returns:
         String containing formatted text with all tags
@@ -128,7 +126,6 @@ def _build_text_content_with_tags(
     
     # Add control tags at the end (CRITICAL for agent behavior)
     full_text_content += f"\n\n<AI_INTERACTION_CONTINUE_CHAT>{str(continue_chat).lower()}</AI_INTERACTION_CONTINUE_CHAT>"
-    full_text_content += f"\n<AI_INTERACTION_MAX_REASONING>{str(max_reasoning).lower()}</AI_INTERACTION_MAX_REASONING>"
     
     return full_text_content
 

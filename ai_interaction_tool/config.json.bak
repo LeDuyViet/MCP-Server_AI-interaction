@@ -21,6 +21,12 @@
         "workspace_name": "AI-interaction",
         "name": "ai_interaction_tool",
         "type": "folder"
+      },
+      {
+        "relative_path": "AI-interaction/rule_for_ai_VI.txt",
+        "workspace_name": "AI-interaction",
+        "name": "rule_for_ai_VI.txt",
+        "type": "file"
       }
     ]
   },

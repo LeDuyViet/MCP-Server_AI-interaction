@@ -431,12 +431,7 @@ class InputDialog(QtWidgets.QDialog):
         self.continue_checkbox.setToolTip("Khi chọn, Agent sẽ tự động hiển thị lại hộp thoại này sau khi trả lời")
         self.layout.addWidget(self.continue_checkbox)
         
-        # Thêm checkbox Maximum Reasoning
-        max_reasoning_default = self.config_manager.get('ui_preferences.max_reasoning_default', False)
-        self.max_reasoning_checkbox = QtWidgets.QCheckBox(self.get_translation("max_reasoning_checkbox"), self)
-        self.max_reasoning_checkbox.setChecked(max_reasoning_default)
-        self.max_reasoning_checkbox.setToolTip(self.get_translation("max_reasoning_tooltip"))
-        self.layout.addWidget(self.max_reasoning_checkbox)
+
         
         # Thêm nhãn cảnh báo về quy tắc gọi lại
         self.warning_label = QtWidgets.QLabel(
@@ -528,8 +523,6 @@ class InputDialog(QtWidgets.QDialog):
 
         self.continue_checkbox.setText(self.get_translation("continue_checkbox"))
         # No thinking UI to update
-        self.max_reasoning_checkbox.setText(self.get_translation("max_reasoning_checkbox"))
-        self.max_reasoning_checkbox.setToolTip(self.get_translation("max_reasoning_tooltip"))
         self.warning_label.setText(self.get_translation("warning_label"))
         
         # Cập nhật các nút
@@ -817,8 +810,7 @@ class InputDialog(QtWidgets.QDialog):
         if text.strip() or self.attached_files or attached_images:
             result_dict = {
                 "text": text,
-                "language": self.current_language,
-                "max_reasoning": self.max_reasoning_checkbox.isChecked()
+                "language": self.current_language
             }
             
             # Thêm thông tin về file/folder đính kèm nếu có (chỉ metadata, không đọc content)
@@ -865,7 +857,6 @@ class InputDialog(QtWidgets.QDialog):
             # Lưu trạng thái checkbox vào config để lần sau sử dụng
             self.config_manager.set('ui_preferences.continue_chat_default', self.continue_checkbox.isChecked())
             # No thinking level to save - always "high" mode
-            self.config_manager.set('ui_preferences.max_reasoning_default', self.max_reasoning_checkbox.isChecked())
             self.config_manager.save_config()
             
             # Save images to config before closing
