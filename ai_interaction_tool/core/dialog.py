@@ -717,6 +717,9 @@ class InputDialog(QtWidgets.QDialog):
             # Hide UI elements that should be hidden
             self.file_list.setVisible(False)
             self.file_placeholder.setVisible(True)
+            
+            # Update button states để reset số trong ngoặc
+            self.update_clear_buttons_state()
     
     def _determine_item_type(self, item_name, relative_path):
         """
