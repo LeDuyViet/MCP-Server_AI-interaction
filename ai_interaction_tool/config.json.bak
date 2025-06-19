@@ -13,20 +13,20 @@
     "save_images_enabled": false
   },
   "last_workspace": {
-    "path": "E:\\MCP-servers-github\\AI-interaction",
-    "name": "AI-interaction",
+    "path": "E:\\MCP-servers-github\\Utils",
+    "name": "Utils",
     "attached_files": [
       {
-        "relative_path": "AI-interaction/ai_interaction_tool",
-        "workspace_name": "AI-interaction",
-        "name": "ai_interaction_tool",
-        "type": "folder"
+        "relative_path": "Utils/mcp_server.py",
+        "workspace_name": "Utils",
+        "name": "mcp_server.py",
+        "type": "file"
       },
       {
-        "relative_path": "AI-interaction/rule_for_ai_VI.txt",
-        "workspace_name": "AI-interaction",
-        "name": "rule_for_ai_VI.txt",
-        "type": "file"
+        "relative_path": "Utils/agent_comm",
+        "workspace_name": "Utils",
+        "name": "agent_comm",
+        "type": "folder"
       }
     ]
   },
