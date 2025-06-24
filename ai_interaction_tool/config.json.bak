@@ -1,34 +1,28 @@
 {
   "language": "vi",
   "window_size": {
-    "width": 1160,
-    "height": 814
+    "width": 900,
+    "height": 900
   },
   "ui_preferences": {
     "continue_chat_default": true,
     "remember_last_path": true,
     "auto_expand_folders": true,
-    "enable_thinking_default": "high",
-    "max_reasoning_default": false,
-    "save_images_enabled": false
+    "save_images_enabled": true
   },
   "last_workspace": {
-    "path": "E:\\MCP-servers-github\\Utils",
-    "name": "Utils",
-    "attached_files": [
-      {
-        "relative_path": "Utils/mcp_server.py",
-        "workspace_name": "Utils",
-        "name": "mcp_server.py",
-        "type": "file"
-      },
-      {
-        "relative_path": "Utils/agent_comm",
-        "workspace_name": "Utils",
-        "name": "agent_comm",
-        "type": "folder"
-      }
-    ]
+    "path": "D:/Workspace/go/src/google-api-service",
+    "name": "google-api-service",
+    "attached_files": []
   },
-  "last_attached_images": []
+  "last_attached_images": [
+    {
+      "db_path": "D:\\Workspace\\tool\\MCP-Server_AI-interaction\\user_images\\pasted_f9bf8534.png",
+      "filename": "pasted_f9bf8534.png",
+      "media_type": "image/png",
+      "source_type": "pasted",
+      "db_filename": "pasted_f9bf8534.png",
+      "relative_db_path": "pasted_f9bf8534.png"
+    }
+  ]
 }

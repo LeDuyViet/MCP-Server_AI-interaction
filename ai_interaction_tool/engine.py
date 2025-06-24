@@ -20,9 +20,12 @@ def run_ui(*args, **kwargs):
     font = QtGui.QFont("Segoe UI", 10)
     app.setFont(font)
     
-    text, continue_chat, ok = InputDialog.getText()
+    # Extract prompt from kwargs if provided
+    prompt = kwargs.get('prompt', None)
+    
+    text, continue_chat, ok = InputDialog.getText(prompt=prompt)
 
-    if ok:
+    if ok and text:
         # Phân tích nội dung từ dialog
         try:
             # Parse JSON từ kết quả của dialog
@@ -103,7 +106,7 @@ def run_ui(*args, **kwargs):
             
         except json.JSONDecodeError:
             # Handle non-JSON case with clean tag format
-            result_text = text
+            result_text = text if text else ""
             result_text += f"\n\n<AI_INTERACTION_CONTINUE_CHAT>{str(continue_chat).lower()}</AI_INTERACTION_CONTINUE_CHAT>"
             return result_text
     else:

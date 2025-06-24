@@ -160,7 +160,10 @@ def get_translations():
             "image_result_title": "Image Attachment Results",
             "image_result_success": "✅ Successfully attached: {count} images",
             "image_result_duplicates": "⚠️ Skipped duplicates: {count} images (already attached)",
-            "image_result_invalid": "❌ Failed to attach: {count} images (invalid format or access error)"
+            "image_result_invalid": "❌ Failed to attach: {count} images (invalid format or access error)",
+            
+            # Prompt section translations
+            "prompt_section_title": "📋 Question/Summary"
         },
         "vi": {
             "window_title": "Công Cụ Tương Tác AI",
@@ -317,7 +320,10 @@ def get_translations():
             "image_result_title": "Kết Quả Đính Kèm Ảnh",
             "image_result_success": "✅ Đính kèm thành công: {count} ảnh",
             "image_result_duplicates": "⚠️ Bỏ qua trùng lặp: {count} ảnh (đã có sẵn)",
-            "image_result_invalid": "❌ Không thể đính kèm: {count} ảnh (định dạng không hợp lệ hoặc lỗi truy cập)"
+            "image_result_invalid": "❌ Không thể đính kèm: {count} ảnh (định dạng không hợp lệ hoặc lỗi truy cập)",
+            
+            # Prompt section translations
+            "prompt_section_title": "📋 Câu Hỏi/Tóm Tắt"
         }
     }
 

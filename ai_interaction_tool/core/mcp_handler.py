@@ -3,7 +3,7 @@ MCP handler utilities for AI Interaction Tool
 Contains the main MCP tool function logic
 """
 
-from typing import List
+from typing import List, Optional
 from ..engine import run_ui
 from .response_formatter import (
     format_mixed_response, 
@@ -13,22 +13,25 @@ from .response_formatter import (
 )
 
 
-def ai_interaction_tool() -> List:
+def ai_interaction_tool(prompt: Optional[str] = None) -> List:
     """
     Main AI Interaction tool function with image support
     Returns mixed content using modular response formatting
     
     This function handles:
-    - Running the UI dialog
+    - Running the UI dialog with optional prompt/summary
     - Validating response data
     - Formatting mixed (text + images) or text-only responses
     - Error handling
+    
+    Args:
+        prompt: Optional prompt/question/summary to display at the top of UI
     
     Returns:
         List containing TextContent and/or MCPImage objects
     """
     try:
-        result = run_ui()
+        result = run_ui(prompt=prompt)
         
         # Validate response data
         is_valid, error_msg = validate_response_data(result)

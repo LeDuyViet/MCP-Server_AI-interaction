@@ -72,8 +72,11 @@ class PasteImageTextEdit(QtWidgets.QTextEdit):
         super().insertFromMimeData(source)
 
 class InputDialog(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, prompt=None):
         super().__init__()
+        # Store prompt for display
+        self.prompt = prompt
+        
         # Khởi tạo config manager
         self.config_manager = ConfigManager()
         
@@ -126,6 +129,10 @@ class InputDialog(QtWidgets.QDialog):
         # Thêm chọn ngôn ngữ
         self._setup_language_selection()
         
+        # Thêm prompt/summary section nếu có
+        if self.prompt:
+            self._setup_prompt_section()
+        
         # Thêm tiêu đề và hướng dẫn
         self._setup_title_and_info()
         
@@ -164,6 +171,60 @@ class InputDialog(QtWidgets.QDialog):
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.save_window_size)
         self.resize_timer.setInterval(500)  # Save 500ms after last resize
+    
+    def _setup_prompt_section(self):
+        """Thiết lập phần hiển thị prompt/câu hỏi/tóm tắt"""
+        if not self.prompt:
+            return
+        
+        # Create a stylish prompt section
+        prompt_group = QtWidgets.QGroupBox(self.get_translation("prompt_section_title"))
+        prompt_group.setObjectName("promptGroup")
+        prompt_layout = QtWidgets.QVBoxLayout(prompt_group)
+        
+        # Prompt content label
+        self.prompt_label = QtWidgets.QLabel(self.prompt)
+        self.prompt_label.setObjectName("promptLabel")
+        self.prompt_label.setWordWrap(True)
+        self.prompt_label.setMinimumHeight(40)  # Minimum height for readability
+        self.prompt_label.setStyleSheet("""
+            QLabel#promptLabel {
+                color: #cdd6f4;
+                font-size: 14px;
+                font-weight: 500;
+                background-color: #313244;
+                border: 1px solid #45475a;
+                border-radius: 8px;
+                padding: 12px;
+                margin: 2px;
+                line-height: 1.4;
+            }
+        """)
+        
+        prompt_layout.addWidget(self.prompt_label)
+        
+        # Style the group box
+        prompt_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                font-size: 12px;
+                color: #f38ba8;
+                border: 2px solid #45475a;
+                border-radius: 10px;
+                margin: 5px 0px;
+                padding-top: 8px;
+                background-color: #1e1e2e;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 8px 0 8px;
+                background-color: #1e1e2e;
+                border-radius: 4px;
+            }
+        """)
+        
+        self.layout.addWidget(prompt_group)
     
     def _setup_language_selection(self):
         """Thiết lập phần chọn ngôn ngữ"""
@@ -915,8 +976,8 @@ class InputDialog(QtWidgets.QDialog):
             button.update()
 
     @staticmethod
-    def getText():
-        dialog = InputDialog()
+    def getText(prompt=None):
+        dialog = InputDialog(prompt=prompt)
         result = dialog.exec_()
         if dialog.result_ready:
             return dialog.result_text, dialog.result_continue, True
